@@ -80,13 +80,6 @@ for file in files:
 
 # now rename the file
   os.rename(tmpath, tmpdir + "/" + new_name)
-#  file_in = open(tmpath,"rb")
-#  file_out = open(storage + "/" + new_name, "wb")
-
-#  file_out.write(file_in.read())
-
-  #file_in.close()
-#  file_out.close()
   test = mutagen.File(tmpdir + "/" + new_name, easy=True)
   print test.pprint()
 
