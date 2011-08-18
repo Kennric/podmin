@@ -23,14 +23,11 @@ url = config.get('files','url')
 files = os.listdir(tmpdir)
 
 for file in files:
+  fileparts = file.split('_')
+
+  file_dict[file] = ("extension"
   if segments == True:
-    seg_items += '\n\t<pubDate>$rfc822_date $hour:$minute PST</pubDate>\n'
-    seg_items += '\t<enclosure\n'
-    seg_items += '\t\turl=' + url + '/' + file + '\n' 
-    seg_items += '\t\tlength=' + `size` + '\n'
-    seg_items += '\t\ttype="audio/mpeg"\n'
-    seg_items += '\t/>\n'
-    seg_items += '\t<link>' + url + '/' + file + '</link>\n'
+    
 
   if full == '1':
     outfile = storage + '/' + new_name + extension
