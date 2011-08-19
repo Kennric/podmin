@@ -53,9 +53,13 @@ for day,parts in dated_segments:
   #print k
   #print v
   g = sorted(parts,key=lambda timestamp: (parts[timestamp]))
-  i = 1
-  for segment in g:
-    filename = segments[day][segment]
-    file_parts = filename.split("_")
-    new_name = file_parts[0] + "_" + file_parts[1] + "_part_" + `i` + "_" + file_parts[2]
-    i += 1
+  if len(segment) > 1:
+    i = 1
+    for segment in g:
+      filename = segments[day][segment]
+      file_parts = filename.split("_")
+      new_name = file_parts[0] + "_" + file_parts[1] + "_part_" + `i` + "_" + file_parts[2]
+      os.rename(tmpdir + "/" + filename, tmpdir + "/" + new_name)
+      i += 1
+  else 
+
