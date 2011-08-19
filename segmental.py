@@ -45,15 +45,17 @@ for file in files:
   datetime = time.strptime(dt + "_" + tm, "%Y-%m-%d_%H:%M:%S")
   timestamp = time.mktime(datetime)
 
-  segments[dt][timestamp] = basename
+  segments[dt][timestamp] = file
 
-p = iter(sorted(segments.iteritems()))
+dated_segments = iter(sorted(segments.iteritems()))
 
-for k,v in p:
-  print k
+for day,parts in dated_segments:
+  #print k
   #print v
-  g = sorted(v,key=lambda x: (v[x]))
-  for timestamp in g:
-    print segments[k][timestamp]
-
-
+  g = sorted(parts,key=lambda timestamp: (parts[timestamp]))
+  i = 1
+  for segment in g:
+    filename = segments[day][segment]
+    file_parts = filename.split("_")
+    new_name = file_parts[0] + "_" + file_parts[1] + "_part_" + `i` + "_" + file_parts[2]
+    i += 1
