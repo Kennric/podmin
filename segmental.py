@@ -14,6 +14,8 @@ import re
 import time
 import mutagen
 from operator import itemgetter
+from glob import iglob
+import shutil
 
 # Create an RFC822 compliant date (current time)
 today = date.today()
@@ -25,7 +27,7 @@ tmpdir = config.get('files', 'tmpdir')
 webdir = config.get('files', 'webdir')
 storage = config.get('files', 'storage')
 podcast_name = config.get('info', 'shortname')
-segments = config.get('options','segments') 
+merge = config.get('options','segments') 
 full = config.get('options','full')
 url = config.get('files','url')
 
@@ -53,13 +55,24 @@ for day,parts in dated_segments:
   #print k
   #print v
   g = sorted(parts,key=lambda timestamp: (parts[timestamp]))
-  if len(segment) > 1:
-    i = 1
-    for segment in g:
-      filename = segments[day][segment]
-      file_parts = filename.split("_")
+  i = 1
+  for segment in g:
+    filename = segments[day][segment]
+    file_parts = filename.split("_")
+
+    if len(segments[day]) > 1:
+      multiple = True
       new_name = file_parts[0] + "_" + file_parts[1] + "_part_" + `i` + "_" + file_parts[2]
-      os.rename(tmpdir + "/" + filename, tmpdir + "/" + new_name)
-      i += 1
-  else 
+    else:
+      new_name = file_parts[0] + "_" + file_parts[1] + ext
+    
+    os.rename(tmpdir + "/" + filename, tmpdir + "/" + new_name)
+    
+    if multiple:
+      outfile = tmpdir + "/" + file_parts[0] + "_" + file_parts[1] + "_full" + ext
+      destination = open(outfile,'ab')
+      shutil.copyfileobj(open(tmpdir + "/" + new_name,'rb'), destination)
+      destination.close()
+
+    i += 1
 
