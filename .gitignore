@@ -2,3 +2,4 @@ podcast.cfg
 *~
 *.swp
 *.pyc
+db/*
