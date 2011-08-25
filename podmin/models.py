@@ -27,10 +27,15 @@ class Podcast(models.Model):
     # save rss file
     # set episodes "published"
     # update "updated" field
-    rss_file = self.pub_dir + "/" + self.shortname + ".xml"
-    rss_raw = feedparser.parse(rss_file)
-    rss_context = Context.create(rss_raw)
-    rss_template = Template
+    rssFile = self.pub_dir + "/" + self.shortname + ".xml"
+    rssRaw = feedparser.parse(rssFile)
+    rssContext = Context(rssRaw)
+    rssTemplate = Template('feed.xml')
+    rssBackFile = rssFile + ".bak"
+
+    os.copy(rssFile, rssBackFile)
+    out = open(rssFile,'w')
+
 
   def importEpisodes(self):
     # read info from file/settings
@@ -48,7 +53,7 @@ class Episode(models.Model):
   length = models.CharField('length in hours,minutes,seconds', max_length=32,blank=True,null=True)
   description = models.TextField('description / show notes', blank=True,null=True)
   published = models.BooleanField()
-  
+
   def __unicode__(self):
     return self.filename
 
