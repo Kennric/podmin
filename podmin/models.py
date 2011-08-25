@@ -16,9 +16,27 @@ class Podcast(models.Model):
   tmp_dir = models.CharField('path to temporary processing location',max_length=255)
   up_dir = models.CharField('path to the upload location',max_length=255)
   combine_segments = models.BooleanField()
+  updated = models.DateTimeField()
 
   def __unicode__(self):
     return self.name
+
+  def publish(self):
+    # read rss file, get all unpublished episodes
+    # add episodes to rss
+    # save rss file
+    # set episodes "published"
+    # update "updated" field
+    rss_file = self.pub_dir + "/" + self.shortname + ".xml"
+    rss_raw = feedparser.parse(rss_file)
+    rss_context = Context.create(rss_raw)
+    rss_template = Template
+
+  def importEpisodes(self):
+    # read info from file/settings
+    # create episode
+    # clean audio, add tags, move to storage
+    pass
 
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)
@@ -29,16 +47,10 @@ class Episode(models.Model):
   size = models.IntegerField('size in bytes')
   length = models.CharField('length in hours,minutes,seconds', max_length=32,blank=True,null=True)
   description = models.TextField('description / show notes', blank=True,null=True)
-
+  published = models.BooleanField()
+  
   def __unicode__(self):
     return self.filename
-
-  def addToRss(self):
-    p = self.podcast
-
-    rss_file = p.pub_dir + "/" + p.shortname + ".xml"
-
-    #feedparser.parse("http://hypothetical.net/beaver/beavercast-full.xml")
 
   def moveToStorage(self):
     pass
@@ -48,3 +60,4 @@ class Episode(models.Model):
 
   def cleanAudio(self):
     pass
+
