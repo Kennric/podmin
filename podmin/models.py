@@ -32,10 +32,12 @@ class Podcast(models.Model):
     rssContext = Context(rssRaw)
     rssTemplate = Template('feed.xml')
     rssBackFile = rssFile + ".bak"
+    rssString = rssTemplate.render(rssContext)
 
     os.copy(rssFile, rssBackFile)
     out = open(rssFile,'w')
 
+    out.write(rssString)
 
   def importEpisodes(self):
     # read info from file/settings
