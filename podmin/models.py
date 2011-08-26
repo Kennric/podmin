@@ -1,8 +1,9 @@
 from django.db import models
-from django.template.loader import get_template
-from django.template import Context
+from django.template.loader import get_template, render_to_string
+from django.template import Context, Template
 from django.http import HttpResponse
 import feedparser
+import os
 
 class Podcast(models.Model):
   name = models.CharField(max_length=255)
@@ -30,13 +31,41 @@ class Podcast(models.Model):
     rssFile = self.pub_dir + "/" + self.shortname + ".xml"
     rssRaw = feedparser.parse(rssFile)
     rssContext = Context(rssRaw)
-    rssTemplate = Template('feed.xml')
-    rssBackFile = rssFile + ".bak"
-    rssString = rssTemplate.render(rssContext)
+    rssTmpFile = rssFile + ".tmp"
 
-    os.copy(rssFile, rssBackFile)
+    entries = rssContext['entries']
+
+    episodes = self.episode_set.filter(published=0)
+
+    for episode in episodes:
+      newEntry = {
+          'updated': u'Tue, 23 Aug 2011 12:51 PST',
+          'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=23, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=1, tm_yday=235, tm_isdst=0),
+          'links': [
+            {'length': u'33966180',
+            'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
+            'type': u'audio/mpeg',
+            'rel': 'enclosure'},
+            {'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
+            'type': 'text/html', 'rel': 'alternate'}
+          ],
+          'title': u'Tue, 23 Aug 2011 - Full Show',
+          'summary_detail': {
+            'base': u'http://hypothetical.net/kennric/testo.xml',
+            'type': 'text/html',
+            'value': u'',
+            'language': None},
+          'summary': u'',
+          'title_detail': {
+            'base': u'http://hypothetical.net/kennric/testo.xml',
+            'type': 'text/plain',
+            'value': u'Tue, 23 Aug 2011 - Full Show',
+            'language': None},
+          'link': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3'}
+
+    rssString = render_to_string('feed.xml',rssContext)
+
     out = open(rssFile,'w')
-
     out.write(rssString)
 
   def importEpisodes(self):
