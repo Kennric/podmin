@@ -1,112 +1,99 @@
 [{'feed': {
-  'updated': u'Tue, 23 Aug 2011 12:51 PST',
-  'subtitle': u'The Joe Beaver Show podcast',
-  'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=23, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=1, tm_yday=235, tm_isdst=0),
+  'subtitle': u'OSU Sports coverage',
+  'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=20, tm_hour=21, tm_min=1, tm_sec=16, tm_wday=5, tm_yday=232, tm_isdst=0),
   'links': [
-    {
-      'href': u'http://kejoam.com/',
-      'type': 'text/html',
-      'rel': 'alternate'
-    }
-  ],
-  'title': u'The Joe Beaver Show',
-  'subtitle_detail': {
-    'base': u'http://hypothetical.net/kennric/testo.xml',
-    'type': 'text/html',
-    'value': u'The Joe Beaver Show podcast',
-    'language': None
-  },
-  'title_detail': {
-    'base': u'http://hypothetical.net/kennric/testo.xml',
+    {'href': u'http://hypothetical.net/beaver/beavercast-full.xml', 'type': u'application/rss+xml', 'rel': u'self'},
+    {'href': u'http://hypothetical.net/beaver/beavercast-full.xml', 'type': u'application/rss+xml', 'rel': u'alternate', 'title': u'RSS'}
+    ],
+  'image': {'href': u'http://hypothetical.net/beaver/Podcast.jpg'},
+  'summary_detail': {'base': u'', 'type': 'text/plain', 'value': u'The Joe Beaver Podcast', 'language': None},
+  'ttl': u'720',
+  'rights_detail': {
+    'base': u'',
     'type': 'text/plain',
-    'value': u'The Joe Beaver Show',
-    'language': None
+    'value': u'Copyright 2011 Bicoastal Media Inc, all rights reserved.',
+    'language': None},
+  'summary': u'The Joe Beaver Podcast',
+  'generator': u'Podcaster v.0.0.1',
+  'title': u'',
+  'title_detail': {
+    'base': u'',
+    'type': 'text/plain',
+    'value': u'',
+    'language': None},
+  'updated': u'Sat, 20 Aug 2011 17:01:16 -0400',
+  'itunes_block': 0,
+  'tags': [
+    {'term': u'sports', 'scheme': None, 'label': None},
+    {'term': u'sports,OSU,beavers', 'scheme': 'http://www.itunes.com/', 'label': None},
+    {'term': u'Sports', 'scheme': 'http://www.itunes.com/', 'label': None}],
+  'docs': u'http://blogs.law.harvard.edu/tech/rss',
+  'generator_detail': {'name': u'Podcaster v.0.0.1'},
+  'authors': [{}, {'email': '', 'name': ''}],
+  'author_detail': {'name': u'KEJO AM'},
+  'publisher_detail': {'name': '', 'email': ''},
+  'publisher': u'kennric@hypothetical.net (Ken Lett)',
+  'language': u'en-us',
+  'rights': u'Copyright 2011 Bicoastal Media Inc, all rights reserved.',
+  'author': u'KEJO AM',
+  'subtitle_detail': {
+    'base': u'',
+    'type': 'text/plain',
+    'value': u'OSU Sports coverage',
+    'language': None},
+  'itunes_explicit': None,
+  'itunes_keywords': u'sports,OSU,beavers'
   },
-  'link': u'http://kejoam.com/'
-},
-
-'status': 200,
-'updated': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=24, tm_hour=19, tm_min=35, tm_sec=28, tm_wday=2, tm_yday=236, tm_isdst=0),
-'version': 'rss20',
-'encoding': u'utf-8',
-'bozo': 0,
-'headers': {
-  'content-length': '1083',
-  'accept-ranges': 'bytes',
-  'server': 'Apache/2.2.8 (Ubuntu) PHP/5.2.4-2ubuntu5.17 with Suhosin-Patch mod_ssl/2.2.8 OpenSSL/0.9.8g mod_perl/2.0.3 Perl/v5.8.8',
-  'last-modified': 'Wed, 24 Aug 2011 19:35:28 GMT',
-  'connection': 'close',
-  'etag': '"b7fa166-43b-4ab456a19a000"',
-  'date': 'Wed, 24 Aug 2011 19:35:51 GMT',
-  'content-type': 'application/xml'
-},
-
-'etag': '"b7fa166-43b-4ab456a19a000"',
-'href': u'http://hypothetical.net/kennric/testo.xml',
-'namespaces': {},
-
-'entries': [
-  {
-    'updated': u'Tue, 23 Aug 2011 12:51 PST',
-    'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=23, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=1, tm_yday=235, tm_isdst=0),
+  'encoding': u'utf-8',
+  'bozo': 0,
+  'version': 'rss20',
+  'namespaces': {
+    '': u'http://www.w3.org/2005/Atom',
+    'itunes': u'http://www.itunes.com/dtds/podcast-1.0.dtd',
+    'creativeCommons': u'http://backend.userland.com/creativeCommonsRssModule',
+    'rdf': u'http://www.w3.org/1999/02/22-rdf-syntax-ns#'},
+  'entries': [
+    {'updated': u'Sat, 20 Aug 2011 17:01:16 -0400',
+    'subtitle': u'Joe Beaver Show for Sat, 20 Aug 2011',
+    'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=20, tm_hour=21, tm_min=1, tm_sec=16, tm_wday=5, tm_yday=232, tm_isdst=0),
     'links': [
-      {
-        'length': u'33966180',
-        'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
-        'type': u'audio/mpeg',
-        'rel': 'enclosure'
-      },
-      {
-        'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
-        'type': 'text/html', 'rel': 'alternate'
-      }
-    ],
-    'title': u'Tue, 23 Aug 2011 - Full Show',
-    'summary_detail': {
-      'base': u'http://hypothetical.net/kennric/testo.xml',
+      {'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3',
       'type': 'text/html',
-      'value': u'',
-      'language': None
-    },
-    'summary': u'',
-    'title_detail': {
-      'base': u'http://hypothetical.net/kennric/testo.xml',
-      'type': 'text/plain',
-      'value': u'Tue, 23 Aug 2011 - Full Show',
-      'language': None
-    },
-    'link': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3'
-  },
-  {
-    'updated': u'Mon, 22 Aug 2011 12:51 PST',
-    'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=22, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=0, tm_yday=234, tm_isdst=0),
-    'links': [
-      {
-        'length': u'33279012',
-        'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3',
-        'type': u'audio/mpeg',
-        'rel': 'enclosure'
-      },
-      {
-        'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3',
-        'type': 'text/html',
-        'rel': 'alternate'
-      }
-    ],
-    'title': u'Mon, 22 Aug 2011 - Full Show',
+      'rel': 'alternate'},
+      {'length': u'666',
+      'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3',
+      'type': u'audio/mpeg',
+      'rel': 'enclosure'}],
+    'title': u'Joe Beaver Show - Sat, 20 Aug 2011',
+    'itunes_explicit': None,
+    'author': u'Ken Lett (kennric@hypothetical.net)',
     'summary_detail': {
-      'base': u'http://hypothetical.net/kennric/testo.xml',
+      'base': u'',
       'type': 'text/html',
-      'value': u'',
-      'language': None
-    },
-    'summary': u'',
+      'value': u'Joe Beaver Show for Sat, 20 Aug 2011',
+      'language': None},
+    'summary': u'Joe Beaver Show for Sat, 20 Aug 2011',
+    'content': [{'base': u'', 'type': 'text/plain', 'value': u'Joe Beaver Show for Sat, 20 Aug 2011', 'language': None}],
+    'guidislink': False,
     'title_detail': {
-      'base': u'http://hypothetical.net/kennric/testo.xml',
+      'base': u'',
       'type': 'text/plain',
-      'value': u'Mon, 22 Aug 2011 - Full Show',
-      'language': None
-    },
-    'link': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3'
-  }
-]}]
+      'value': u'Joe Beaver Show - Sat, 20 Aug 2011',
+      'language': None},
+    'link': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3',
+    'itunes_duration': u'47:45',
+    'itunes_keywords': u'sports,osu,beavers',
+    'authors': [{}, {}],
+    'author_detail': {'name': u'Ken Lett', 'email': u'kennric@hypothetical.net'},
+    'subtitle_detail': {
+      'base': u'',
+      'type': 'text/plain',
+      'value': u'Joe Beaver Show for Sat, 20 Aug 2011', 'language': None},
+    'id': u'4001',
+    'tags': [
+      {'term': u'Sports', 'scheme': None, 'label': None},
+      {'term': u'sports,osu,beavers', 'scheme': 'http://www.itunes.com/', 'label': None}]
+    }
+  ]
+}]
+
