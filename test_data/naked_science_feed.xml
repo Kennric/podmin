@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"  version="2.0"  xmlns:itunesu="http://www.itunes.com/feed" >
+  <channel>
+      <itunes:owner >
+      <itunes:name >Chris Smith</itunes:name>
+      <itunes:email >chris@thenakedscientists.com</itunes:email>
+</itunes:owner>
+      <itunes:explicit >no</itunes:explicit>
+      <title >- The Naked Scientists Podcast - Stripping Down Science</title>
+
+      <link >http://www.thenakedscientists.com/HTML/podcasts/</link>
+      <description >The Naked Scientists flagship science show brings you a lighthearted look at the latest scientific breakthroughs, interviews with the world&apos;s top scientists, answers to your science questions and science experiments to try at home.</description>
+      <language >en</language>
+      <copyright >Dr Chris Smith 2005</copyright>
+      <lastBuildDate >Tue, 23 Aug 2011 17:43:21 +0000</lastBuildDate>
+      <image >
+
+      <url >http://www.thenakedscientists.com/HTML/uploads/tx_naksciconfig/temp/NS_Podcasts_144.jpg</url>
+      <title >- The Naked Scientists Podcast - Stripping Down Science</title>
+      <link >http://www.thenakedscientists.com/HTML/podcasts/</link>
+      <width >144</width>
+      <height >144</height>
+</image>
+      <category >Science</category>
+
+      <itunes:subtitle >Science with a Sense of Humour - The Naked Scientists Radio Show</itunes:subtitle>
+      <itunes:summary >The Naked Scientists - interactive science, medicine and technology weekly live radio show with Cambridge University&apos;s Dr Chris Smith. We strip down science and lay the facts bare answering your science questions, interviewing top scientists and catching up with the latest top science news stories.</itunes:summary>
+      <itunes:author >Dr Chris Smith</itunes:author>
+      <itunes:image  href="http://www.thenakedscientists.com/HTML/uploads/tx_naksciconfig/temp/NS_Podcasts_600_1.png" ></itunes:image>
+      <itunes:category  text="Science &amp; Medicine" >
+      <itunes:category  text="Natural Sciences" ></itunes:category>
+</itunes:category>
+
+      <itunes:category  text="Technology" >
+      <itunes:category  text="Tech News" ></itunes:category>
+</itunes:category>
+      <itunes:category  text="Education" >
+      <itunes:category  text="Higher Education" ></itunes:category>
+      <itunes:category  text="K-12" ></itunes:category>
+</itunes:category>
+    <item>
+      <itunes:duration >01:02:03</itunes:duration>
+
+      <itunes:explicit >no</itunes:explicit>
+      <itunesu:category  itunesu:code="109" ></itunesu:category>
+      <link >http://www.thenakedscientists.com/HTML/podcasts/show/2011.08.21/</link>
+      <guid  isPermaLink="false" >http://www.thenakedscientists.com/guid/Naked_Scientists_Show_11.08.21.mp3</guid>
+      <title >Naked Scientists 11.08.21 - Do planes trigger rains?</title>
+      <pubDate >Sat, 20 Aug 2011 23:00:00 +0000</pubDate>
+
+      <description >The rain in Spain falls mainly on the &quot;plane&quot;. Or so the saying goes, but new research has confirmed that aeroplanes do cause clouds to dump their contents prematurely, often around airports, and in this week&apos;s show we explore this weather-altering effect of aviation. We also ask industry leader Rolls-Royce to explain how a jet engine works and how their designers have cut noise pollution from planes by over 99% since 1960. In the news, we hear how scientists are forecasting more accurate space weather predictions thanks to a new way to spot sunspots before they even erupt, a new study finds a host of new uses for old drugs, an artificial chromosome looks set to remedy muscular dystrophy and chemists discover diamonds being made in the flame of a candle...</description>
+      <source  url="http://www.thenakedscientists.com//naked_scientists_podcast.xml" >- The Naked Scientists Podcast - Stripping Down Science</source>
+      <itunes:author >Dr Chris Smith, The Naked Scientists</itunes:author>
+      <itunes:subtitle >The rain in Spain falls mainly on the &quot;plane&quot;. Or so the saying goes, but new research has confirmed that aeroplanes do cause clouds to dump their contents prematurely, often around airports, and in this week&apos;s show we explore this weather-altering e...</itunes:subtitle>
+
+      <itunes:summary >The rain in Spain falls mainly on the &quot;plane&quot;. Or so the saying goes, but new research has confirmed that aeroplanes do cause clouds to dump their contents prematurely, often around airports, and in this week&apos;s show we explore this weather-altering effect of aviation. We also ask industry leader Rolls-Royce to explain how a jet engine works and how their designers have cut noise pollution from planes by over 99% since 1960. In the news, we hear how scientists are forecasting more accurate space weather predictions thanks to a new way to spot sunspots before they even erupt, a new study finds a host of new uses for old drugs, an artificial chromosome looks set to remedy muscular dystrophy and chemists discover diamonds being made in the flame of a candle...</itunes:summary>
+      <itunes:keywords >rain,plane,aeroplane,clouds,airports,weather,aviation,Rolls-Royce,jet engine,noise pollution,space weather ,sunspots,artificial chromosome,muscular dystrophy,diamonds,flame,candle,</itunes:keywords>
+      <enclosure  url="http://nakeddiscovery.com/libsyn/Naked_Scientists_Show_11.08.21.mp3"  length="29791084"  type="audio/mpeg" ></enclosure>
+    </item>
