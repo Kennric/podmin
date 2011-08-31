@@ -45,20 +45,26 @@
         <title>{{ entry.title }}</title>
         <description>{{ entry.content.value }}</description>
         <pubDate>{{ entry.updated }}</pubDate>
-        <link></link>
-        <guid isPermaLink="false"></guid>
-        <author>leo@leoville.com (Leo Laporte)</author>
-        <category>Future, Predictions</category>
+        {% for link in entry.links %}
+          {% ifequal link.rel 'enclosure' %}
+            <enclosure url="{{ entry.link.href }}" length="{{ link.length }}" type="{{ link.type }}"/>
+          {% endifequal %}
+          {% ifnotequal link.rel 'enlosure' %}
+            <link>{{ link.href }</link>
+          {% endifnotequal %}
+        {% endfor %}
+        <guid isPermaLink="{{ entry.guidislink }}">{{ entry.content.id }}</guid>
+        <author>{{ entry.author }}</author>
 
-        <itunes:author>Scott Johnson and Tom Merritt</itunes:author>
-        <itunes:subtitle>We got brain drain, big bangs and charity that gives back.</itunes:subtitle>
-        <itunes:summary><![CDATA[]]></itunes:summary>
-        <itunes:keywords>x,y,z</itunes:keywords>
-        <itunes:duration>47:45</itunes:duration>
-        <itunes:explicit>no</itunes:explicit>
-        <itunes:image href="" />
+        {% for tag in entry.tags }}
+          <category>{{ tag.term }}</category>
+        {% endfor }
 
-        <enclosure url="" length="" type="audio/mpeg"/>
+        <itunes:author>{{ entry.author }}</itunes:author>
+        <itunes:subtitle>{{ entry.subtitle }}</itunes:subtitle>
+        <itunes:summary>{{ entry.content.summary }}</itunes:summary>
+        <itunes:duration>{{ entry.itunes_duration }}</itunes:duration>
+        <itunes:explicit>{{ entry.itunes_explicit }}</itunes:explicit>
       </item>
     {% endfor %}
   </channel>
