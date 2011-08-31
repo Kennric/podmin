@@ -1,71 +1,66 @@
-
-<?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns# version="2.0">
+<?xml version="1.0" encoding="{{ feed.encoding }}" ?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="2.0">
   <channel>
-    <title type="{{ feed.title_detail.type }}" xml:lang="{{ feed.title_detail.language }}" xml:base="{{ feed.title_detail.base }}">{{ feed.title|escape }}</title>
+    <title>{{ feed.title|escape }}</title>
 
     {% for link in feed.links %}
       <link rel="{{ link.rel }}" type="{{ link.type }}" href="{{ link.href }}" title="{{ link.title }}"/>
     {% endfor %}
 
-    <description>{{ feed.}}</description>
-    <copyright></copyright>
-    <generator></generator>
-    <language>en-us</language>
-    <category>Future, Predictions</category>
-    <category>news</category>
-    <category>education</category>
+    <description>{{ feed.summary }}</description>
+    <copyright>{{ feed.rights }}</copyright>
+    <generator>{{ feed.generator }}</generator>
+    <language>{{ feed.language }}</language>
+
+    {% for category in feed.tags %}
+      <category>{{ category.text }}</category>
+    {% endfor %}
 
     <image>
       <url>{{ feed.image.href|escape }}</url>
     </image>
 
-    <lastBuildDate>Sat, 20 Aug 2011 17:01:16 -0400</lastBuildDate>
-    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
-    <ttl>720</ttl>
-    <managingEditor>nova@wgbh.org (NOVA Online)</managingEditor>
-    <webMaster>leo@leoville.com (Leo Laporte)</webMaster>
+    <lastBuildDate>{{ feed.updated }}</lastBuildDate>
+    <docs>{{ feed.docs }}</docs>
+    <ttl>{{ feed.ttl }}</ttl>
+    <webMaster>{{ feed.author }}</webMaster>
 
-    <atom:link href="http://feeds.twit.tv/fc.xml" rel="self" type="application/rss+xml"/>
-
-    <itunes:summary><![CDATA[]]></itunes:summary>
-    <itunes:subtitle></itunes:subtitle>
-    <itunes:keywords>x,y,z</itunes:keywords>
-    <itunes:author></itunes:author>
+    <itunes:summary>{{ feed.summary }}></itunes:summary>
+    <itunes:subtitle>{{ feed.subtitle }}</itunes:subtitle>
+    <itunes:keywords>{{ feed.itunes_keywords }}</itunes:keywords>
+    <itunes:author>{{ feed.author }}</itunes:author>
     <itunes:owner>
-      <itunes:email/>
-      <itunes:name/>
+      <itunes:email>{{ feed.author_detail.email }}<itunes:email/>
+        <itunes:name>{{ feed.author_detail.name }}<itunes:name/>
     </itunes:owner>
-    <itunes:category text=""/>
-    <itunes:category text="News &amp; Politics"/>
-    <itunes:image href=""/>
-    <itunes:explicit>no</itunes:explicit>
-    <itunes:block>no</itunes:block>
+    {% for category in feed.tags %}
+      <itunes:category text="{{ category.text }}" />
+    {% endfor %}
+    <itunes:image href="{{ feed.image.href|escape }}"/>
+    <itunes:explicit>{{ feed.itunes_explicit }}</itunes:explicit>
+    <itunes:block>{{ feed.itunes.block }}</itunes:block>
 
-    <atom:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" type="application/rss+xml" href="http://feeds.pbs.org/pbs/wgbh/nova/nsn-audio" /><feedburner:info uri="pbs/wgbh/nova/nsn-audio" /><atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="hub" href="http://pubsubhubbub.appspot.com/" />
-<atom10:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" type="application/rss+xml" href="http://feeds.feedburner.com/AffirmationNation" />
+    {% for entry in entries %}
+      <item>
+        <title>{{ entry.title }}</title>
+        <description>{{ entry.content.value }}</description>
+        <pubDate>{{ entry.updated }}</pubDate>
+        <link></link>
+        <guid isPermaLink="false"></guid>
+        <author>leo@leoville.com (Leo Laporte)</author>
+        <category>Future, Predictions</category>
 
+        <itunes:author>Scott Johnson and Tom Merritt</itunes:author>
+        <itunes:subtitle>We got brain drain, big bangs and charity that gives back.</itunes:subtitle>
+        <itunes:summary><![CDATA[]]></itunes:summary>
+        <itunes:keywords>x,y,z</itunes:keywords>
+        <itunes:duration>47:45</itunes:duration>
+        <itunes:explicit>no</itunes:explicit>
+        <itunes:image href="" />
 
-    <item>
-      <title></title>
-      <description><![CDATA[]]></description>
-      <pubDate>Sat, 20 Aug 2011 17:01:16 -0400</pubDate>
-      <link></link>
-      <guid isPermaLink="false"></guid>
-      <author>leo@leoville.com (Leo Laporte)</author>
-      <category>Future, Predictions</category>
-
-      <itunes:author>Scott Johnson and Tom Merritt</itunes:author>
-      <itunes:subtitle>We got brain drain, big bangs and charity that gives back.</itunes:subtitle>
-      <itunes:summary><![CDATA[]]></itunes:summary>
-      <itunes:keywords>x,y,z</itunes:keywords>
-      <itunes:duration>47:45</itunes:duration>
-      <itunes:explicit>no</itunes:explicit>
-      <itunes:image href="" />
-
-      <enclosure url="" length="" type="audio/mpeg"/>
-    </item>
-
+        <enclosure url="" length="" type="audio/mpeg"/>
+      </item>
+    {% endfor %}
   </channel>
 </rss>
 
