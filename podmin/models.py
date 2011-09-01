@@ -11,6 +11,8 @@ class Podcast(models.Model):
   station = models.CharField('broadcasting station name',max_length=16,blank=True)
   description = models.TextField(blank=True,null=True)
   website = models.CharField(max_length=255,blank=True,null=True)
+  subtitle = models.CharField(max_length=255,blank=True,null=True)
+  author = models.CharField(max_length=255,blank=True,null=True)
   contact = models.EmailField(max_length=255,blank=True,null=True)
   pub_dir = models.CharField('path to rss file', max_length=255)
   storage_dir = models.CharField('path to storage location', max_length=255)
