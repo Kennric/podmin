@@ -21,13 +21,13 @@ import shutil
 today = date.today()
 rfc822_date = today
 config = ConfigParser.ConfigParser()
-config.read('podcast.cfg')
+config.read('/home/kennric/projects/podcaster/podcast.cfg')
 
 tmpdir = config.get('files', 'tmpdir')
 webdir = config.get('files', 'webdir')
 storage = config.get('files', 'storage')
 podcast_name = config.get('info', 'shortname')
-merge = config.get('options','segments') 
+merge = config.get('options','segments')
 full = config.get('options','full')
 url = config.get('files','url')
 
@@ -65,9 +65,9 @@ for day,parts in dated_segments:
       new_name = file_parts[0] + "_" + file_parts[1] + "_part_" + `i` + "_" + file_parts[2]
     else:
       new_name = file_parts[0] + "_" + file_parts[1] + ext
-    
+
     os.rename(tmpdir + "/" + filename, tmpdir + "/" + new_name)
-    
+
     if multiple:
       outfile = tmpdir + "/" + file_parts[0] + "_" + file_parts[1] + "_full" + ext
       destination = open(outfile,'ab')

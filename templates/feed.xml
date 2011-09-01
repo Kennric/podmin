@@ -2,9 +2,9 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="2.0">
   <channel>
     <title>{{ feed.title|escape }}</title>
-    {% for link in feed.links %} 
+    {% for link in feed.links %}
       <link>{{ link.href|escape }}</link>
-      <atom:link rel="{{ link.rel }}" type="{{ link.type }}" href="{{ link.href|escape }}" title="{{ link.title }}"/> 
+      <atom:link rel="{{ link.rel }}" type="{{ link.type }}" href="{{ link.href|escape }}" title="{{ link.title }}"/>
     {% endfor %}
     <description>{{ feed.summary }}</description>
     <copyright>{{ feed.rights }}</copyright>
@@ -13,8 +13,8 @@
     {% for category in feed.tags %}<category>{{ category.term }}</category>{% endfor %}
     <image>
       <url>{{ feed.image.href|escape }}</url>
-      <title><{{ feed.image.title }}/title>
-      <link><{{ feed.image.link }}/link>
+      <title>{{ feed.image.title }}</title>
+      <link>{{ feed.image.link }}</link>
     </image>
     <lastBuildDate>{{ feed.updated }}</lastBuildDate>
     <docs>{{ feed.docs }}</docs>
@@ -37,7 +37,7 @@
       <title>{{ entry.title }}</title>
       <description>{{ entry.content.value }}</description>
       <pubDate>{{ entry.updated }}</pubDate>
-      {% for link in entry.links %} {% ifequal link.rel 'enclosure' %}<enclosure url="{{ link.href|escape }}" length="{{ link.length }}" type="{{ link.type }}"/> {% endifequal %} 
+      {% for link in entry.links %} {% ifequal link.rel 'enclosure' %}<enclosure url="{{ link.href|escape }}" length="{{ link.length }}" type="{{ link.type }}"/> {% endifequal %}
       {% ifnotequal link.rel 'enclosure' %}<link>{{ link.href|escape }}</link>{% endifnotequal %} {% endfor %}
       <guid isPermaLink="{{ entry.guidislink }}">{{ entry.content.id }}</guid>
       <author>{{ entry.author }}</author>
