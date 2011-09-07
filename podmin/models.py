@@ -6,7 +6,7 @@ import feedparser
 import os
 
 class Podcast(models.Model):
-  name = models.CharField(max_length=255)
+  title = models.CharField(max_length=255)
   shortname = models.CharField('short name or abbreiation', max_length=16)
   station = models.CharField('broadcasting station name',max_length=16,blank=True)
   description = models.TextField(blank=True,null=True)
@@ -20,9 +20,15 @@ class Podcast(models.Model):
   up_dir = models.CharField('path to the upload location',max_length=255)
   combine_segments = models.BooleanField()
   updated = models.DateTimeField()
-
+  image = models.CharField('URL for podcast image',max_length=255)
+  copyright = models.TextField('copyright statement',blank=True,null=True)
+  language = models.CharField(max_length=8)
+  explicit = models.BooleanField()
+  itunes_categories = models.CharField('comma separated list of itunes catergories',max_length=255,blank=True,null=True)
+  tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
+  
   def __unicode__(self):
-    return self.name
+    return self.title
 
   def publish(self):
     # read rss file, get all unpublished episodes
@@ -40,8 +46,9 @@ class Podcast(models.Model):
     episodes = self.episode_set.filter(published=0)
 
     for episode in episodes:
-      newEntry = {
-          'updated': u'Tue, 23 Aug 2011 12:51 PST',
+      if !episode.published:
+        newEntry = {
+          'updated': episode.updated,
           'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=23, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=1, tm_yday=235, tm_isdst=0),
           'links': [
             {'length': u'33966180',
@@ -78,15 +85,18 @@ class Podcast(models.Model):
 
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)
+  title = models.CharField(max_length=255)
+  subtitle = models.CharField(max_length=255)
+  description = models.TextField('description / show notes', blank=True,null=True)
   filename = models.CharField('final published file name', max_length=255)
   guid = models.IntegerField('published RSS GUID field', unique=True)
   part = models.IntegerField('part number of a multipart cast',blank=True,null=True)
   pub_date = models.DateTimeField('date published')
   size = models.IntegerField('size in bytes')
   length = models.CharField('length in hours,minutes,seconds', max_length=32,blank=True,null=True)
-  description = models.TextField('description / show notes', blank=True,null=True)
   published = models.BooleanField()
-
+  tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
+  
   def __unicode__(self):
     return self.filename
 
