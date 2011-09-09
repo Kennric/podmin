@@ -7,18 +7,21 @@ import os
 
 class Podcast(models.Model):
   title = models.CharField(max_length=255)
-  shortname = models.CharField('short name or abbreiation', max_length=16)
+  shortname = models.CharField('short name or abbreviation', max_length=16)
   station = models.CharField('broadcasting station name',max_length=16,blank=True)
   description = models.TextField(blank=True,null=True)
   website = models.CharField(max_length=255,blank=True,null=True)
   subtitle = models.CharField(max_length=255,blank=True,null=True)
   author = models.CharField(max_length=255,blank=True,null=True)
   contact = models.EmailField(max_length=255,blank=True,null=True)
-  pub_dir = models.CharField('path to rss file', max_length=255)
+  pub_url = models.CharField('base publication url', max_length=255)
+  rss_dir = models.CharField('rss publication path', max_length=255)
   storage_dir = models.CharField('path to storage location', max_length=255)
   tmp_dir = models.CharField('path to temporary processing location',max_length=255)
   up_dir = models.CharField('path to the upload location',max_length=255)
   combine_segments = models.BooleanField()
+  publish_segments = models.BooleanField()
+  publish_combined = models.BooleanField()
   updated = models.DateTimeField()
   image = models.CharField('URL for podcast image',max_length=255)
   copyright = models.TextField('copyright statement',blank=True,null=True)
@@ -26,11 +29,12 @@ class Podcast(models.Model):
   explicit = models.BooleanField()
   itunes_categories = models.CharField('comma separated list of itunes catergories',max_length=255,blank=True,null=True)
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
-  
+
   def __unicode__(self):
     return self.title
 
   def publish(self):
+    # if
     # read rss file, get all unpublished episodes
     # add episodes to rss
     # save rss file
@@ -78,9 +82,22 @@ class Podcast(models.Model):
     out.write(rssString)
 
   def importEpisodes(self):
-    # read info from file/settings
-    # create episode
-    # clean audio, add tags, move to storage
+    # get file list in the tmp dir
+    files = os.listdir(self.up_dir)
+    # run filecleaner
+    if s
+    # if publish_combined, run segmental
+    #   create episode for each combined file
+    # if publish_segments,
+    #   create episode for each part
+    # else
+    #   delete segment files
+    #
+    # filename format: JoeBeaverShow_2011-04-06_full.mp3
+    #                     shortname_year-month-day_<part-x>.mp3
+    # each file:
+    #   clean audio, add tags, move to storage
+
     pass
 
 class Episode(models.Model):
@@ -96,7 +113,7 @@ class Episode(models.Model):
   length = models.CharField('length in hours,minutes,seconds', max_length=32,blank=True,null=True)
   published = models.BooleanField()
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
-  
+
   def __unicode__(self):
     return self.filename
 
