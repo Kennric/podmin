@@ -53,9 +53,8 @@ class Podcast(models.Model):
       if !episode.published:
         newEntry = {
           'updated': episode.updated,
-          'updated_parsed': time.struct_time(tm_year=2011, tm_mon=8, tm_mday=23, tm_hour=20, tm_min=51, tm_sec=0, tm_wday=1, tm_yday=235, tm_isdst=0),
           'links': [
-            {'length': u'33966180',
+            {'length': episode.length,
             'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
             'type': u'audio/mpeg',
             'rel': 'enclosure'},
