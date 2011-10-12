@@ -3,7 +3,8 @@ import os
 import ConfigParser
 from datetime import datetime, date, time
 import re
-
+import time
+import mutagen
 # Create an RFC822 compliant date (current time)
 today = date.today()
 rfc822_date = today
@@ -52,8 +53,25 @@ for file in files:
   #os.chmod(tmpath, perms)
   
   date = re.search('[0-9]{0,2}-[0-9]{0,2}-[0-9]{4}(?!\d)',file).group()
-  time = re.search('[0-9]{0,2}-[0-9]{2}-[0-9]{2}(?!\d)',file).group()
+  tm = re.search('[0-9]{0,2}-[0-9]{2}-[0-9]{2}\s[\w]{2}(?!\d)',file).group()
+ 
+  tm_pieces = tm.split('-')
+  hour = int(tm_pieces[0])
+  minute = int(tm_pieces[1])
+  
+  second_pieces = tm_pieces[2].split()
+  second = int(second_pieces[0])
+  ampm = second_pieces[1]
 
+  if ampm == 'PM':
+    if hour < 12:
+      hour += 12
+
+  good_time = time.strptime(date + "-" + `hour` + "-" + `minute` + "-" + `second`, "%m-%d-%Y-%H-%M-%S")
+   
+  print int(time.mktime(good_time))
+  print date + "-" + `hour` + "-" + `minute` + "-" + `second`
+  
   new_name = podcast_name + '_' + date
   if old_name == '': old_name = new_name
   

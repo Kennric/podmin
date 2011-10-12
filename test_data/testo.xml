@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:creativeCommons="http://backend.userland.com/creativeCommonsRssModule" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="2.0">
+  <channel>
+    <title>The Joe Beaver Show</title>
+    <atom:link xmlns:atom10="http://www.w3.org/2005/Atom" rel="self" type="application/rss+xml" href="http://hypothetical.net/beaver/beavercast-full.xml" />
+    <link rel="alternate" href="http://hypothetical.net/beaver/beavercast-full.xml" type="application/rss+xml" title="RSS" />
+    <description>The Joe Beaver Show sports podcast</description>
+    <copyright>Copyright 2011 Bicoastal Media Inc, all rights reserved.</copyright>
+    <generator>Podcaster v.0.0.1</generator>
+    <language>en-us</language>
+    <category>sports</category>
+
+    <image>
+      <url>http://hypothetical.net/beaver/Podcast.jpg</url>
+      <title>Joe Beaver Podcast</title>
+      <link>http://www.kejoam.com/</link>
+      <width></width>
+      <height></height>
+      <description></description>
+    </image>
+    <lastBuildDate>Sat, 20 Aug 2011 17:01:16 -0400</lastBuildDate>
+    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+    <ttl>720</ttl>
+    <managingEditor></managingEditor>
+    <webMaster>kennric@hypothetical.net (Ken Lett)</webMaster>
+
+    <itunes:summary>The Joe Beaver Podcast</itunes:summary>
+    <itunes:subtitle>OSU Sports coverage</itunes:subtitle>
+    <itunes:keywords>sports,OSU,beavers</itunes:keywords>
+    <itunes:author>KEJO AM</itunes:author>
+    <itunes:owner>
+      <itunes:email/>
+      <itunes:name/>
+    </itunes:owner>
+    <itunes:category text="Sports"/>
+    <itunes:image href="http://hypothetical.net/beaver/Podcast.jpg"/>
+    <itunes:explicit>no</itunes:explicit>
+    <itunes:block>no</itunes:block>
+
+    <item>
+      <title>Joe Beaver Show - Sat, 20 Aug 2011</title>
+      <description>Joe Beaver Show for Sat, 20 Aug 2011</description>
+      <pubDate>Sat, 20 Aug 2011 17:01:16 -0400</pubDate>
+      <link>http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3</link>
+      <guid isPermaLink="false">4001</guid>
+      <author>kennric@hypothetical.net (Ken Lett)</author>
+      <category>Sports</category>
+
+      <itunes:author>KEJO AM</itunes:author>
+      <itunes:subtitle>Joe Beaver Show for Sat, 20 Aug 2011</itunes:subtitle>
+      <itunes:summary>Joe Beaver Show for Sat, 20 Aug 2011</itunes:summary>
+      <itunes:keywords>sports,osu,beavers</itunes:keywords>
+      <itunes:duration>47:45</itunes:duration>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="" />
+
+      <enclosure url="http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-22-2011 ALL.mp3" length="666" type="audio/mpeg"/>
+    </item>
+  </channel>
+</rss>
