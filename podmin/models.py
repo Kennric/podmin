@@ -14,14 +14,6 @@ class Podcast(models.Model):
   subtitle = models.CharField(max_length=255,blank=True,null=True)
   author = models.CharField(max_length=255,blank=True,null=True)
   contact = models.EmailField(max_length=255,blank=True,null=True)
-  pub_url = models.CharField('base publication url', max_length=255)
-  rss_dir = models.CharField('rss publication path', max_length=255)
-  storage_dir = models.CharField('path to storage location', max_length=255)
-  tmp_dir = models.CharField('path to temporary processing location',max_length=255)
-  up_dir = models.CharField('path to the upload location',max_length=255)
-  combine_segments = models.BooleanField()
-  publish_segments = models.BooleanField()
-  publish_combined = models.BooleanField()
   updated = models.DateTimeField()
   image = models.CharField('URL for podcast image',max_length=255)
   copyright = models.TextField('copyright statement',blank=True,null=True)
@@ -34,12 +26,20 @@ class Podcast(models.Model):
     return self.title
 
   def publish(self):
-    # if
-    # read rss file, get all unpublished episodes
-    # add episodes to rss
-    # save rss file
+    # if publish_segments, go through process with segment-file
+    #    select only episode with part number
+    # if publish_combined or if segments = combined = null, use regular file
+    # if publish_combined, select only episodes with no part number
+    # if segments = combined = null, select all episodes
+
+    # read rss file into a context
+    # get all unpublished episodes
+    # for each episode, add episode to context
+    # render template with context
     # set episodes "published"
     # update "updated" field
+    #
+
     rssFile = self.pub_dir + "/" + self.shortname + ".xml"
     rssRaw = feedparser.parse(rssFile)
     rssContext = Context(rssRaw)
@@ -81,23 +81,39 @@ class Podcast(models.Model):
     out.write(rssString)
 
   def importEpisodes(self):
-    # get file list in the tmp dir
-    files = os.listdir(self.up_dir)
-    # run filecleaner
-    if s
-    # if publish_combined, run segmental
-    #   create episode for each combined file
-    # if publish_segments,
-    #   create episode for each part
-    # else
-    #   delete segment files
-    #
-    # filename format: JoeBeaverShow_2011-04-06_full.mp3
-    #                     shortname_year-month-day_<part-x>.mp3
-    # each file:
-    #   clean audio, add tags, move to storage
+    # move files from up_dir to tmp_dir for processing
+
+    # run filecleaner - just rename files in tmp_dir
+    result = getattr(FileCleaner, self.config.cleaner)(self)
+
+    if result:
+      # files are renamed
+
+      #if publish_combined, run segmental to combine episodes
+      #   create episode for each combined file
+
+      # if publish_segments,
+      #   create episode for each part
+      #
+      #if not publis_combined or publised_segments
+      #   create episodes for all files
+
+      # each episode:
+      #   clean audio, add tags, move to storage
 
     pass
+
+class Config(models.Model):
+  podcast = models.ForeignKey(Podcast)
+  combine_segments = models.BooleanField()
+  publish_segments = models.BooleanField()
+  publish_combined = models.BooleanField()
+  pub_url = models.CharField('base publication url', max_length=255)
+  pub_dir = models.CharField('rss publication path', max_length=255)
+  storage_dir = models.CharField('path to storage location', max_length=255)
+  tmp_dir = models.CharField('path to temporary processing location',max_length=255)
+  up_dir = models.CharField('path to the upload location',max_length=255)
+  cleaner = models.CharField('file cleaner function name',max_length=255)
 
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)

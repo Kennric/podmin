@@ -12,21 +12,57 @@ from mutagen.id3 import ID3
 class FileCleaner():
   """
   contains methods for renaming and sorting podcast files
-  Files will be moved from their up_dir to their tmp_dir
-  and renamed with the following format:
-  JoeBeaverShow_2011-09-06_Part-1.mp3
-  shortName_year_month_day_Part-x.mp3
+
+  rename with the following format:
+    shortName_year-month-day_xx.mp3
+  if there are more than one episode for that date, or:
+    shortName_year_month_day.mp3
+  ex:
+    JoeBeaverShow_2011-09-06_01.mp3
+
+
   """
 
   def __init__(self, podcast):
-     self.files = os.listdir(podcast.up_dir)
-     self.tmp_dir = podcast.tmp_dir
+    self.files = os.listdir(podcast.config.up_dir)
+    self.tmp_dir = podcast.config.tmp_dir
+
+  def default(self):
+    for file in self.files:
+      tmpath = self.tmp_dir + '/' + file
+      os.rename(file, tmpath)
+
+  def newKejo(self):
+    # get directories from podcast, process new-style kejo files
+    # files are named with the prefix 00539 followed by a 2 digit
+    # day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
+    # part number, generally 01 - 08
+    # rename the file by the podcast short name, file creation date
+    # and part number
+    for file in self.files:
+      short_name = podcast.short_name
+      new_name = podcast_shortname + '_' +  datetime_string + extension
+      size = os.stat(tmpath).st_size
+      tmpath = self.tmp_dir + '/' + file
+
+      # write the new tags to the file
+      audio = mutagen.File(tmpath, easy=True)
+      audio["title"] = podcast_name
+      audio["date"] = year + "-" + month + "-" + day
+      audio["artist"] = podcast_station
+      audio["version"] = time_string + "-" + `size`
+      audio.pprint()
+      audio.save()
+
+      os.rename(tmpath, tmpdir + "/" + new_name)
+      test = mutagen.File(tmpdir + "/" + new_name, easy=True)
 
 
   def oldKejo(self):
     # get directories from podcast, process old-style kejo files
     # incoming format: KEJO - ADMINISTRATOR - 9-8-2011 1-05-00 PM.wav.mp3
-
+    # rename the file by the podcast short name, file creation date
+    # and part number
     for file in self.files:
       tmpath = tmpdir + '/' + file
 
@@ -66,8 +102,6 @@ class FileCleaner():
       # make a nice new name
       new_name = podcast_shortname + '_' +  datetime_string + extension
 
-  def newKejo(self):
-    # get directories from podcast, process new-style kejo files
 
 
   # read the config file - look in a default place if not provided on the
