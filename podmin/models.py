@@ -21,6 +21,7 @@ class Podcast(models.Model):
   explicit = models.BooleanField()
   itunes_categories = models.CharField('comma separated list of itunes catergories',max_length=255,blank=True,null=True)
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
+  last_run = models.models.IntegerField()
 
   def __unicode__(self):
     return self.title
