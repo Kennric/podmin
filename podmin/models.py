@@ -4,6 +4,7 @@ from django.template import Context, Template
 from django.http import HttpResponse
 import feedparser
 import os
+from podmin import util
 
 class Podcast(models.Model):
   title = models.CharField(max_length=255)
@@ -21,7 +22,16 @@ class Podcast(models.Model):
   explicit = models.BooleanField()
   itunes_categories = models.CharField('comma separated list of itunes catergories',max_length=255,blank=True,null=True)
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
-  last_run = models.models.IntegerField()
+  last_run = models.IntegerField()
+  combine_segments = models.BooleanField()
+  publish_segments = models.BooleanField()
+  publish_combined = models.BooleanField()
+  pub_url = models.CharField('base publication url', max_length=255)
+  pub_dir = models.CharField('rss publication path', max_length=255)
+  storage_dir = models.CharField('path to storage location', max_length=255)
+  tmp_dir = models.CharField('path to temporary processing location',max_length=255)
+  up_dir = models.CharField('path to the upload location',max_length=255)
+  cleaner = models.CharField('file cleaner function name',max_length=255)
 
   def __unicode__(self):
     return self.title
@@ -50,48 +60,21 @@ class Podcast(models.Model):
 
     episodes = self.episode_set.filter(published=0)
 
-    for episode in episodes:
-      if !episode.published:
-        newEntry = {
-          'updated': episode.updated,
-          'links': [
-            {'length': episode.length,
-            'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
-            'type': u'audio/mpeg',
-            'rel': 'enclosure'},
-            {'href': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3',
-            'type': 'text/html', 'rel': 'alternate'}
-          ],
-          'title': u'Tue, 23 Aug 2011 - Full Show',
-          'summary_detail': {
-            'base': u'http://hypothetical.net/kennric/testo.xml',
-            'type': 'text/html',
-            'value': u'',
-            'language': None},
-          'summary': u'',
-          'title_detail': {
-            'base': u'http://hypothetical.net/kennric/testo.xml',
-            'type': 'text/plain',
-            'value': u'Tue, 23 Aug 2011 - Full Show',
-            'language': None},
-          'link': u'http://hypothetical.net/beaver/JoeBeaverShow/KEJO - ADMINISTRATOR 8-23-2011 ALL.mp3'}
-
-    rssString = render_to_string('feed.xml',rssContext)
-
-    out = open(rssFile,'w')
-    out.write(rssString)
+    pass
 
   def importEpisodes(self):
     # move files from up_dir to tmp_dir for processing
 
     # run filecleaner - just rename files in tmp_dir
-    result = getattr(FileCleaner, self.config.cleaner)(self)
+    fp = util.FilePrep(self)
+    result = getattr(util.FilePrep, self.cleaner)(fp)
 
     if result:
       # files are renamed
 
       #if publish_combined, run segmental to combine episodes
       #   create episode for each combined file
+      if self.combine_segments:
 
       # if publish_segments,
       #   create episode for each part
@@ -102,19 +85,7 @@ class Podcast(models.Model):
       # each episode:
       #   clean audio, add tags, move to storage
 
-    pass
-
-class Config(models.Model):
-  podcast = models.ForeignKey(Podcast)
-  combine_segments = models.BooleanField()
-  publish_segments = models.BooleanField()
-  publish_combined = models.BooleanField()
-  pub_url = models.CharField('base publication url', max_length=255)
-  pub_dir = models.CharField('rss publication path', max_length=255)
-  storage_dir = models.CharField('path to storage location', max_length=255)
-  tmp_dir = models.CharField('path to temporary processing location',max_length=255)
-  up_dir = models.CharField('path to the upload location',max_length=255)
-  cleaner = models.CharField('file cleaner function name',max_length=255)
+      print "Yay!"
 
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)

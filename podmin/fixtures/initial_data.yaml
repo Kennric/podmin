@@ -1,0 +1,28 @@
+- model: podmin.podcast
+  pk: 1
+  fields:
+    title: The Joe Beaver Show Podcast
+    shortname: Joe_Beaver_Show
+    station: KEJO
+    description: a podcast
+    website: http://hypothetical.net/beaver
+    subtitle: a podcast subtitle
+    author: bob
+    contact: bob@bob.com
+    updated: 2006-01-22 02:17:03
+    image: http://hypothetical.net/images/hypothetical1.jpg
+    copyright: 1998 bob@bob.com
+    language: en
+    explicit: 0
+    itunes_categories:  bob,fred,tags
+    tags: ed,john,frank
+    last_run: 1181006487
+    combine_segments: 1
+    publish_segments: 1
+    publish_combined: 1
+    pub_url: http://hypothetical.net/beaver/
+    pub_dir: /home/kennric/tmp/joe_beaver_show_pub/
+    storage_dir: /home/kennric/tmp/joe_beaver_show_stor/
+    tmp_dir: /home/kennric/tmp/joe_beaver_show_tmp/
+    up_dir: /home/kennric/tmp/joe_beaver_show_up/
+    cleaner: newKejo

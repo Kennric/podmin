@@ -21,6 +21,9 @@ DATABASES = {
     }
 }
 
+FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), 'fixtures/'))
+#FIXTURE_DIRS = ('/home/kennric/projects/podcaster/fixtures/')
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -107,8 +110,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/home/kennric/projects/podcaster/templates',
-    #os.path.join(os.path.basename(__file__), 'templates'),
+    #'/home/kennric/projects/podcaster/templates',
+    os.path.join(os.path.basename(__file__), 'templates')
 )
 
 INSTALLED_APPS = (
