@@ -1,14 +1,9 @@
 import os
 import shutil
-import sys
-import ConfigParser
 from datetime import datetime, date, time
-import re
 import time
-import mutagen
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3
+import util
+from subprocess import check_output
 
 class FilePrep():
   """
@@ -40,11 +35,10 @@ class FilePrep():
     part = 1
 
     for file in sorted(self.files):
-
       uppath = self.podcast.up_dir + '/' + file
       ctime = os.path.getmtime(uppath)
 
-      if ctime > self.podcast.last_run:
+      if ctime > self.podcast.last_import:
         c_date = date.fromtimestamp(ctime)
         short_name = self.podcast.shortname
         filename_parts = file.split(".")
@@ -63,14 +57,88 @@ class FilePrep():
         datetime_string = c_date.strftime("%Y-%m-%d")
         part_string = str(part).zfill(2)
         new_name = self.podcast.shortname + '_' +  datetime_string + '_' + part_string + '.' + extension
-        shutil.copy2(uppath, self.podcast.tmp_dir + "/" + new_name)
+        new_path = self.podcast.tmp_dir + "/" + new_name
+        shutil.copy2(uppath, new_path)
 
     return success
 
-class Segmental():
-    def __init__(self, podcast):
-      self.files = os.listdir(podcast.up_dir)
-      self.podcast = podcast
+"""
+contains methods for combining and managing segmented podcasts
+"""
+class Segment():
+  def __init__(self, podcast):
+    self.files = os.listdir(podcast.tmp_dir)
+    self.podcast = podcast
 
-    def combine(self):
+  def combine(self):
+    segments = []
+    combined_files = []
+    part = 0
+
+    # hackity-hack
+    files = sorted(self.files)
+    files.append('dummy_1969-01-01_01.mp3')
+
+    for file in files:
+      file_path = self.podcast.tmp_dir + file
+      filename = os.path.splitext(file)
+      name = filename[0]
+      extension = filename[1]
+      name_parts = name.split('_')
+
+      try:
+        oldpart = part
+        part = name_parts[2]
+        date = name_parts[1]
+
+        if oldpart > part:
+          no_existing_file = False
+
+          try:
+            open(combined_file_path)
+          except IOError as e:
+            no_existing_file = True
+
+          if no_existing_file:
+            self.combineEpisodes(segments,combined_file_path)
+            #check_output(sox_command)
+
+          combined_files.append(combined_file_path)
+          segments = []
+
+        segments.append(file_path)
+
+        del name_parts[2]
+        combined_file_path = self.podcast.tmp_dir + "_".join(name_parts) + extension
+
+      except IndexError:
+        pass
+
+    return combined_files
+
+  def getSegments(self):
+    file_list = []
+    for file in sorted(self.files):
+
+      file_path = self.podcast.tmp_dir + file
+      filename = os.path.splitext(file)
+      name = filename[0]
+      name_parts = name.split('_')
+      try:
+        part = name_parts[2]
+        file_list.append(file_path)
+      except IndexError:
+        pass
+
+    return file_list
+
+  def combineEpisodes(self, segments, combined_filename):
+    sox_command = ["sox"]
+    for segment in segments:
+      sox_command.append(segment)
+
+    sox_command.append(combined_filename)
+    check_output(sox_command)
+
+
 

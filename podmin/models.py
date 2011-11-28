@@ -5,6 +5,12 @@ from django.http import HttpResponse
 import feedparser
 import os
 from podmin import util
+from datetime import datetime
+import mutagen
+from mutagen.easyid3 import EasyID3
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
+from subprocess import check_output
 
 class Podcast(models.Model):
   title = models.CharField(max_length=255)
@@ -22,10 +28,9 @@ class Podcast(models.Model):
   explicit = models.BooleanField()
   itunes_categories = models.CharField('comma separated list of itunes catergories',max_length=255,blank=True,null=True)
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
-  last_run = models.IntegerField()
+  last_import = models.IntegerField()
   combine_segments = models.BooleanField()
   publish_segments = models.BooleanField()
-  publish_combined = models.BooleanField()
   pub_url = models.CharField('base publication url', max_length=255)
   pub_dir = models.CharField('rss publication path', max_length=255)
   storage_dir = models.CharField('path to storage location', max_length=255)
@@ -37,11 +42,6 @@ class Podcast(models.Model):
     return self.title
 
   def publish(self):
-    # if publish_segments, go through process with segment-file
-    #    select only episode with part number
-    # if publish_combined or if segments = combined = null, use regular file
-    # if publish_combined, select only episodes with no part number
-    # if segments = combined = null, select all episodes
 
     # read rss file into a context
     # get all unpublished episodes
@@ -51,7 +51,7 @@ class Podcast(models.Model):
     # update "updated" field
     #
 
-    rssFile = self.pub_dir + "/" + self.shortname + ".xml"
+    rssFile = self.pub_dir + self.shortname + ".xml"
     rssRaw = feedparser.parse(rssFile)
     rssContext = Context(rssRaw)
     rssTmpFile = rssFile + ".tmp"
@@ -60,43 +60,58 @@ class Podcast(models.Model):
 
     episodes = self.episode_set.filter(published=0)
 
-    pass
+    for episode in episodes:
+      pass
 
   def importEpisodes(self):
-    # move files from up_dir to tmp_dir for processing
 
-    # run filecleaner - just rename files in tmp_dir
+    file_list = []
     fp = util.FilePrep(self)
+
     result = getattr(util.FilePrep, self.cleaner)(fp)
 
     if result:
-      # files are renamed
+      # files are moved and renamed
+      segmental = util.Segment(self)
 
-      #if publish_combined, run segmental to combine episodes
-      #   create episode for each combined file
       if self.combine_segments:
+        combined_episodes = segmental.combine()
+        for combined in combined_episodes:
+          file_list.append(combined)
 
-      # if publish_segments,
-      #   create episode for each part
-      #
-      #if not publis_combined or publised_segments
-      #   create episodes for all files
+      if self.publish_segments:
+        segments = segmental.getSegments()
+        for segment in segments:
+          file_list.append(segment)
 
-      # each episode:
-      #   clean audio, add tags, move to storage
+      i = 0  # hackity-hack: make sure the guids are unique
+      for file in file_list:
+        guid = int(datetime.now().strftime("%s")) + i
+        episode = self.episode_set.create(
+                      title = self.title,
+                      subtitle = self.subtitle,
+                      description = self.description,
+                      filename = os.path.basename(file),
+                      guid = guid)
+        episode.setData()
+        episode.setTags()
+        episode.moveToStorage()
+        i = i + 1
 
-      print "Yay!"
+      self.last_import = int(datetime.now().strftime("%s"))
+      self.save()
+
 
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)
   title = models.CharField(max_length=255)
-  subtitle = models.CharField(max_length=255)
+  subtitle = models.CharField(max_length=255,blank=True,null=True)
   description = models.TextField('description / show notes', blank=True,null=True)
   filename = models.CharField('final published file name', max_length=255)
   guid = models.IntegerField('published RSS GUID field', unique=True)
   part = models.IntegerField('part number of a multipart cast',blank=True,null=True)
-  pub_date = models.DateTimeField('date published')
-  size = models.IntegerField('size in bytes')
+  pub_date = models.DateTimeField('date published',blank=True,null=True)
+  size = models.IntegerField('size in bytes',blank=True,null=True)
   length = models.CharField('length in hours,minutes,seconds', max_length=32,blank=True,null=True)
   published = models.BooleanField()
   tags = models.CharField('comma separated list of tags',max_length=255,blank=True,null=True)
@@ -105,11 +120,58 @@ class Episode(models.Model):
     return self.filename
 
   def moveToStorage(self):
-    pass
+    tmp_path = self.podcast.tmp_dir + self.filename
+    stor_path = self.podcast.storage_dir + self.filename
+    os.rename(tmp_path, stor_path)
 
-  def addTags(self):
-    pass
+  def setData(self):
+    path = self.podcast.tmp_dir + self.filename
+    base_name = self.filename.split('.')[0]
+    name_parts = base_name.split('_')
 
-  def cleanAudio(self):
-    pass
+    self.pub_date = datetime.strptime(name_parts[1], "%Y-%m-%d")
+
+    part = None
+    try:
+      part = name_parts[2]
+    except IndexError:
+      pass
+
+    self.part = part
+    self.length = check_output(["soxi","-d",path])
+    self.size = os.path.getsize(path)
+    self.save()
+
+  def setTags(self):
+    path = self.podcast.tmp_dir + self.filename
+    ext = self.filename.split('.')[1]
+    date_string = datetime.strftime(self.pub_date,"%Y-%m-%d")
+    tags = dict()
+    tags['date'] = date_string
+    tags['album'] = self.podcast.title + " " + date_string
+    tags['author'] = self.podcast.station
+    tags['length'] = self.length
+    tags['copyright'] = date_string + " " + self.podcast.copyright
+    tags['website'] = self.podcast.website
+    if self.part:
+      tags['tracknumber'] = self.part
+      tags['title'] = self.title + " " + date_string + " part " + self.part
+    else:
+      tags['title'] = self.title + " " + date_string
+
+    # tag the file
+    if ext == "mp3":
+      self.tagMp3(path,tags)
+
+    return True
+
+  def tagMp3(self, file, tags):
+    audio = mutagen.File(file, easy=True)
+
+    for tag,value in tags.iteritems():
+      audio[tag] = value
+
+    audio.pprint()
+    audio.save()
+
 
