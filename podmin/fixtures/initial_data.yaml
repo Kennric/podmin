@@ -22,6 +22,7 @@
     pub_url: http://hypothetical.net/beaver/
     pub_dir: /home/kennric/tmp/joe_beaver_show_pub/
     storage_dir: /home/kennric/tmp/joe_beaver_show_stor/
+    storage_url: http://hypothetical.net/beaver/assets/
     tmp_dir: /home/kennric/tmp/joe_beaver_show_tmp/
     up_dir: /home/kennric/tmp/joe_beaver_show_up/
     cleaner: newKejo
