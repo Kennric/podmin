@@ -6,12 +6,17 @@ import feedparser
 import os
 from podmin import util
 from datetime import datetime
+import time
 import mutagen
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 from subprocess import check_output
 
+"""
+Podcast model defines a podcast stream and methods to publish the RSS file
+
+"""
 class Podcast(models.Model):
   title = models.CharField(max_length=255)
   shortname = models.CharField('short name or abbreviation', max_length=16)
@@ -42,10 +47,15 @@ class Podcast(models.Model):
   def __unicode__(self):
     return self.title
 
-  def publishSegments(self):
+  """
+  Publish segments, where segments are multiple parts of the same episode. The
+  segments podcast file is separate from the file of full episodes.
+
+  """
+  def publishSegments(self, episodes):
     if self.publish_segments:
       rssFile = self.pub_dir + self.shortname + "_segments.xml"
-      episodes = self.episode_set.filter(published=1).exclude(part=None)
+
       for episode in episodes:
         # create a new entry
         entry = episode.buildEntry()
@@ -53,41 +63,65 @@ class Podcast(models.Model):
         rssContext['entries'].insert(0,entry)
       print template.render(rssContext)
 
-  def publish(self):
+  """
+  Publish full episodes of the podcast.
 
-    # read rss file into a context
-    # get all unpublished episodes
-    # for each episode, add episode to context
-    # render template with context
-    # set episodes "published"
-    # update "updated" field
+  """
+  def publishFull(self, episodes):
     rssFile = self.pub_dir + self.shortname + ".xml"
     rssRaw = feedparser.parse(rssFile)
     rssContext = Context(rssRaw)
     rssTmpFile = rssFile + ".tmp"
     template = get_template('feed.xml')
-    segmentsRssFile = None
-
-    episodes = self.episode_set.filter(published=0,part=None)
 
     for episode in episodes:
       # create a new entry
       entry = episode.buildEntry()
       # insert the entry into the rssContext
       rssContext['entries'].insert(0,entry)
+      episode.published = 1
+      episode.save
 
+    rssContext['feed']['updated'] = datetime.strftime(datetime.now(),"%a, %d %b %Y %X") + " PST"
     #print template.render(rssContext)
     f = open(rssTmpFile, 'w')
     f.write(template.render(rssContext))
+    self.updated = datetime.now()
 
-  def publishAll(self):
+  """
+  Update the channel properties given a RSS context. Update fields from the
+  model.
+  """
+  def updateChannel(self, rssContext):
+    rssContext['feed']['title'] =
+    rssContext['feed']['subtitle'] =
 
-    self.publish()
+
+  """
+  Wrapper method to publish all new episodes.
+
+  """
+  def publishNew(self):
+
+    episodes = self.episode_set.filter(published=0,part=None)
+    self.publishFull()
 
     if self.publish_segments:
-      self.publishSegments()
+      episodes = self.episode_set.filter(published=1).exclude(part=None)
+      self.publishSegments(episodes)
 
+  """
+  Manually publish a single episode
 
+  """
+  def publishEpisode(self):
+    pass
+
+  """
+  Import episodes on disk, calling the podcast's file cleaner function, if one
+  is defined, to rename or otherwise process the files.
+
+  """
   def importEpisodes(self):
 
     file_list = []
@@ -115,16 +149,19 @@ class Podcast(models.Model):
                       title = self.title,
                       subtitle = self.subtitle,
                       description = self.description,
-                      filename = os.path.basename(file),
-                      guid = os.path.basename(file))
-        episode.setData()
+                      filename = os.path.basename(file))
+        episode.setDataFromFilename()
         episode.setTags()
         episode.moveToStorage()
 
       self.last_import = int(datetime.now().strftime("%s"))
       self.save()
 
+"""
+Episode model, defines a single episode of a podcast and methods to extract
+and set data about the episode.
 
+"""
 class Episode(models.Model):
   podcast = models.ForeignKey(Podcast)
   title = models.CharField(max_length=255)
@@ -142,17 +179,27 @@ class Episode(models.Model):
   def __unicode__(self):
     return self.filename
 
+  """
+  Move an episode to its final web accessible storage location
+
+  """
   def moveToStorage(self):
     tmp_path = self.podcast.tmp_dir + self.filename
     stor_path = self.podcast.storage_dir + self.filename
     os.rename(tmp_path, stor_path)
 
-  def setData(self):
+  """
+  Set the data for this episode based on its standardized filename
+
+  """
+  def setDataFromFilename(self):
     path = self.podcast.tmp_dir + self.filename
     base_name = self.filename.split('.')[0]
     name_parts = base_name.split('_')
-
-    self.pub_date = datetime.strptime(name_parts[1], "%Y-%m-%d")
+    mtime = datetime.fromtimestamp(os.path.getmtime(path))
+    date_string = name_parts[1] + " " + datetime.strftime(mtime, "%H:%M:%S")
+    self.pub_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+    #self.pub_date = datetime.strptime(name_parts[1], "%Y-%m-%d")
 
     part = None
     try:
@@ -161,10 +208,15 @@ class Episode(models.Model):
       pass
 
     self.part = part
-    self.length = check_output(["soxi","-d",path])
+    self.length = check_output(["soxi","-d",path]).strip()
     self.size = os.path.getsize(path)
+    self.guid = self.filename
     self.save()
 
+  """
+  Set tags to the file, taking the data from the episode variables
+
+  """
   def setTags(self):
     path = self.podcast.tmp_dir + self.filename
     ext = self.filename.split('.')[1]
@@ -188,6 +240,10 @@ class Episode(models.Model):
 
     return True
 
+  """
+  Set mp3 tags to mp3 files
+
+  """
   def tagMp3(self, file, tags):
     audio = mutagen.File(file, easy=True)
 
@@ -197,26 +253,62 @@ class Episode(models.Model):
     audio.pprint()
     audio.save()
 
-  def buildEntry(self):
-    pubDate = datetime.strftime(self.pub_date,"%a, %d %b %Y") + " " + datetime.strftime(datetime.now(), "%X %Z")
-    entry = {'updated': pubDate,
-              'links': [{'length': self.length,
-                          'href': self.podcast.storage_url + self.filename,
-                          'type': u'audio/mpeg',
-                          'rel': u'enclosure'},
-                        {'href':  self.podcast.storage_url + self.filename,
-                          'type': u'text/html',
-                          'rel': u'alternate'}],
-              'title': self.title,
-              'summary_detail': {'base': u'',
-                                  'type': u'text/html',
-                                  'value': self.description,
-                                  'language': None},
-              'summary': self.description,
-              'title_detail': {'base': u'',
-                                'type': u'text/plain',
-                                'value': self.title,
-                                'language': u'en'},
-              'link': self.podcast.storage_url + self.filename}
-    return entry
+  """
+  Build the RSS item entry for this episode
 
+  """
+  def buildEntry(self):
+    #pubDate = datetime.strftime(self.pub_date,"%a, %d %b %Y  %Z")
+    pubDate = datetime.strftime(self.pub_date,"%a, %d %b %Y %H:%M:%S") + " PST"
+    length = self.length.strip()
+    entry = {'updated': pubDate,
+              'title': self.title,
+              'title_detail': {
+                'base': u'',
+                'type': 'text/plain',
+                'value': self.title,
+                'language': None
+                },
+              'subtitle': self.subtitle,
+              'subtitle_detail': {
+                'base': u'',
+                'type': 'text/plain',
+                'value': self.subtitle,
+                'language': u'en'
+                },
+              'link': self.podcast.storage_url + self.filename,
+              'links': [
+                {'length': length,
+                  'href': self.podcast.storage_url + self.filename,
+                  'type': u'audio/mpeg',
+                  'rel': u'enclosure'},
+                {'href':  self.podcast.storage_url + self.filename,
+                  'type': u'text/html',
+                  'rel': u'alternate'}
+                ],
+              'summary_detail': {
+                'base': u'',
+                'type': u'text/html',
+                'value': self.description,
+                'language': None
+                },
+              'summary': self.description,
+              'content': [
+                {'base': u'',
+                  'type': 'text/plain',
+                  'value': self.description,
+                  'language': u'en',
+                  'id': self.guid}
+                ],
+              'title_detail': {
+                'base': u'',
+                'type': u'text/plain',
+                'value': self.title,
+                'language': u'en'
+                },
+              'guidislink': False,
+              'itunes_duration': length,
+              'itunes_keywords': self.tags
+            }
+
+    return entry

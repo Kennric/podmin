@@ -85,6 +85,8 @@ class Segment():
       name = filename[0]
       extension = filename[1]
       name_parts = name.split('_')
+      if name_parts[0] != 'dummy':
+        mtime = os.path.getmtime(file_path)
 
       try:
         oldpart = part
@@ -100,7 +102,7 @@ class Segment():
             no_existing_file = True
 
           if no_existing_file:
-            self.combineEpisodes(segments,combined_file_path)
+            self.combineEpisodes(segments,combined_file_path, mtime)
             #check_output(sox_command)
 
           combined_files.append(combined_file_path)
@@ -132,13 +134,14 @@ class Segment():
 
     return file_list
 
-  def combineEpisodes(self, segments, combined_filename):
+  def combineEpisodes(self, segments, combined_filename, mtime):
     sox_command = ["sox"]
     for segment in segments:
       sox_command.append(segment)
 
     sox_command.append(combined_filename)
     check_output(sox_command)
+    os.utime(combined_filename, (-1, mtime))
 
 
 
