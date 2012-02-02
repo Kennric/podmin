@@ -62,6 +62,35 @@ class FilePrep():
 
     return success
 
+  def oldKejo(self, file_path):
+
+    success = True
+    last_date = 0
+    part = 1
+    old_files = os.listdir(file_path)
+    file_list = []
+    for file in sorted(old_files):
+      uppath = file_path + '/' + file
+      short_name = self.podcast.shortname
+      filename_parts = file.split("_")
+      print file
+      if filename_parts[0] == 'changeme':
+        parts = filename_parts[1].split(".")
+        date = parts[0].split("-")
+        # parse filename
+        month = date[0].zfill(2)
+        day = date[1].zfill(2)
+        year = date[2]
+        extension = parts[1].lower()
+        datetime_string = year + "-" + month + "-" + day
+
+        new_name = self.podcast.shortname + '_' +  datetime_string + '.' + extension
+        new_path = self.podcast.tmp_dir + "/" + new_name
+        shutil.copy2(uppath, new_path)
+
+        file_list.append(new_name)
+
+    return file_list
 """
 contains methods for combining and managing segmented podcasts
 """
@@ -131,6 +160,14 @@ class Segment():
         file_list.append(file_path)
       except IndexError:
         pass
+
+    return file_list
+
+  def getFiles(self):
+    file_list = []
+    for file in sorted(self.files):
+      file_path = self.podcast.tmp_dir + file
+      file_list.append(file_path)
 
     return file_list
 
