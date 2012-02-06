@@ -91,6 +91,12 @@ class FilePrep():
         file_list.append(new_name)
 
     return file_list
+
+  def cleanupDirs(self,podcast):
+    filelist = [os.path.join(podcast.tmp_dir, f) for f in os.listdir(podcast.tmp_dir)]
+    for file in filelist:
+      os.remove(file)
+    
 """
 contains methods for combining and managing segmented podcasts
 """

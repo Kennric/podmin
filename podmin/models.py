@@ -2,11 +2,11 @@ from django.db import models
 from django.template.loader import get_template, render_to_string
 from django.template import Context, Template
 from django.http import HttpResponse
-import feedparser
+import shutil
 import os
 import podmin
 from podmin import util
-from datetime import datetime
+from datetime import datetime, timedelta, date
 import time
 import mutagen
 from mutagen.easyid3 import EasyID3
@@ -44,48 +44,32 @@ class Podcast(models.Model):
   tmp_dir = models.CharField('path to temporary processing location',max_length=255)
   up_dir = models.CharField('path to the upload location',max_length=255)
   cleaner = models.CharField('file cleaner function name',max_length=255)
-  # all the iTunes categories we have to choose from
+  ttl = models.IntegerField('minutes this feed can be cached',null=True)
+  max_age = models.IntegerField('days to keep an episode',default=365)
 
-  # set some
   def __unicode__(self):
     return self.title
-
-  """
-  Publish segments, where segments are multiple parts of the same episode. The
-  segments podcast file is separate from the file of full episodes.
-
-  """
-  def publishSegments(self, episodes):
-    if self.publish_segments:
-      rssFile = self.pub_dir + self.shortname + "_segments.xml"
-
-      for episode in episodes:
-        # create a new entry
-        entry = episode.buildEntry()
-        # insert the entry into the rssContext
-        rssContext['entries'].insert(0,entry)
-      print template.render(rssContext)
 
   """
   Publish full episodes of the podcast.
 
   """
-  def publishFull(self, episodes):
-    rssFile = self.pub_dir + self.shortname + ".xml"
-    rssRaw = feedparser.parse(rssFile)
-    rssContext = Context(rssRaw)
+  def publishEpisodes(self, episodes, rssFile, type):
+
     rssBakFile = rssFile + ".bak"
     template = get_template('feed.xml')
+
+    rssContext = Context(self.makeChannel(type))
+    rssContext['entries'] = []
 
     for episode in episodes:
       # create a new entry
       entry = episode.buildEntry()
       # insert the entry into the rssContext
       rssContext['entries'].insert(0,entry)
-      episode.published = 1
-      episode.save
+      episode.save()
 
-    rssContext['feed']['updated'] = datetime.strftime(datetime.now(),"%a, %d %b %Y %X") + " PST"
+    rssContext['feed']['updated'] = datetime.strftime(datetime.now(), "%a, %d %b %Y %X") + " PST"
 
     shutil.copy2(rssFile, rssBakFile)
     f = open(rssFile, 'w')
@@ -96,68 +80,27 @@ class Podcast(models.Model):
     self.save()
 
   """
-  Update the channel properties of the podcast's RSS file.
-
-  """
-  def updateChannel(self):
-    rssFile = self.pub_dir + self.shortname + ".xml"
-    rssRaw = feedparser.parse(rssFile)
-    rssContext = Context(rssRaw)
-    rssBakFile = rssFile + ".bak"
-    template = get_template('feed.xml')
-    itunes_cats = []
-    if self.itunes_categories:
-      cats = self.itunes_categories.split('/')
-      for cat in cats:
-        pieces = cat.split(':')
-        category = pieces[0]
-        if len(pieces) > 1:
-          terms = pieces[1].split(',')
-          itunes_cats.append({'name': category, 'terms': [(x) for x in terms]})
-        else:
-          itunes_cats.append({'name': category})
-    regular_cats = [(x) for x in self.tags.split(',')]
-
-    rssContext['feed']['title'] = self.title
-    rssContext['feed']['subtitle'] = self.subtitle
-    rssContext['feed']['description'] = self.description
-    rssContext['feed']['links'] = [ {'rel': 'alternate',
-                                    'type': 'text/html',
-                                    'href': self.website,
-                                    'title': self.title}
-                                  ]
-
-    rssContext['feed']['rights'] = self.copyright
-
-    rssContext['feed']['generator'] = podmin.get_name() + " " + podmin.get_version()
-    rssContext['feed']['language'] = "en"
-    rssContext['feed']['tags'] = regular_cats
-    #rssContext['feed']['image'] = (href, title, link)
-    #rssContext['feed']['docs'] = ""
-    #rssContext['feed']['ttl'] = ""
-    rssContext['feed']['author'] = "Joe Beaver"
-    rssContext['feed']['itunes_cats'] =  itunes_cats
-    rssContext['feed']['author_detail'] = {'email': self.contact, 'name': self.author}
-    rssContext['feed']['itunes_explicit'] = "no"
-    rssContext['feed']['itunes_block'] = "no"
-
-    shutil.copy2(rssFile, rssBakFile)
-    f = open(rssFile, 'w')
-    f.write(template.render(rssContext))
-    f.close
-
-  """
   Wrapper method to publish all new episodes.
 
   """
-  def publishNew(self):
+  def publish(self):
+    fp = util.FilePrep(self)
 
-    episodes = self.episode_set.filter(published=0,part=None)
-    self.publishFull(episodes)
+    rssFile = self.pub_dir + self.shortname + ".xml"
+    episodes = self.episode_set.filter(current=1,part=None)
+    type = 'full'
+    self.publishEpisodes(episodes, rssFile, type)
 
     if self.publish_segments:
-      episodes = self.episode_set.filter(published=1).exclude(part=None)
-      self.publishSegments(episodes)
+      rssFile = self.pub_dir + self.shortname + "_segments.xml"
+      episodes = self.episode_set.filter(current=1).exclude(part=None)
+      type= 'segments'
+      self.publishEpisodes(episodes, rssFile, type)
+
+    # now expire the old episodes
+    self.expire()
+    # and cleanup directories
+    fp.cleanupDirs(self)
 
   """
   Manually publish a single episode
@@ -203,19 +146,89 @@ class Podcast(models.Model):
   Take a list of files and create podcast episodes from them.
 
   """
-
   def importFromFiles(self, file_list):
     for file in file_list:
+      filename = os.path.basename(file)
       guid = file
-      episode = self.episode_set.create(
-                    title = self.title,
-                    filename = os.path.basename(file))
-      episode.setDataFromFilename()
+      episode = self.episode_set.get_or_create(
+                      title = self.title,
+                      filename = filename,
+                      current = True)[0]
+
+      episode.setDataFromFile()
       episode.setTags()
       episode.moveToStorage()
+      last_date = episode.pub_date
 
-    self.last_import = int(datetime.now().strftime("%s"))
+    self.last_import = int(last_date.strftime("%s"))
     self.save()
+  
+  """ 
+  Expire old episodes by setting current = False where the pubDate
+  plus the given delta is less than today's date
+
+  """
+  def expire(self):
+    delta = timedelta(days = self.max_age)
+    expired_date = date.today() - delta
+    episodes = self.episode_set.filter(pub_date__lte=expired_date)
+    for episode in episodes:
+      episode.current = False
+      episode.save()
+
+  """
+  Update the channel properties of the podcast's RSS file.
+
+  """
+  def makeChannel(self, type):
+    channel = {}
+    channel['feed'] = {}
+    itunes_cats = []
+    if self.itunes_categories:
+      cats = self.itunes_categories.split('/')
+      for cat in cats:
+        pieces = cat.split(':')
+        category = pieces[0]
+        if len(pieces) > 1:
+          terms = pieces[1].split(',')
+          itunes_cats.append({'name': category, 'terms': [(x) for x in terms]})
+        else:
+          itunes_cats.append({'name': category})
+    regular_cats = [(x) for x in self.tags.split(',')]
+
+    if type == 'segments':
+      subtitle = self.subtitle + " - Segments"
+
+    channel['feed']['title'] = self.title
+    channel['feed']['subtitle'] = self.subtitle
+    channel['feed']['description'] = self.description
+    channel['feed']['links'] = [ {'rel': 'alternate',
+                                    'type': 'text/html',
+                                    'href': self.website,
+                                    'title': self.title},
+                                  ]
+
+    channel['feed']['rights'] = datetime.strftime(datetime.now(),"%Y") + " " + self.copyright
+
+    channel['feed']['generator'] = podmin.get_name() + " " + podmin.get_version()
+    channel['feed']['language'] = self.language
+    channel['feed']['tags'] = regular_cats
+
+    if self.image:
+      channel['feed']['image'] = {'href': self.image, 
+                                    'title': self.title,
+                                    'link': self.website}
+
+    if self.ttl:
+      channel['feed']['ttl'] = self.ttl
+
+    channel['feed']['author'] = self.author
+    channel['feed']['itunes_cats'] =  itunes_cats
+    channel['feed']['author_detail'] = {'email': self.contact, 'name': self.author}
+    channel['feed']['itunes_explicit'] = "yes" if self.explicit else "no"
+    channel['feed']['itunes_block'] = "no"
+
+    return channel
 
 """
 Episode model, defines a single episode of a podcast and methods to extract
@@ -233,11 +246,16 @@ class Episode(models.Model):
   pub_date = models.DateTimeField('date published',blank=True,null=True)
   size = models.IntegerField('size in bytes',blank=True,null=True)
   length = models.CharField('length in hours,minutes,seconds', max_length=32, blank=True, null=True)
-  published = models.BooleanField()
+  current = models.BooleanField()
   tags = models.CharField('comma separated list of tags', max_length=255, blank=True, null=True)
 
   def __unicode__(self):
     return self.filename
+  
+  class Meta:
+    ordering = ["-pub_date, part"]
+    get_latest_by = "pub_date"
+    order_with_respect_to = 'podcast'
 
   """
   Move an episode to its final web accessible storage location
@@ -252,14 +270,13 @@ class Episode(models.Model):
   Set the data for this episode based on its standardized filename
 
   """
-  def setDataFromFilename(self):
+  def setDataFromFile(self):
     path = self.podcast.tmp_dir + self.filename
     base_name = self.filename.split('.')[0]
     name_parts = base_name.split('_')
     mtime = datetime.fromtimestamp(os.path.getmtime(path))
     date_string = name_parts[1] + " " + datetime.strftime(mtime, "%H:%M:%S")
     self.pub_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-    #self.pub_date = datetime.strptime(name_parts[1], "%Y-%m-%d")
 
     part = None
     try:
@@ -268,7 +285,7 @@ class Episode(models.Model):
       pass
 
     self.part = part
-    self.length = check_output(["soxi","-d",path]).strip()
+    self.length = check_output(["soxi","-d",path]).split('.')[0]
     self.size = os.path.getsize(path)
     self.guid = self.filename
     self.title = self.podcast.title + " " + name_parts[1]
@@ -286,9 +303,9 @@ class Episode(models.Model):
     tags = dict()
     tags['date'] = date_string
     tags['album'] = self.podcast.title + " " + date_string
-    tags['author'] = self.podcast.station
+    tags['author'] = self.podcast.author
     tags['length'] = self.length
-    tags['copyright'] = date_string + " " + self.podcast.copyright
+    tags['copyright'] = datetime.strftime(datetime.now(),"%Y") + " " + self.podcast.copyright
     tags['website'] = self.podcast.website
     if self.part:
       tags['tracknumber'] = self.part
@@ -321,11 +338,12 @@ class Episode(models.Model):
   """
   def buildEntry(self):
     pubDate = datetime.strftime(self.pub_date,"%a, %d %b %Y %H:%M:%S") + " PST"
-    length = self.length.strip()
+
     if self.podcast.explicit:
       explicit = "yes"
     else:
       explicit = "no"
+    
     tags = [(x) for x in self.podcast.tags.split(',')]
     # at a minimum, we need a pubDate, content, title and enclosure
     entry = {'updated': pubDate,
@@ -340,8 +358,7 @@ class Episode(models.Model):
                 'base': u'',
                 'type': 'text/plain',
                 'value': self.description,
-                'language': u'en',
-                'id': self.guid
+                'language': u'en'
                 },
               'link': self.podcast.storage_url + self.filename,
               'links': [
@@ -355,7 +372,7 @@ class Episode(models.Model):
                 ],
               'id': self.guid,
               'guidislink': 'false',
-              'itunes_duration': length,
+              'itunes_duration': self.length,
               'itunes_explicit': explicit,
               'summary_detail': {
                 'base': u'',

@@ -1,6 +1,6 @@
 # Django settings for the PodMin app
-
-VERSION = (0, 1, 0, 'alpha', 2)
+# version: major, minor, point, status, rev
+VERSION = (0, 2, 0, 'beta', 1)
 
 def get_version():
     version = '%s.%s' % (VERSION[0], VERSION[1])
