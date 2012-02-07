@@ -110,6 +110,16 @@ class Podcast(models.Model):
     pass
 
   """
+  Wrapper method to check for new files on disk and publish them if found
+
+  """
+  def autoPublish(self):
+    new_files = self.getNewFiles()
+    self.importFromFiles(new_files)
+    self.publish()
+    return "Podcast Published" 
+
+  """
   Process new files on disk, calling the podcast's file cleaner function, if
   one is defined.
 
@@ -147,6 +157,8 @@ class Podcast(models.Model):
 
   """
   def importFromFiles(self, file_list):
+    last_date = False
+
     for file in file_list:
       filename = os.path.basename(file)
       guid = file
@@ -160,8 +172,9 @@ class Podcast(models.Model):
       episode.moveToStorage()
       last_date = episode.pub_date
 
-    self.last_import = int(last_date.strftime("%s"))
-    self.save()
+    if last_date:
+      self.last_import = int(last_date.strftime("%s"))
+      self.save()
   
   """ 
   Expire old episodes by setting current = False where the pubDate
