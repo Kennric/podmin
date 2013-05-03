@@ -136,23 +136,23 @@ class Segment():
 
             try:
                 oldpart = part
-                part = name_parts[2]
+                part = int(name_parts[2])
                 date = name_parts[1]
 
-            if oldpart > part:
-                no_existing_file = False
+                if oldpart > part:
+                    no_existing_file = False
 
-                try:
-                    open(combined_file_path)
-                except IOError as e:
-                    no_existing_file = True
+                    try:
+                        open(combined_file_path)
+                    except IOError as e:
+                        no_existing_file = True
 
-                if no_existing_file:
-                    self.combineEpisodes(segments, combined_file_path, mtime)
-                    #check_output(sox_command)
+                    if no_existing_file:
+                        self.combineEpisodes(segments, combined_file_path, mtime)
+                        #check_output(sox_command)
 
-                combined_files.append(combined_file_path)
-                segments = []
+                    combined_files.append(combined_file_path)
+                    segments = []
 
                 segments.append(file_path)
 
@@ -161,8 +161,8 @@ class Segment():
                                                  "_".join(name_parts),
                                                  extension)
 
-        except IndexError:
-            pass
+            except IndexError:
+                pass
 
         return combined_files
 
