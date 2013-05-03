@@ -5,3 +5,4 @@ db/*
 settings.py
 local_settings.py
 venv
+test_data
