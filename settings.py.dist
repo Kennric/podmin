@@ -1,7 +1,7 @@
 import os.path
 # Django settings for podcaster project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
