@@ -1,4 +1,6 @@
-podcast.cfg
 *~
 *.swp
 *.pyc
+db/*
+settings.py
+local_settings.py
