@@ -2,6 +2,7 @@ from django.db import models
 from django.template.loader import get_template, render_to_string
 from django.template import Context, Template
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 import shutil
 import os
 import podmin
@@ -21,6 +22,7 @@ class Podcast(models.Model):
 
     """
 
+    owner = models.ForeignKey(User)
     title = models.CharField(max_length=255)
     shortname = models.CharField('short name or abbreviation', max_length=16)
     station = models.CharField(
@@ -30,8 +32,9 @@ class Podcast(models.Model):
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
-    updated = models.DateTimeField()
-    image = models.CharField('URL for podcast image', max_length=255)
+    updated = models.DateTimeField(auto_now_add=True)
+    image = models.CharField('URL for podcast image', 
+                             max_length=255, blank=True)
     copyright = models.TextField('copyright statement', blank=True, null=True)
     language = models.CharField(max_length=8)
     explicit = models.BooleanField()
@@ -39,7 +42,7 @@ class Podcast(models.Model):
         'itunes cats', max_length=255, blank=True, null=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
-    last_import = models.IntegerField()
+    last_import = models.IntegerField(default=1000000000)
     combine_segments = models.BooleanField()
     publish_segments = models.BooleanField()
     pub_url = models.CharField('base publication url', max_length=255)
@@ -49,8 +52,9 @@ class Podcast(models.Model):
     tmp_dir = models.CharField(
         'path to temporary processing location', max_length=255)
     up_dir = models.CharField('path to the upload location', max_length=255)
-    cleaner = models.CharField('file cleaner function name', max_length=255)
-    ttl = models.IntegerField('minutes this feed can be cached', null=True)
+    cleaner = models.CharField('file cleaner function name',
+                               max_length=255, default='default')
+    ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     max_age = models.IntegerField('days to keep an episode', default=365)
 
     def __unicode__(self):
