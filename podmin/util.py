@@ -24,18 +24,19 @@ class FilePrep():
         for file in self.files:
             up_path = self.up_dir + '/' + file
             os.rename(up_path, tmp_dir + "/" + file)
+        return success
 
-        def newKejo(self):
-            """
-            get directories from podcast, process new-style kejo files
-            files are named with the prefix 00539 followed by a 2 digit
-            day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
-            part number, generally 01 - 08 rename the file by the podcast
-            short name, file creation date and part number
-            """
-            success = True
-            last_date = 0
-            part = 1
+    def newKejo(self):
+        """
+        get directories from podcast, process new-style kejo files
+        files are named with the prefix 00539 followed by a 2 digit
+        day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
+        part number, generally 01 - 08 rename the file by the podcast
+        short name, file creation date and part number
+        """
+        success = True
+        last_date = 0
+        part = 1
 
         for file in sorted(self.files):
             uppath = self.podcast.up_dir + '/' + file
