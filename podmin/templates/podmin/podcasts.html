@@ -1,0 +1,9 @@
+{% if podcasts %}
+    <ul>
+    {% for podcast in podcasts %}
+    <li><a href="{% url 'podcast' podcast.id %}">{{ podcast.shortname }}</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>No podcasts are available.</p>
+{% endif %}
