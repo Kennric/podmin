@@ -22,7 +22,7 @@ class Podcast(models.Model):
 
     """
 
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, default=1)
     title = models.CharField(max_length=255)
     shortname = models.CharField('short name or abbreviation', max_length=16)
     station = models.CharField(
@@ -275,7 +275,7 @@ class Episode(models.Model):
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(
-        'description / show notes', blank=True, null=True)
+        'short episode description', blank=True, null=True)
     filename = models.CharField('final published file name', max_length=255)
     guid = models.CharField(
         'published RSS GUID field', unique=True, max_length=255)
@@ -288,6 +288,7 @@ class Episode(models.Model):
     current = models.BooleanField()
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
+    show_notes = models.TextField('show notes', blank=True, null=True)
 
     def __unicode__(self):
         return self.filename
