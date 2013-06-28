@@ -115,15 +115,38 @@ def new_podcast(request):
 # specific episode page
 # play, share, etc buttons
 def episode(request, eid):
-    pass
+    episode = get_object_or_404(Episode, pk=eid)
+    return render(request, 'podmin/episode.html',
+                  {'episode': episode})
 
 
 # add episode if pid but nor eid
 # upload new file (drag and drop?)
 # if eid edit existing episode
 def edit_episode(request,eid):
-    pass
+    episode = Episode.objects.get(pk=eid)
+    if request.method == 'POST':
+        form = EpisodeForm(request.POST, instance=episode)
+        if form.is_valid():
+            episode = form.save()
+            return HttpResponseRedirect('/episode/' + str(episode.id))
+
+    form = EpisodeForm(instance=episode)
+
+    return render(request, 'podmin/episode_edit.html',
+                  {'form': form, 'eid': eid})
 
 
-def new_episode(request,pid=None):
-    pass
+def new_episode(request,pid):
+    podcast = get_object_or_404(Podcast, pk=pid)
+    form = EpisodeForm()
+    if request.method == 'POST':
+        form = EpisodeForm(request.POST)
+        if form.is_valid():
+            episode = form.save(commit=False)
+            episode.podcast = podcast
+            episode.save()
+            return HttpResponseRedirect('/episode/' + str(episode.id))
+
+    return render(request, 'podmin/episode_edit.html',
+                  {'form': form})
