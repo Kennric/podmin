@@ -2,3 +2,4 @@ Django
 PyRSS2Gen
 feedparser
 mutagen
+south
