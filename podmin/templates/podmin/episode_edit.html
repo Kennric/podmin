@@ -1,0 +1,9 @@
+{% if eid %}
+<form action="/episode/edit/{{eid}}/" method="post" enctype="multipart/form-data">
+{% else %}
+<form action="/podcast/new/{{pid}}/" method="post" enctype="multipart/form-data">
+{% endif %}
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+</form>
