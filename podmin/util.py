@@ -23,8 +23,8 @@ class FilePrep():
     def default(self):
         for file in self.files:
             up_path = self.up_dir + '/' + file
-            os.rename(up_path, tmp_dir + "/" + file)
-        return success
+            os.rename(up_path, self.podcast.tmp_dir + "/" + file)
+        return True
 
     def newKejo(self):
         """
