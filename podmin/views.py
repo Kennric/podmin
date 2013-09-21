@@ -2,6 +2,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from podmin.models import Podcast, Episode
 from podmin.forms import PodcastForm, EpisodeForm
+from datetime import datetime, timedelta, date
+from subprocess import check_output
 
 # front page view: display news, new episodes, featured
 # episodes, contact links, etc
@@ -21,6 +23,7 @@ def index(request):
 # list of all podcasts, brief description, feed links
 # brief stats
 
+
 def podcasts(request):
     """
     get all podcasts
@@ -36,6 +39,7 @@ def podcasts(request):
 # if owner/admin
 #   action links - edit, promote, etc
 # redirect here from login view
+
 
 def home(request):
     """
@@ -123,7 +127,7 @@ def episode(request, eid):
 # add episode if pid but nor eid
 # upload new file (drag and drop?)
 # if eid edit existing episode
-def edit_episode(request,eid):
+def edit_episode(request, eid):
     episode = Episode.objects.get(pk=eid)
     if request.method == 'POST':
         form = EpisodeForm(request.POST, instance=episode)
@@ -137,16 +141,36 @@ def edit_episode(request,eid):
                   {'form': form, 'eid': eid})
 
 
-def new_episode(request,pid):
+def new_episode(request, pid):
     podcast = get_object_or_404(Podcast, pk=pid)
     form = EpisodeForm()
     if request.method == 'POST':
-        form = EpisodeForm(request.POST)
+        form = EpisodeForm(request.POST, request.FILES)
         if form.is_valid():
             episode = form.save(commit=False)
             episode.podcast = podcast
+            uploaded_file = form.cleaned_data['upload_file']
+            upload_filename = uploaded_file.name
+            episode.filename = upload_filename
+            
+            episode.save_to_tmp(uploaded_file)
+
+            path = podcast.tmp_dir + '/' + episode.filename
+            episode.length = check_output(["soxi", "-d", path]).split('.')[0]
+            episode.size = uploaded_file.size
+
             episode.save()
+
+            if form.cleaned_data['rename_file']:
+                episode.rename_file()
+
+            if form.cleaned_data['tag_audio']:
+                episode.setTags()
+
+            if form.cleaned_data['pub_date'] <= datetime.now():
+                podcast.publish()
+
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
     return render(request, 'podmin/episode_edit.html',
-                  {'form': form})
+                  {'form': form, 'pid': pid})
