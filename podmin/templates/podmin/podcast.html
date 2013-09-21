@@ -1,7 +1,8 @@
 <h2>{{ podcast.title }}</h2>
+All episodes:
 <ul>
 {% for episode in episodes %}
-<li>{{ episode.title }}</li>
+<li><a href="{% url 'episode' eid=episode.id %}">{{ episode.title }}</a></li>
 {% endfor %} 
 </ul>
 

@@ -1,8 +1,9 @@
 <h2>{{ episode.title }}</h2>
 <ul>
-<li>{{ episode.subtitle }}</li>
-<li>{{ episode.description }}</li>
-<li>{{ episode.filename }}</li>
-<li>{{ episode.pub_date }}</li>
-<li>{{ episode.tags }}</li>
+<li>Subtitle: {{ episode.subtitle }}</li>
+<li>Description: {{ episode.description }}</li>
+<li>Filename: {{ episode.filename }}</li>
+<li>Publication Date: {{ episode.pub_date }}</li>
+<li>Tags: {{ episode.tags|default:'None' }}</li>
+<li>storage_dir: {{ episode.podcast.storage_dir }}</li>
 </ul>

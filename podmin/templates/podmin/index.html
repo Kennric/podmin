@@ -1,11 +1,9 @@
 <h2>Hypothetical Industries PodCaster</h2>
-Featured Podcasts:<br>
-Popular Podcasts:<br>
+
 All Podcasts:<br>
 
 <ul>
 {% for podcast in podcasts %}
-<li>{{ podcast.title }}</li>
+<li><a href="{% url 'podcast' pid=podcast.id %}">{{ podcast.title }}</a></li>
 {% endfor %} 
 </ul>
-

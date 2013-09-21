@@ -1,9 +1,12 @@
 {% if podcasts %}
-    <ul>
     {% for podcast in podcasts %}
-    <li><a href="{% url 'podcast' podcast.id %}">{{ podcast.shortname }}</a></li>
+    <h2>
+    <a href="{% url 'podcast' podcast.id %}">{{ podcast.title }}</a>
+    </h2>
+    <p class="podlist-desc">
+    {{ podcast.description }}
+    </p>
     {% endfor %}
-    </ul>
     {% else %}
     <p>No podcasts are available.</p>
 {% endif %}
