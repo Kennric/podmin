@@ -77,12 +77,18 @@ class Podcast(models.Model):
             entry = episode.buildEntry()
             # insert the entry into the rssContext
             rssContext['entries'].insert(0, entry)
+            episode.moveToStorage()
             episode.save()
 
         rssContext['feed']['updated'] = datetime.strftime(
             datetime.now(), "%a, %d %b %Y %X") + " PST"
 
-        shutil.copy2(rssFile, rssBakFile)
+        try:
+            with open(rssFile):
+                shutil.copy2(rssFile, rssBakFile)
+        except IOError:
+            pass 
+
         f = open(rssFile, 'w')
         f.write(template.render(rssContext))
         f.close
@@ -96,9 +102,10 @@ class Podcast(models.Model):
 
         """
 
-        fp = util.FilePrep(self)
+        # fp = util.FilePrep(self)
         rssFile = self.pub_dir + self.shortname + ".xml"
-        episodes = self.episode_set.filter(current=1, part=None)
+        episodes = self.episode_set.filter(current=1, part=None, 
+                                           pub_date__lt=datetime.now())
         type = 'full'
         self.publishEpisodes(episodes, rssFile, type)
 
@@ -111,7 +118,7 @@ class Podcast(models.Model):
         # now expire the old episodes
         self.expire()
         # and cleanup directories
-        fp.cleanupDirs(self)
+        # fp.cleanupDirs(self)
 
     def publishEpisode(self):
         """
@@ -183,7 +190,7 @@ class Podcast(models.Model):
 
             episode.setDataFromFile()
             episode.setTags()
-            episode.moveToStorage()
+            # episode.moveToStorage()
             last_date = episode.pub_date
 
         if last_date:
@@ -441,3 +448,19 @@ class Episode(models.Model):
             entry['itunes_keywords'] = tags
 
         return entry
+
+    def save_to_tmp(self, uploaded_file):
+        path = self.podcast.tmp_dir + "/" + uploaded_file.name
+        with open(path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+
+    def rename_file(self):
+        date_string = datetime.strftime(self.pub_date, "%Y-%m-%d")
+        extension = os.path.splitext(self.filename)[1]
+
+        new_filename = self.podcast.shortname + "_" + date_string + extension
+        old_path = self.podcast.tmp_dir + "/" + self.filename
+        new_path = self.podcast.tmp_dir + "/" + new_filename
+        os.rename(old_path, new_path)
+        self.filename = new_filename
