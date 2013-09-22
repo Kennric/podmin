@@ -1,18 +1,22 @@
-from django.forms import ModelForm, FileField, BooleanField, DateTimeField
+from django.forms import ModelForm, FileField, BooleanField, DateTimeField, CharField
 from django.forms.widgets import SplitDateTimeWidget
 from podmin.models import Episode, Podcast
 import datetime
 
 class EpisodeForm(ModelForm):
-    upload_file = FileField()
+    filename = CharField(required=False, label='Current File')
+    upload_file = FileField(required=False, label='Upload new file')
     tag_audio = BooleanField(required=False)
     rename_file = BooleanField(required=False)
-    pub_date = DateTimeField(initial=datetime.date.today)
+    pub_date = DateTimeField(label='Publication Date',
+                             initial=datetime.datetime.today)
 
     class Meta:
         model = Episode
-        exclude = ('podcast', 'filename', 'size', 'length')
-        widgets = {'pub_date': SplitDateTimeWidget()}
+        fields = ['title', 'subtitle', 'description', 'pub_date', 'tags', 
+                  'guid', 'part', 'current', 'filename', 'upload_file',
+                  'rename_file', 'tag_audio', 'show_notes']
+        exclude = ('podcast', 'size', 'length')
 
 
 class PodcastForm(ModelForm):
