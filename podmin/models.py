@@ -1,14 +1,22 @@
+# django stuff
 from django.db import models
 from django.template.loader import get_template, render_to_string
 from django.template import Context, Template
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-import shutil
-import os
+
+# podmin app stuff
 import podmin
 from podmin import util
+
+# python stuff
+import shutil
+import os
 from datetime import datetime, timedelta, date
 import time
+import logging
+
+# audio tagging/processing stuff
 import mutagen
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
@@ -70,31 +78,57 @@ class Podcast(models.Model):
         template = get_template('feed.xml')
 
         rssContext = Context(self.makeChannel(type))
-        rssContext['entries'] = []
+        rssContext['entries'] = [] 
 
         for episode in episodes:
             # create a new entry
             entry = episode.buildEntry()
             # insert the entry into the rssContext
             rssContext['entries'].insert(0, entry)
-            episode.moveToStorage()
-            episode.save()
+
+            # if the file is in the tmp dir, either it hasn't been put
+            # in storage yet (new), or a new version has been uploaded
+            # and should overwrite the file in storage
+
+            if os.path.isfile(self.tmp_dir + episode.filename): 
+                try: 
+                    episode.moveToStorage()
+                except IOError, err:
+                    return '; '.join(err.messages)
+            else: 
+                # make sure the file is in storage
+                if not os.path.isfile(self.storage_dir + episode.filename):
+                    return """Episode {0} from {1} is missing its file:\n
+                                 {2} is not found in {3} or {4}
+                            """.format(episode.id,
+                                       episode.pub_date,
+                                       episode.filename,
+                                       self.tmp_dir,
+                                       self.storage_dir)
+
 
         rssContext['feed']['updated'] = datetime.strftime(
             datetime.now(), "%a, %d %b %Y %X") + " PST"
 
+        # copy the existing rss file to a backup, if it exists
         try:
             with open(rssFile):
                 shutil.copy2(rssFile, rssBakFile)
         except IOError:
-            pass 
+            pass
 
-        f = open(rssFile, 'w')
-        f.write(template.render(rssContext))
-        f.close
+        # write the new rss file
+        try:
+            f = open(rssFile, 'w')
+            f.write(template.render(rssContext))
+            f.close
+        except IOError, err:
+            return '; '.join(err.messages)
 
         self.updated = datetime.now()
         self.save()
+
+        return True
 
     def publish(self):
         """
@@ -107,18 +141,19 @@ class Podcast(models.Model):
         episodes = self.episode_set.filter(current=1, part=None, 
                                            pub_date__lt=datetime.now())
         type = 'full'
-        self.publishEpisodes(episodes, rssFile, type)
+        published = self.publishEpisodes(episodes, rssFile, type)
 
         if self.publish_segments:
             rssFile = self.pub_dir + self.shortname + "_segments.xml"
             episodes = self.episode_set.filter(current=1).exclude(part=None)
             type = 'segments'
-            self.publishEpisodes(episodes, rssFile, type)
+            published = self.publishEpisodes(episodes, rssFile, type)
 
         # now expire the old episodes
         self.expire()
         # and cleanup directories
         # fp.cleanupDirs(self)
+        return published
 
     def publishEpisode(self):
         """
@@ -292,7 +327,7 @@ class Episode(models.Model):
     size = models.IntegerField('size in bytes', blank=True, null=True)
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
-    current = models.BooleanField()
+    current = models.BooleanField('Publish',default=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
     show_notes = models.TextField('show notes', blank=True, null=True)
@@ -349,12 +384,13 @@ class Episode(models.Model):
 
         """
         path = self.podcast.tmp_dir + self.filename
-        ext = self.filename.split('.')[1]
+        filename, ext = os.path.splitext(path)
+        # ext = self.filename.split('.')[1]
         date_string = datetime.strftime(self.pub_date, "%Y-%m-%d")
         tags = dict()
         tags['date'] = date_string
         tags['album'] = self.podcast.title + " " + date_string
-        tags['author'] = self.podcast.author
+        tags['artist'] = self.podcast.author
         tags['length'] = self.length
         tags['copyright'] = datetime.strftime(
             datetime.now(), "%Y") + " " + self.podcast.copyright
@@ -367,25 +403,31 @@ class Episode(models.Model):
         else:
             tags['title'] = self.title + " " + date_string
 
-        # tag the file
-        if ext == "mp3":
-            self.tagMp3(path, tags)
+        tagged = "not yet, ext = " + ext
 
-        return True
+        if ext == '.mp3':
+            tagged = self.tagMp3(path, tags)
+
+        return tagged
 
     def tagMp3(self, file, tags):
         """
         Set mp3 tags to mp3 files
 
         """
+        try:
+            audio = mutagen.File(file, easy=True)
 
-        audio = mutagen.File(file, easy=True)
+            for tag, value in tags.iteritems():
+                audio[tag] = value
 
-        for tag, value in tags.iteritems():
-            audio[tag] = value
+            audio.save()
+        except Exception, err:
+            return '; '.join(err.messages)
 
-        audio.pprint()
-        audio.save()
+        #audio.pprint()
+        #audio.save()
+        return True
 
     def buildEntry(self):
         """
@@ -462,5 +504,12 @@ class Episode(models.Model):
         new_filename = self.podcast.shortname + "_" + date_string + extension
         old_path = self.podcast.tmp_dir + "/" + self.filename
         new_path = self.podcast.tmp_dir + "/" + new_filename
-        os.rename(old_path, new_path)
+
+        try:
+            os.rename(old_path, new_path)
+        except IOError, err:
+            return '; '.join(err.messages)
+
         self.filename = new_filename
+
+        return True
