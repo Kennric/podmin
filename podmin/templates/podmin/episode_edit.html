@@ -1,9 +1,21 @@
-{% if eid %}
-<form action="/episode/edit/{{eid}}/" method="post" enctype="multipart/form-data">
+{% if episode %}
+<h2>Edit {{episode.podcast.title}} episode {{episode.id}}, {{episode.pub_date}} </h2>
+{% if episode.current %}
+    This episode is published.
+{% endif %}
+
+<form action="/episode/edit/{{episode.id}}/" method="post" enctype="multipart/form-data">
 {% else %}
-<form action="/episode/new/{{pid}}/" method="post" enctype="multipart/form-data">
+<h2>New episode for {{podcast.title}}</h2>
+<form action="/episode/new/{{podcast.id}}/" method="post" enctype="multipart/form-data">
 {% endif %}
     {% csrf_token %}
-    {{ form.as_p }}
+    {% for field in form %}
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+        </div>
+    {% endfor %}
+
     <input type="submit" value="Submit" />
 </form>
