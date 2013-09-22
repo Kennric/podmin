@@ -138,14 +138,14 @@ class Podcast(models.Model):
 
         # fp = util.FilePrep(self)
         rssFile = self.pub_dir + self.shortname + ".xml"
-        episodes = self.episode_set.filter(current=1, part=None, 
+        episodes = self.episode_set.filter(active=1, part=None, 
                                            pub_date__lt=datetime.now())
         type = 'full'
         published = self.publishEpisodes(episodes, rssFile, type)
 
         if self.publish_segments:
             rssFile = self.pub_dir + self.shortname + "_segments.xml"
-            episodes = self.episode_set.filter(current=1).exclude(part=None)
+            episodes = self.episode_set.filter(active=1).exclude(part=None)
             type = 'segments'
             published = self.publishEpisodes(episodes, rssFile, type)
 
@@ -221,7 +221,7 @@ class Podcast(models.Model):
             episode = self.episode_set.get_or_create(
                 title=self.title,
                 filename=filename,
-                current=True)[0]
+                active=True)[0]
 
             episode.setDataFromFile()
             episode.setTags()
@@ -243,7 +243,7 @@ class Podcast(models.Model):
         expired_date = date.today() - delta
         episodes = self.episode_set.filter(pub_date__lte=expired_date)
         for episode in episodes:
-            episode.current = False
+            episode.active = False
             episode.save()
 
     def makeChannel(self, type):
@@ -323,11 +323,12 @@ class Episode(models.Model):
         'published RSS GUID field', unique=True, max_length=255)
     part = models.IntegerField(
         'part number of a multipart cast', blank=True, null=True)
-    pub_date = models.DateTimeField('date published', blank=True, null=True)
+    pub_date = models.DateTimeField('rss pubdate', blank=True, null=True)
     size = models.IntegerField('size in bytes', blank=True, null=True)
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
-    current = models.BooleanField('Publish',default=True)
+    active = models.BooleanField('active',default=True)
+    published = models.DateTimeField('date published', null=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
     show_notes = models.TextField('show notes', blank=True, null=True)
