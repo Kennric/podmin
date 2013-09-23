@@ -132,6 +132,14 @@ def edit_episode(request, eid):
 
             episode.save()
 
+            if (form.cleaned_data['pub_date'] <= datetime.now()
+                and form.cleaned_data['active']):
+            
+                published = episode.podcast.publish()
+                if published is not True:
+                    messages.error(request,
+                                   "Podcast not published: " + published)
+
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
     else: 
@@ -157,6 +165,14 @@ def new_episode(request, pid):
                 episode = handle_file(episode, form, request)
 
             episode.save()
+
+            if (form.cleaned_data['pub_date'] <= datetime.now()
+                and form.cleaned_data['active']):
+
+                published = episode.podcast.publish()
+                if published is not True:
+                    messages.error(request,
+                                   "Podcast not published: " + published)
 
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
@@ -191,11 +207,5 @@ def handle_file(episode, form, request):
                              "Problem tagging audio: " + tagged)
         else:
             messages.success(request, "Audio tagged successfully")
-
-    if form.cleaned_data['pub_date'] <= datetime.now():
-        published = episode.podcast.publish()
-        if published is not True:
-            messages.error(request,
-                           "Podcast not published: " + published)
 
     return episode
