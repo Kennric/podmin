@@ -106,7 +106,6 @@ class Podcast(models.Model):
                                        self.tmp_dir,
                                        self.storage_dir)
 
-
         rssContext['feed']['updated'] = datetime.strftime(
             datetime.now(), "%a, %d %b %Y %X") + " PST"
 
@@ -125,6 +124,13 @@ class Podcast(models.Model):
         except IOError, err:
             return '; '.join(err.messages)
 
+        # now that the rss is written, update the published date
+        # on all the episodes we published
+        for episode in episodes:
+            if not episode.published:
+                episode.published = datetime.now()
+                episode.save(update_fields=['published'])
+
         self.updated = datetime.now()
         self.save()
 
@@ -138,7 +144,7 @@ class Podcast(models.Model):
 
         # fp = util.FilePrep(self)
         rssFile = self.pub_dir + self.shortname + ".xml"
-        episodes = self.episode_set.filter(active=1, part=None, 
+        episodes = self.episode_set.filter(active=True, part=None, 
                                            pub_date__lt=datetime.now())
         type = 'full'
         published = self.publishEpisodes(episodes, rssFile, type)
@@ -327,7 +333,7 @@ class Episode(models.Model):
     size = models.IntegerField('size in bytes', blank=True, null=True)
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
-    active = models.BooleanField('active',default=True)
+    active = models.BooleanField('active',default=1)
     published = models.DateTimeField('date published', null=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
