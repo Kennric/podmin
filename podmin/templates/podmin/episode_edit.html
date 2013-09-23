@@ -1,7 +1,7 @@
 {% if episode %}
 <h2>Edit {{episode.podcast.title}} episode {{episode.id}}, {{episode.pub_date}} </h2>
-{% if episode.current %}
-    This episode is published.
+{% if episode.published %}
+    This episode was published on {{episode.published|date}} at {{episode.published|time}}
 {% endif %}
 
 <form action="/episode/edit/{{episode.id}}/" method="post" enctype="multipart/form-data">
