@@ -3,7 +3,10 @@ from django.db import models
 from django.template.loader import get_template, render_to_string
 from django.template import Context, Template
 from django.http import HttpResponse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
 
 # podmin app stuff
 import podmin
@@ -15,6 +18,7 @@ import os
 from datetime import datetime, timedelta, date
 import time
 import logging
+import re
 
 # audio tagging/processing stuff
 import mutagen
@@ -41,7 +45,7 @@ class Podcast(models.Model):
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
-    image = models.CharField('URL for podcast image', 
+    image = models.CharField('URL for podcast image',
                              max_length=255, blank=True)
     copyright = models.TextField('copyright statement', blank=True, null=True)
     language = models.CharField(max_length=8)
@@ -68,6 +72,14 @@ class Podcast(models.Model):
     def __unicode__(self):
         return self.title
 
+    def _slug(self):
+        # return a slug based on shortname
+        # remove all spaces and non alphanumeric chars
+        s = re.sub('[\W ]', '', self.shortname) + str(self.id)
+        return s
+
+    slug = property(_slug)
+
     def publishEpisodes(self, episodes, rssFile, type):
         """
         Publish full episodes of the podcast.
@@ -78,7 +90,7 @@ class Podcast(models.Model):
         template = get_template('feed.xml')
 
         rssContext = Context(self.makeChannel(type))
-        rssContext['entries'] = [] 
+        rssContext['entries'] = []
 
         for episode in episodes:
             # create a new entry
@@ -90,12 +102,12 @@ class Podcast(models.Model):
             # in storage yet (new), or a new version has been uploaded
             # and should overwrite the file in storage
 
-            if os.path.isfile(self.tmp_dir + episode.filename): 
-                try: 
+            if os.path.isfile(self.tmp_dir + episode.filename):
+                try:
                     episode.moveToStorage()
                 except IOError, err:
                     return '; '.join(err.messages)
-            else: 
+            else:
                 # make sure the file is in storage
                 if not os.path.isfile(self.storage_dir + episode.filename):
                     return """Episode {0} from {1} is missing its file:\n
@@ -144,7 +156,7 @@ class Podcast(models.Model):
 
         # fp = util.FilePrep(self)
         rssFile = self.pub_dir + self.shortname + ".xml"
-        episodes = self.episode_set.filter(active=True, part=None, 
+        episodes = self.episode_set.filter(active=True, part=None,
                                            pub_date__lt=datetime.now())
         type = 'full'
         published = self.publishEpisodes(episodes, rssFile, type)
@@ -333,7 +345,7 @@ class Episode(models.Model):
     size = models.IntegerField('size in bytes', blank=True, null=True)
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
-    active = models.BooleanField('active',default=1)
+    active = models.BooleanField('active', default=1)
     published = models.DateTimeField('date published', null=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
@@ -520,3 +532,35 @@ class Episode(models.Model):
         self.filename = new_filename
 
         return True
+
+
+# signal catcher, post save for podcast:
+# create unique group name from podcast shortname
+# create x_managers, x_editors, x_webmasters, x_all groups
+# create x_manage, x_edit, x_web perms, assign to groups
+@receiver(post_save, sender=Podcast)
+def setup_podcast_groups(sender, **kwargs):
+    if created:
+        # this is a create action, create groups and perms
+        group_perms = ['managers': 'manage',
+                       'editors': 'edit',
+                       'webmasters': 'web']
+
+        slug = instance.slug
+        content_type = ContentType.objects.get(app_label='podmin',
+                                               model='Podcast')
+        for group, perm in group_perms:
+            g = Group.objects.get_or_create(name='%s_%s' % (slug, group))
+            p = Permission.objects.get_or_create(
+                codename='%s_%s' % (slug, perm),
+                name='Can %s podcast %s' % (perm, slug),
+                content_type=content_type)
+
+            g.permissions.add(p)
+
+
+# signal catcher, post delete for podcast:
+# delete all the associated groups and perms
+@receiver(post_delete, sender=Podcast)
+def setup_podcast_groups(sender, **kwargs):
+    pass
