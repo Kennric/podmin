@@ -1,31 +1,31 @@
 # django stuff
 from django.db import models
-from django.template.loader import get_template, render_to_string
-from django.template import Context, Template
-from django.http import HttpResponse
-from django.contrib.auth.models import User, Group, Permission
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-from django.contrib.contenttypes.models import ContentType
+from django.template.loader import get_template
+from django.template import Context
+from django.contrib.auth.models import User
 
 # podmin app stuff
 import podmin
-from podmin import util
+import util
 
 # python stuff
 import shutil
 import os
 from datetime import datetime, timedelta, date
+"""
 import time
 import logging
 import re
+"""
 
 # audio tagging/processing stuff
 import mutagen
+from subprocess import check_output
+"""
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
-from subprocess import check_output
+"""
 
 
 class Podcast(models.Model):
@@ -33,10 +33,9 @@ class Podcast(models.Model):
     Podcast model defines a podcast stream and methods to publish the RSS file
 
     """
-
     owner = models.ForeignKey(User, default=1)
     title = models.CharField(max_length=255)
-    shortname = models.CharField('short name or abbreviation', max_length=16)
+    shortname = models.SlugField('short name or abbreviation')
     station = models.CharField(
         'broadcasting station name', max_length=16, blank=True)
     description = models.TextField(blank=True, null=True)
@@ -60,7 +59,7 @@ class Podcast(models.Model):
     pub_url = models.CharField('base publication url', max_length=255)
     pub_dir = models.CharField('rss publication path', max_length=255)
     storage_dir = models.CharField('path to storage location', max_length=255)
-    storage_url = models.CharField('storage location base url', max_length=255)
+    storage_url = models.CharField('storage base url', max_length=255)
     tmp_dir = models.CharField(
         'path to temporary processing location', max_length=255)
     up_dir = models.CharField('path to the upload location', max_length=255)
@@ -69,14 +68,20 @@ class Podcast(models.Model):
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     max_age = models.IntegerField('days to keep an episode', default=365)
 
+    # This constant defines the groups and permissions that will be created
+    # for each podcast when it is created
+    GROUP_PERMS = {'managers': 'manage', 'editors': 'edit',
+                   'webmasters': 'web', 'all': 'view'}
+
     def __unicode__(self):
         return self.title
 
+    # @TODO: make slug reliably unique
     def _slug(self):
         # return a slug based on shortname
         # remove all spaces and non alphanumeric chars
-        s = re.sub('[\W ]', '', self.shortname) + str(self.id)
-        return s
+        # re.sub('[\W ]', '', self.shortname) + str(self.id)
+        return str(self.id)
 
     slug = property(_slug)
 
@@ -239,6 +244,7 @@ class Podcast(models.Model):
             episode = self.episode_set.get_or_create(
                 title=self.title,
                 filename=filename,
+                guid=guid,
                 active=True)[0]
 
             episode.setDataFromFile()
@@ -287,7 +293,7 @@ class Podcast(models.Model):
         regular_cats = [(x) for x in self.tags.split(',')]
 
         if type == 'segments':
-            subtitle = self.subtitle + " - Segments"
+            self.subtitle = self.subtitle + " - Segments"
 
         channel['feed']['title'] = self.title
         channel['feed']['subtitle'] = self.subtitle
@@ -532,35 +538,3 @@ class Episode(models.Model):
         self.filename = new_filename
 
         return True
-
-
-# signal catcher, post save for podcast:
-# create unique group name from podcast shortname
-# create x_managers, x_editors, x_webmasters, x_all groups
-# create x_manage, x_edit, x_web perms, assign to groups
-@receiver(post_save, sender=Podcast)
-def setup_podcast_groups(sender, **kwargs):
-    if created:
-        # this is a create action, create groups and perms
-        group_perms = ['managers': 'manage',
-                       'editors': 'edit',
-                       'webmasters': 'web']
-
-        slug = instance.slug
-        content_type = ContentType.objects.get(app_label='podmin',
-                                               model='Podcast')
-        for group, perm in group_perms:
-            g = Group.objects.get_or_create(name='%s_%s' % (slug, group))
-            p = Permission.objects.get_or_create(
-                codename='%s_%s' % (slug, perm),
-                name='Can %s podcast %s' % (perm, slug),
-                content_type=content_type)
-
-            g.permissions.add(p)
-
-
-# signal catcher, post delete for podcast:
-# delete all the associated groups and perms
-@receiver(post_delete, sender=Podcast)
-def setup_podcast_groups(sender, **kwargs):
-    pass
