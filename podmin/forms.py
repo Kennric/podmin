@@ -1,8 +1,9 @@
 from django.forms import (ModelForm, FileField, BooleanField, DateTimeField,
                           CharField)
-from django.forms.widgets import SplitDateTimeWidget
+# from django.forms.widgets import SplitDateTimeWidget
 from podmin.models import Episode, Podcast
 import datetime
+
 
 class EpisodeForm(ModelForm):
     filename = CharField(required=False, label='Current File')
@@ -14,7 +15,7 @@ class EpisodeForm(ModelForm):
 
     class Meta:
         model = Episode
-        fields = ['title', 'subtitle', 'description', 'pub_date', 'tags', 
+        fields = ['title', 'subtitle', 'description', 'pub_date', 'tags',
                   'guid', 'part', 'active', 'filename', 'upload_file',
                   'rename_file', 'tag_audio', 'show_notes']
         exclude = ('podcast', 'size', 'length')

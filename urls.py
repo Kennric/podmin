@@ -5,7 +5,9 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'', include('podmin.urls')),
+
     # Examples:
     # url(r'^pc/', include('pc.foo.urls')),
 

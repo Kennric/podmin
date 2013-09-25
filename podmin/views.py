@@ -1,14 +1,14 @@
 # django stuff
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 
 # podmin app stuff
-from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
+from models import Podcast, Episode
+from forms import PodcastForm, EpisodeForm
 
 # python stuff
-from datetime import datetime, timedelta, date
+from datetime import datetime
 from subprocess import check_output
 
 
@@ -32,20 +32,19 @@ def podcasts(request):
     """
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/podcasts.html', context) 
+    return render(request, 'podmin/podcasts.html', context)
 
 
 def home(request):
     """
     my podcasts
-    display all the podcasts owned by the current logged in 
+    display all the podcasts owned by the current logged in
     user (or all for admin)
     if owner/admin
       action links - edit, promote, etc
     redirect here from login view
     """
     pass
-
 
 
 def podcast(request, pid):
@@ -122,8 +121,8 @@ def episode(request, eid):
 def edit_episode(request, eid):
     episode = Episode.objects.get(pk=eid)
     if request.method == 'POST':
-        form = EpisodeForm(request.POST, request.FILES, instance=episode) 
-        
+        form = EpisodeForm(request.POST, request.FILES, instance=episode)
+
         if form.is_valid():
             episode = form.save(commit=False)
 
@@ -133,8 +132,8 @@ def edit_episode(request, eid):
             episode.save()
 
             if (form.cleaned_data['pub_date'] <= datetime.now()
-                and form.cleaned_data['active']):
-            
+                    and form.cleaned_data['active']):
+
                 published = episode.podcast.publish()
                 if published is not True:
                     messages.error(request,
@@ -142,7 +141,7 @@ def edit_episode(request, eid):
 
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
-    else: 
+    else:
         form = EpisodeForm(instance=episode)
 
     form.fields['filename'].widget.attrs['readonly'] = True
@@ -167,7 +166,7 @@ def new_episode(request, pid):
             episode.save()
 
             if (form.cleaned_data['pub_date'] <= datetime.now()
-                and form.cleaned_data['active']):
+                    and form.cleaned_data['active']):
 
                 published = episode.podcast.publish()
                 if published is not True:
@@ -180,11 +179,11 @@ def new_episode(request, pid):
                   {'form': form, 'podcast': podcast})
 
 
-def handle_file(episode, form, request):       
-    uploaded_file = form.cleaned_data['upload_file']  
+def handle_file(episode, form, request):
+    uploaded_file = form.cleaned_data['upload_file']
     upload_filename = uploaded_file.name
     episode.filename = upload_filename
-    
+
     episode.save_to_tmp(uploaded_file)
 
     path = episode.podcast.tmp_dir + '/' + episode.filename
