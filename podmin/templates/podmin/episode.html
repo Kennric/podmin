@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <h2>{{ episode.title }}</h2>
 
 {% if messages %}
@@ -16,3 +20,5 @@
 <li>Tags: {{ episode.tags|default:'None' }}</li>
 <li>storage_dir: {{ episode.podcast.storage_dir }}</li>
 </ul>
+
+{% endblock %}
