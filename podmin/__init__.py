@@ -15,3 +15,6 @@ def get_version():
 
 def get_name():
     return 'Podmin'
+
+# import the signal handlers here so they will be available before models
+import handlers

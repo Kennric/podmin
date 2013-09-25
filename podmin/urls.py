@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, url
 import views
-import receivers
 
 urlpatterns = patterns('',
     url(r'^login/$', 'django.contrib.auth.views.login',
