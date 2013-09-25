@@ -1,4 +1,3 @@
-# Django settings for the PodMin app
 # version: major, minor, point, status, rev
 VERSION = (0, 2, 0, 'beta', 1)
 
