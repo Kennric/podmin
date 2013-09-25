@@ -6,3 +6,5 @@ settings.py
 local_settings.py
 venv
 test_data
+podcaster.sublime-workspace
+podcaster.sublime-project
