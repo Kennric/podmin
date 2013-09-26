@@ -8,3 +8,4 @@ venv
 test_data
 podcaster.sublime-workspace
 podcaster.sublime-project
+bower_components
