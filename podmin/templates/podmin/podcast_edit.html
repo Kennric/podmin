@@ -1,9 +1,0 @@
-{% if pid %}
-<form action="/podcast/edit/{{pid}}/" method="post">
-{% else %}
-<form action="/podcast/new/" method="post">
-{% endif %}
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit" />
-</form>
