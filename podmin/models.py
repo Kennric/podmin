@@ -3,6 +3,7 @@ from django.db import models
 from django.template.loader import get_template
 from django.template import Context
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # podmin app stuff
 import podmin
@@ -329,6 +330,27 @@ class Podcast(models.Model):
 
         return channel
 
+    def get_theme(self):
+        has_static_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
+                                        'podmin', 'static', 'podcast',
+                                        self.shortname))
+
+        if has_static_dir:
+            static_dir = '/static/podcast/%s' % self.shortname
+        else:
+            static_dir = '/static/podcast/default'
+
+        has_template_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
+                                          'podmin', 'templates', 'podmin',
+                                          'podcast', self.shortname))
+
+        if has_template_dir:
+            template_dir = self.shortname
+        else:
+            template_dir = 'default'
+
+        return static_dir, template_dir
+
 
 class Episode(models.Model):
     """
@@ -538,3 +560,32 @@ class Episode(models.Model):
         self.filename = new_filename
 
         return True
+
+
+    def handle_uploaded_audio(self, form, messages, request):
+        uploaded_file = form.cleaned_data['upload_file']
+        upload_filename = uploaded_file.name
+        self.filename = upload_filename
+
+        self.save_to_tmp(uploaded_file)
+
+        path = self.podcast.tmp_dir + '/' + self.filename
+        self.length = check_output(["soxi", "-d", path]).split('.')[0]
+        self.size = uploaded_file.size
+
+        if form.cleaned_data['rename_file']:
+            renamed = self.rename_file()
+            if renamed is not True:
+                messages.error(request,
+                               "Problem renaming file: " + renamed)
+            else:
+                messages.success(request,
+                                 "File renamed to " + self.filename)
+
+        if form.cleaned_data['tag_audio']:
+            tagged = self.setTags()
+            if tagged is not True:
+                messages.warning(request,
+                                 "Problem tagging audio: " + tagged)
+            else:
+                messages.success(request, "Audio tagged successfully")
