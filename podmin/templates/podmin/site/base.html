@@ -1,0 +1,13 @@
+{% extends "master.html" %}
+{% load static from staticfiles %}
+
+
+{% block externals %}
+    <link href="{% static 'base/css/admin.css' %}" rel="stylesheet"type="text/css">
+{% endblock %}
+
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
+
+

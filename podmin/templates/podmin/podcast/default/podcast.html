@@ -1,0 +1,13 @@
+{% extends "podmin/podcast/default/base.html" %}
+
+{% block content %}
+
+<h2>{{ podcast.title }}</h2>
+All episodes:
+<ul>
+{% for episode in episodes %}
+<li><a href="{% url 'episode' eid=episode.id %}">{{ episode.title }}</a></li>
+{% endfor %} 
+</ul>
+
+{% endblock %}
