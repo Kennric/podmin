@@ -10,7 +10,7 @@ from forms import PodcastForm, EpisodeForm
 # python stuff
 from datetime import datetime
 from subprocess import check_output
-
+import os
 
 def index(request):
     """
@@ -20,7 +20,7 @@ def index(request):
     """
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/index.html', context)
+    return render(request, 'podmin/default/index.html', context)
 
 
 def podcasts(request):
@@ -32,7 +32,7 @@ def podcasts(request):
     """
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/podcasts.html', context)
+    return render(request, 'podmin/default/podcasts.html', context)
 
 
 def home(request):
@@ -62,8 +62,12 @@ def podcast(request, pid):
     """
     podcast = get_object_or_404(Podcast, pk=pid)
     episodes = podcast.episode_set.all()
-    return render(request, 'podmin/podcast.html',
-                  {'podcast': podcast, 'episodes': episodes})
+
+    static_dir, template_dir = podcast.get_theme()
+
+    return render(request, 'podmin/podcast/%s/podcast.html' % template_dir,
+                  {'podcast': podcast, 'episodes': episodes,
+                   'static_dir': static_dir})
 
 
 def edit_podcast(request, pid):
@@ -85,8 +89,11 @@ def edit_podcast(request, pid):
 
     form = PodcastForm(instance=podcast)
 
-    return render(request, 'podmin/podcast_edit.html',
-                  {'form': form, 'pid': pid})
+    static_dir, template_dir = podcast.get_theme()
+
+    return render(request, 
+                  'podmin/podcast/%s/podcast_edit.html' % template_dir,
+                  {'form': form, 'pid': pid, 'static_dir': static_dir})
 
 
 def new_podcast(request):
@@ -103,8 +110,8 @@ def new_podcast(request):
             podcast = form.save()
             return HttpResponseRedirect('/podcast/' + str(podcast.id))
 
-    return render(request, 'podmin/podcast_edit.html',
-                  {'form': form})
+    return render(request, 'podmin/podcast/default/podcast_edit.html',
+                  {'form': form, 'static_dir': '/static/podcast/default'})
 
 
 def episode(request, eid):
@@ -114,8 +121,11 @@ def episode(request, eid):
     play, share, etc buttons
     """
     episode = get_object_or_404(Episode, pk=eid)
-    return render(request, 'podmin/episode.html',
-                  {'episode': episode})
+
+    static_dir, template_dir = episode.podcast.get_theme()
+
+    return render(request, 'podmin/podcast/%s/episode.html' % template_dir,
+                  {'episode': episode, 'static_dir': static_dir})
 
 
 def edit_episode(request, eid):
@@ -127,7 +137,7 @@ def edit_episode(request, eid):
             episode = form.save(commit=False)
 
             if form.cleaned_data['upload_file']:
-                episode = handle_file(episode, form, request)
+                episode.handle_uploaded_audio(form, messages, request)
 
             episode.save()
 
@@ -146,8 +156,12 @@ def edit_episode(request, eid):
 
     form.fields['filename'].widget.attrs['readonly'] = True
 
-    return render(request, 'podmin/episode_edit.html',
-                  {'form': form, 'episode': episode})
+    static_dir, template_dir = episode.podcast.get_theme()
+
+    return render(request, 
+                  'podmin/podcast/%s/episode_edit.html' % template_dir,
+                  {'form': form, 'episode': episode, 
+                   'static_dir': static_dir})
 
 
 def new_episode(request, pid):
@@ -161,7 +175,7 @@ def new_episode(request, pid):
             episode.podcast = podcast
 
             if form.cleaned_data['upload_file']:
-                episode = handle_file(episode, form, request)
+                episode.handle_uploaded_audio(form, messages, request)
 
             episode.save()
 
@@ -175,36 +189,6 @@ def new_episode(request, pid):
 
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
-    return render(request, 'podmin/episode_edit.html',
-                  {'form': form, 'podcast': podcast})
-
-
-def handle_file(episode, form, request):
-    uploaded_file = form.cleaned_data['upload_file']
-    upload_filename = uploaded_file.name
-    episode.filename = upload_filename
-
-    episode.save_to_tmp(uploaded_file)
-
-    path = episode.podcast.tmp_dir + '/' + episode.filename
-    episode.length = check_output(["soxi", "-d", path]).split('.')[0]
-    episode.size = uploaded_file.size
-
-    if form.cleaned_data['rename_file']:
-        renamed = episode.rename_file()
-        if renamed is not True:
-            messages.error(request,
-                           "Problem renaming file: " + renamed)
-        else:
-            messages.success(request,
-                             "File renamed to " + episode.filename)
-
-    if form.cleaned_data['tag_audio']:
-        tagged = episode.setTags()
-        if tagged is not True:
-            messages.warning(request,
-                             "Problem tagging audio: " + tagged)
-        else:
-            messages.success(request, "Audio tagged successfully")
-
-    return episode
+    return render(request, 'podmin/podcast/default/episode_edit.html',
+                  {'form': form, 'podcast': podcast,
+                   'static_dir': '/static/podcast/default'})
