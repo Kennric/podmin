@@ -10,3 +10,4 @@ podcaster.sublime-workspace
 podcaster.sublime-project
 bower_components
 .sass-cache
+*.css
