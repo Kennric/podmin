@@ -12,6 +12,7 @@ from datetime import datetime
 from subprocess import check_output
 import os
 
+
 def index(request):
     """
     front page view: display news, new episodes, featured
@@ -32,7 +33,7 @@ def podcasts(request):
     """
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/default/podcasts.html', context)
+    return render(request, 'podmin/site/podcasts.html', context)
 
 
 def home(request):
