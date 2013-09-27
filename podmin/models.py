@@ -48,8 +48,7 @@ class Podcast(models.Model):
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
-    image = models.CharField('URL for podcast image',
-                             max_length=255, blank=True)
+    image = models.CharField('podcast image', max_length=255, blank=True)
     copyright = models.TextField('copyright statement', blank=True, null=True)
     language = models.CharField(max_length=8)
     explicit = models.BooleanField()
@@ -71,6 +70,7 @@ class Podcast(models.Model):
                                max_length=255, default='default')
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     max_age = models.IntegerField('days to keep an episode', default=365)
+    credits = models.TextField('art and music credits', blank=True, null=True)
 
     # This constant defines the groups and permissions that will be created
     # for each podcast when it is created
@@ -80,16 +80,7 @@ class Podcast(models.Model):
     def __unicode__(self):
         return self.title
 
-    # @TODO: make slug reliably unique
-    def _slug(self):
-        # return a slug based on shortname
-        # remove all spaces and non alphanumeric chars
-        # re.sub('[\W ]', '', self.shortname) + str(self.id)
-        return str(self.id)
-
-    slug = property(_slug)
-
-    def publishEpisodes(self, episodes, rssFile, type):
+    def publish_episodes(self, episodes, rssFile, type):
         """
         Publish full episodes of the podcast.
 
@@ -98,12 +89,12 @@ class Podcast(models.Model):
         rssBakFile = rssFile + ".bak"
         template = get_template('feed.xml')
 
-        rssContext = Context(self.makeChannel(type))
+        rssContext = Context(self.make_channel(type))
         rssContext['entries'] = []
 
         for episode in episodes:
             # create a new entry
-            entry = episode.buildEntry()
+            entry = episode.build_entry()
             # insert the entry into the rssContext
             rssContext['entries'].insert(0, entry)
 
@@ -113,7 +104,7 @@ class Podcast(models.Model):
 
             if os.path.isfile(self.tmp_dir + episode.filename):
                 try:
-                    episode.moveToStorage()
+                    episode.move_to_storage()
                 except IOError, err:
                     return '; '.join(err.messages)
             else:
@@ -168,13 +159,13 @@ class Podcast(models.Model):
         episodes = self.episode_set.filter(active=True, part=None,
                                            pub_date__lt=datetime.now())
         type = 'full'
-        published = self.publishEpisodes(episodes, rssFile, type)
+        published = self.publish_episodes(episodes, rssFile, type)
 
         if self.publish_segments:
             rssFile = self.pub_dir + self.shortname + "_segments.xml"
             episodes = self.episode_set.filter(active=1).exclude(part=None)
             type = 'segments'
-            published = self.publishEpisodes(episodes, rssFile, type)
+            published = self.publish_episodes(episodes, rssFile, type)
 
         # now expire the old episodes
         self.expire()
@@ -182,26 +173,26 @@ class Podcast(models.Model):
         # fp.cleanupDirs(self)
         return published
 
-    def publishEpisode(self):
+    def publish_episode(self):
         """
         Manually publish a single episode
 
         """
         pass
 
-    def autoPublish(self):
+    def auto_publish(self):
         """
         Wrapper method to check for new files on disk and publish
         them if found
 
         """
 
-        new_files = self.getNewFiles()
-        self.importFromFiles(new_files)
+        new_files = self.get_new_files()
+        self.import_from_files(new_files)
         self.publish()
         return "Podcast Published"
 
-    def getNewFiles(self):
+    def get_new_files(self):
         """
         Process new files on disk, calling the podcast's file cleaner
         function, if one is defined.
@@ -234,7 +225,7 @@ class Podcast(models.Model):
 
         return file_list
 
-    def importFromFiles(self, file_list):
+    def import_from_files(self, file_list):
         """
         Take a list of files and create podcast episodes from them.
 
@@ -251,9 +242,9 @@ class Podcast(models.Model):
                 guid=guid,
                 active=True)[0]
 
-            episode.setDataFromFile()
-            episode.setTags()
-            # episode.moveToStorage()
+            episode.set_data_from_file()
+            episode.set_tags()
+            # episode.move_to_storage()
             last_date = episode.pub_date
 
         if last_date:
@@ -274,7 +265,7 @@ class Podcast(models.Model):
             episode.active = False
             episode.save()
 
-    def makeChannel(self, type):
+    def make_channel(self, type):
         """
         Update the channel properties of the podcast's RSS file.
 
@@ -354,6 +345,36 @@ class Podcast(models.Model):
 
         return static_dir, template_dir
 
+    def handle_uploaded_logo(self, form, messages, request):
+        uploaded_file = form.cleaned_data['upload_file']
+
+        tmp_path = self.tmp_dir + "/" + uploaded_file.name
+
+        with open(tmp_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+
+        # we might want to scale this or something at some point
+        # before moving it to it's final resting place
+
+        """
+        try:
+            rescale_image(tmp_path, width, height)
+        except Exception, err:
+            messages,error(request, "scale failed! " + err)
+
+        """
+
+        # put the logo where it needs to be. 
+        pub_path = os.path.join(self.pub_dir, 'img', uploaded_file.name)
+
+        try:
+            os.rename(tmp_path, pub_path)
+        except IOError, err:
+            return '; '.join(err.messages)
+
+        self.image = uploaded_file.name
+
 
 class Episode(models.Model):
     """
@@ -390,17 +411,24 @@ class Episode(models.Model):
         get_latest_by = "pub_date"
         order_with_respect_to = 'podcast'
 
-    def moveToStorage(self):
+    def move_to_storage(self):
         """
         Move an episode to its final web accessible storage location
 
-        """
+        """        
+
+        # Try to create the storage directory
+        try:
+            os.makedirs(self.storage_dir)
+        except OSError, e:
+            if e.errno is not errno.EEXIST:
+                raise e
 
         tmp_path = self.podcast.tmp_dir + self.filename
         stor_path = self.podcast.storage_dir + self.filename
         os.rename(tmp_path, stor_path)
 
-    def setDataFromFile(self):
+    def set_data_from_file(self):
         """
         Set the data for this episode based on its standardized filename
 
@@ -428,7 +456,7 @@ class Episode(models.Model):
         self.description = self.podcast.title + " for " + name_parts[1]
         self.save()
 
-    def setTags(self):
+    def set_tags(self):
         """
         Set tags to the file, taking the data from the episode variables
 
@@ -456,11 +484,11 @@ class Episode(models.Model):
         tagged = "not yet, ext = " + ext
 
         if ext == '.mp3':
-            tagged = self.tagMp3(path, tags)
+            tagged = self.tag_mp3(path, tags)
 
         return tagged
 
-    def tagMp3(self, file, tags):
+    def tag_mp3(self, file, tags):
         """
         Set mp3 tags to mp3 files
 
@@ -479,7 +507,7 @@ class Episode(models.Model):
         #audio.save()
         return True
 
-    def buildEntry(self):
+    def build_entry(self):
         """
         Build the RSS item entry for this episode
 
@@ -564,7 +592,6 @@ class Episode(models.Model):
 
         return True
 
-
     def handle_uploaded_audio(self, form, messages, request):
         uploaded_file = form.cleaned_data['upload_file']
         upload_filename = uploaded_file.name
@@ -586,7 +613,7 @@ class Episode(models.Model):
                                  "File renamed to " + self.filename)
 
         if form.cleaned_data['tag_audio']:
-            tagged = self.setTags()
+            tagged = self.set_tags()
             if tagged is not True:
                 messages.warning(request,
                                  "Problem tagging audio: " + tagged)
