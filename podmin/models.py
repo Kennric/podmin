@@ -5,6 +5,9 @@ from django.template import Context
 from django.contrib.auth.models import User
 from django.conf import settings
 
+# django contrib stuff
+from autoslug import AutoSlugField
+
 # podmin app stuff
 import podmin
 import util
@@ -36,7 +39,7 @@ class Podcast(models.Model):
     """
     owner = models.ForeignKey(User, default=1)
     title = models.CharField(max_length=255)
-    shortname = models.SlugField('short name or abbreviation')
+    shortname = AutoSlugField(populate_from='title', unique=True)
     station = models.CharField(
         'broadcasting station name', max_length=16, blank=True)
     description = models.TextField(blank=True, null=True)
