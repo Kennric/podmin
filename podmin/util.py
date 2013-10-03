@@ -2,8 +2,8 @@ import os
 import shutil
 from datetime import datetime, date, time
 import time
-import util
 from subprocess import check_output
+from django.conf import settings
 
 
 class FilePrep():
@@ -199,3 +199,11 @@ class Segment():
         sox_command.append(combined_filename)
         check_output(sox_command)
         os.utime(combined_filename, (-1, mtime))
+
+
+def setting(name, default=None):
+    """
+    Helper function to get a Django setting by name or (optionally) return
+    a default (or else ``None``).
+    """
+    return getattr(settings, name, default)

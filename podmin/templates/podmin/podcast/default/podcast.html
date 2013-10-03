@@ -1,9 +1,38 @@
 {% extends "podmin/podcast/default/base.html" %}
 
-{% block content %}
+{% block podcast_title %}{{ podcast.title }}{% endblock %}
+{% block podcast_subtitle %}{{ podcast.subtitle }}{% endblock %}
 
-<h2>{{ podcast.title }}</h2>
-All episodes:
+{% block sub_content %}
+	<!-- Block with the podcast image and description -->
+ 	<div class="row">
+    	<div class="three columns">
+    		{% if podcast.image %}
+    			<img src="{{podcast.image}}" alt="podcast image">
+    		{% endif %}
+    	</div>
+    	<div class="nine columns">
+     		<p>{{podcast.description}}<p>
+    	</div>
+  	</div>
+  	<div class="row">
+    	<div class="centered twelve columns">
+			<table class="rounded">
+				<tbody>
+					{% for e in episodes %}
+					<tr>
+						<td>{{ e.title }}</td>
+						<td>
+							{{ e.description }}<br>
+							<em>published {{ e.pub_date }}</em>
+						</td>
+						<td>PLAY</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
 <ul>
 {% for episode in episodes %}
 <li><a href="{% url 'episode' eid=episode.id %}">{{ episode.title }}</a></li>

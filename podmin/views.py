@@ -9,8 +9,6 @@ from forms import PodcastForm, EpisodeForm
 
 # python stuff
 from datetime import datetime
-from subprocess import check_output
-import os
 
 
 def index(request):
@@ -92,7 +90,7 @@ def edit_podcast(request, pid):
 
     static_dir, template_dir = podcast.get_theme()
 
-    return render(request, 
+    return render(request,
                   'podmin/podcast/%s/podcast_edit.html' % template_dir,
                   {'form': form, 'pid': pid, 'static_dir': static_dir})
 
@@ -159,9 +157,9 @@ def edit_episode(request, eid):
 
     static_dir, template_dir = episode.podcast.get_theme()
 
-    return render(request, 
+    return render(request,
                   'podmin/podcast/%s/episode_edit.html' % template_dir,
-                  {'form': form, 'episode': episode, 
+                  {'form': form, 'episode': episode,
                    'static_dir': static_dir})
 
 
