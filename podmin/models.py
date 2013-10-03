@@ -4,9 +4,11 @@ from django.template.loader import get_template
 from django.template import Context
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 # django contrib stuff
 from autoslug import AutoSlugField
+from licenses.fields import LicenseField
 
 # podmin app stuff
 import podmin
@@ -37,25 +39,31 @@ class Podcast(models.Model):
     Podcast model defines a podcast stream and methods to publish the RSS file
 
     """
-    owner = models.ForeignKey(User, default=1)
-    title = models.CharField(max_length=255)
+    COPYRIGHT_CHOICES = (
+        ('All rights reserved', 'All rights reserved'),
+        ('Creative Commons: Attribution (by)',
+         'Creative Commons: Attribution (by)'),
+        ('Creative Commons: Attribution-Share Alike (by-sa)',
+         'Creative Commons: Attribution-Share Alike (by-sa)'),
+        ('Creative Commons: Attribution-No Derivatives (by-nd)',
+         'Creative Commons: Attribution-No Derivatives (by-nd)'),
+        ('Creative Commons: Attribution-Non-Commercial (by-nc)',
+         'Creative Commons: Attribution-Non-Commercial (by-nc)'),
+        ('Creative Commons: Attribution-Non-Commercial-Share Alike (by-nc-sa)',
+         'Creative Commons: Attribution-Non-Commercial-Share Alike (by-nc-sa)'),
+        ('Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)',
+         'Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)'),
+        ('Public domain', 'Public domain')
+    )
+
+    EXPLICIT_CHOICES = (
+        ('Yes', 'Yes'),
+        ('No', 'No'),
+        ('Clean', 'Clean'),
+    )
+
+    # admin
     shortname = AutoSlugField(populate_from='title', unique=True)
-    station = models.CharField(
-        'broadcasting station name', max_length=16, blank=True)
-    description = models.TextField(blank=True, null=True)
-    website = models.CharField(max_length=255, blank=True, null=True)
-    subtitle = models.CharField(max_length=255, blank=True, null=True)
-    author = models.CharField(max_length=255, blank=True, null=True)
-    contact = models.EmailField(max_length=255, blank=True, null=True)
-    updated = models.DateTimeField(auto_now_add=True)
-    image = models.CharField('podcast image', max_length=255, blank=True)
-    copyright = models.TextField('copyright statement', blank=True, null=True)
-    language = models.CharField(max_length=8)
-    explicit = models.BooleanField()
-    itunes_categories = models.CharField(
-        'itunes cats', max_length=255, blank=True, null=True)
-    tags = models.CharField(
-        'comma separated list of tags', max_length=255, blank=True, null=True)
     last_import = models.IntegerField(default=1000000000)
     combine_segments = models.BooleanField()
     publish_segments = models.BooleanField()
@@ -68,9 +76,64 @@ class Podcast(models.Model):
     up_dir = models.CharField('path to the upload location', max_length=255)
     cleaner = models.CharField('file cleaner function name',
                                max_length=255, default='default')
-    ttl = models.IntegerField('minutes this feed can be cached', default=1440)
-    max_age = models.IntegerField('days to keep an episode', default=365)
     credits = models.TextField('art and music credits', blank=True, null=True)
+    created = models.DateTimeField("created", auto_now_add=True,
+                                   editable=False)
+    updated = models.DateTimeField("updated", auto_now=True, editable=False)
+    site = models.ForeignKey(Site)
+    owner = models.ForeignKey(User, default=1)
+
+    # RSS
+    title = models.CharField(max_length=255)
+    organization = models.CharField(max_length=255)
+    station = models.CharField('broadcasting station name',
+                               max_length=16, blank=True)
+    description = models.TextField(blank=True, null=True)
+    link = models.CharField(max_length=255, blank=True, null=True)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    contact = models.EmailField(max_length=255, blank=True, null=True)
+    updated = models.DateTimeField(auto_now_add=True)
+    image = models.CharField('podcast image', max_length=255, blank=True)
+    copyright = models.TextField('copyright statement', blank=True, null=True)
+    copyright_url = models.TextField('copyright url', blank=True, null=True)
+    language = models.CharField(max_length=8)
+    domain = models.URLField(blank=True)
+    feedburner = models.URLField('FeedBurner URL', blank=True)
+    ttl = models.IntegerField('minutes this feed can be cached', default=1440)
+    tags = models.CharField('comma separated list of tags',
+                            max_length=255, blank=True, null=True)
+    max_age = models.IntegerField('days to keep an episode', default=365)
+    editor_email = models.EmailField('editor email', blank=True)
+    webmaster_email = models.EmailField('webmaster email', blank=True)
+
+    # itunes
+    explicit = models.BooleanField()
+    itunes_categories = models.CharField(
+        'itunes cats', max_length=255, blank=True, null=True)
+    subtitle = models.CharField(max_length=255, blank=True)
+    summary = models.TextField(blank=True)
+    explicit = models.CharField(max_length=255, default='No',
+                                choices=EXPLICIT_CHOICES, blank=True)
+    block = models.BooleanField(default=False)
+    """
+    The show's new URL feed if changing the URL of the current show feed.
+    Must continue old feed for at least two weeks and write a 301 redirect
+    for old feed.
+
+    """
+    redirect = models.URLField(blank=True)
+    keywords = models.CharField(max_length=255)
+    """
+    itunes: Fill this out after saving this show and at least one episode.
+    URL should look like
+    "http://phobos.apple.com/WebObjects/MZStore.woa/wa/
+                                                viewPodcast?id=000000000".
+    See https://github.com/jefftriplett/django-podcast for more.
+
+    """
+    itunes = models.URLField('iTunes Store URL', blank=True)
+    license = LicenseField()
 
     # This constant defines the groups and permissions that will be created
     # for each podcast when it is created
@@ -365,7 +428,7 @@ class Podcast(models.Model):
 
         """
 
-        # put the logo where it needs to be. 
+        # put the logo where it needs to be.
         pub_path = os.path.join(self.pub_dir, 'img', uploaded_file.name)
 
         try:
@@ -382,6 +445,17 @@ class Episode(models.Model):
     extract and set data about the episode.
 
     """
+    FREQUENCY_CHOICES = (
+        ('always', 'Always'),
+        ('hourly', 'Hourly'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('yearly', 'Yearly'),
+        ('never', 'Never'),
+    )
+    created = models.DateTimeField(_("created"), auto_now_add=True, editable=False)
+    updated = models.DateTimeField(_("updated"), auto_now=True, editable=False)
 
     podcast = models.ForeignKey(Podcast)
     title = models.CharField(max_length=255)
@@ -403,6 +477,23 @@ class Episode(models.Model):
         'comma separated list of tags', max_length=255, blank=True, null=True)
     show_notes = models.TextField('show notes', blank=True, null=True)
 
+    # new
+    image = models.ImageField(
+        _("original image"), upload_to=get_episode_upload_folder,
+        help_text=_("""For best results choose an attractive, original, and square
+            JPEG (.jpg) or PNG (.png) image at a size of 1400x1400 pixels. Image will be
+            scaled down to 50x50 pixels at smallest in iTunes. For reference see the
+            <a href="http://www.apple.com/itunes/podcasts/specs.html#metadata">iTunes
+            Podcast specs</a>.<br /><br />
+            For episode artwork to display in iTunes, image must be
+            <a href="http://answers.yahoo.com/question/index?qid=20080501164348AAjvBvQ">
+            saved to file's <strong>metadata</strong></a> before enclosure uploading!"""))
+    slug = AutoSlugField(populate_from='title', unique=True)
+    category = models.CharField(max_length=255, blank=True, help_text='Limited to one user-specified category for the sake of sanity.')
+    domain = models.URLField(blank=True, help_text='A URL that identifies a categorization taxonomy.')
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, blank=True, help_text='The frequency with which the episode\'s data changes. For sitemaps.', default='never')
+    summary = models.TextField(help_text='Allows 4,000 characters. Description will be used if summary is blank.', blank=True)
+
     def __unicode__(self):
         return self.filename
 
@@ -415,7 +506,7 @@ class Episode(models.Model):
         """
         Move an episode to its final web accessible storage location
 
-        """        
+        """
 
         # Try to create the storage directory
         try:
