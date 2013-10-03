@@ -19,7 +19,6 @@ import shutil
 import os
 from datetime import datetime, timedelta, date
 """
-import time
 import logging
 import re
 """
@@ -32,6 +31,15 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 """
+
+
+def get_image_upload_folder(instance, pathname):
+    # A standardized pathname for uploaded show images
+    title = instance.title
+    if instance.__class__ is Episode:
+        return "{0}/{1}/img/".format(instance.podcast.slug, instance.slug)
+    if instance.__class__ is Podcast:
+        return "{0}/img/".format(instance.slug)
 
 
 class Podcast(models.Model):
@@ -63,7 +71,7 @@ class Podcast(models.Model):
     )
 
     # admin
-    shortname = AutoSlugField(populate_from='title', unique=True)
+    slug = AutoSlugField(populate_from='title', unique=True)
     last_import = models.IntegerField(default=1000000000)
     combine_segments = models.BooleanField()
     publish_segments = models.BooleanField()
@@ -77,15 +85,15 @@ class Podcast(models.Model):
     cleaner = models.CharField('file cleaner function name',
                                max_length=255, default='default')
     credits = models.TextField('art and music credits', blank=True, null=True)
-    created = models.DateTimeField("created", auto_now_add=True,
-                                   editable=False)
-    updated = models.DateTimeField("updated", auto_now=True, editable=False)
-    site = models.ForeignKey(Site)
+    created = models.DateTimeField('created', auto_now_add=True,
+                                   editable=False, default=datetime.now())
+    updated = models.DateTimeField('updated', auto_now=True, editable=False,
+                                   default=datetime.now())
     owner = models.ForeignKey(User, default=1)
 
     # RSS
     title = models.CharField(max_length=255)
-    organization = models.CharField(max_length=255)
+    organization = models.CharField(max_length=255, default='')
     station = models.CharField('broadcasting station name',
                                max_length=16, blank=True)
     description = models.TextField(blank=True, null=True)
@@ -94,7 +102,7 @@ class Podcast(models.Model):
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
-    image = models.CharField('podcast image', max_length=255, blank=True)
+    image = models.ImageField('cover art', upload_to=get_image_upload_folder)
     copyright = models.TextField('copyright statement', blank=True, null=True)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
@@ -123,7 +131,7 @@ class Podcast(models.Model):
 
     """
     redirect = models.URLField(blank=True)
-    keywords = models.CharField(max_length=255)
+    keywords = models.CharField(max_length=255, blank=True)
     """
     itunes: Fill this out after saving this show and at least one episode.
     URL should look like
@@ -133,7 +141,7 @@ class Podcast(models.Model):
 
     """
     itunes = models.URLField('iTunes Store URL', blank=True)
-    license = LicenseField()
+    license = LicenseField(null=True, blank=True)
 
     # This constant defines the groups and permissions that will be created
     # for each podcast when it is created
@@ -455,11 +463,13 @@ class Episode(models.Model):
         ('never', 'Never'),
     )
     created = models.DateTimeField('created', auto_now_add=True,
-                                   editable=False)
-    updated = models.DateTimeField('updated', auto_now=True, editable=False)
+                                   editable=False, default=datetime.now())
+    updated = models.DateTimeField('updated', auto_now=True, editable=False,
+                                   default=datetime.now())
     podcast = models.ForeignKey(Podcast)
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
+    slug = AutoSlugField(populate_from='title', unique=True, default='')
     description = models.TextField('short episode description',
                                    blank=True, null=True)
     filename = models.CharField('final published file name', max_length=255)
@@ -485,8 +495,8 @@ class Episode(models.Model):
     http://www.apple.com/itunes/podcasts/specs.html#metadata
     """
     image = models.ImageField('original image',
-                              upload_to=get_episode_upload_folder)
-    slug = AutoSlugField(populate_from='title', unique=True)
+                              upload_to=get_image_upload_folder)
+
     category = models.CharField(max_length=255, blank=True)
     # A URL that identifies a categorization taxonomy.
     domain = models.URLField(blank=True)
