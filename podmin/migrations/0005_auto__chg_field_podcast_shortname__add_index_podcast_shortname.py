@@ -8,16 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-
         # Changing field 'Podcast.shortname'
         db.alter_column(u'podmin_podcast', 'shortname', self.gf('django.db.models.fields.SlugField')(max_length=50))
-        # Adding index on 'Podcast', fields ['shortname']
-        db.create_index(u'podmin_podcast', ['shortname'])
+        # Adding index back on 'Podcast', fields ['shortname']
+        #db.create_index(u'podmin_podcast', ['shortname'])
 
 
     def backwards(self, orm):
         # Removing index on 'Podcast', fields ['shortname']
-        db.delete_index(u'podmin_podcast', ['shortname'])
+        #db.delete_index(u'podmin_podcast', ['shortname'])
 
 
         # Changing field 'Podcast.shortname'
