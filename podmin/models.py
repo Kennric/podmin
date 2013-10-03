@@ -454,14 +454,14 @@ class Episode(models.Model):
         ('yearly', 'Yearly'),
         ('never', 'Never'),
     )
-    created = models.DateTimeField(_("created"), auto_now_add=True, editable=False)
-    updated = models.DateTimeField(_("updated"), auto_now=True, editable=False)
-
+    created = models.DateTimeField('created', auto_now_add=True,
+                                   editable=False)
+    updated = models.DateTimeField('updated', auto_now=True, editable=False)
     podcast = models.ForeignKey(Podcast)
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(
-        'short episode description', blank=True, null=True)
+    description = models.TextField('short episode description',
+                                   blank=True, null=True)
     filename = models.CharField('final published file name', max_length=255)
     guid = models.CharField(
         'published RSS GUID field', unique=True, max_length=255)
@@ -478,21 +478,21 @@ class Episode(models.Model):
     show_notes = models.TextField('show notes', blank=True, null=True)
 
     # new
-    image = models.ImageField(
-        _("original image"), upload_to=get_episode_upload_folder,
-        help_text=_("""For best results choose an attractive, original, and square
-            JPEG (.jpg) or PNG (.png) image at a size of 1400x1400 pixels. Image will be
-            scaled down to 50x50 pixels at smallest in iTunes. For reference see the
-            <a href="http://www.apple.com/itunes/podcasts/specs.html#metadata">iTunes
-            Podcast specs</a>.<br /><br />
-            For episode artwork to display in iTunes, image must be
-            <a href="http://answers.yahoo.com/question/index?qid=20080501164348AAjvBvQ">
-            saved to file's <strong>metadata</strong></a> before enclosure uploading!"""))
+    """
+    image: For best results choose an attractive, original, and square JPEG
+    (.jpg) or PNG (.png) image at a size of 1400x1400 pixels. Image will be
+    scaled down to 50x50 pixels at smallest in iTunes. For reference see
+    http://www.apple.com/itunes/podcasts/specs.html#metadata
+    """
+    image = models.ImageField('original image',
+                              upload_to=get_episode_upload_folder)
     slug = AutoSlugField(populate_from='title', unique=True)
-    category = models.CharField(max_length=255, blank=True, help_text='Limited to one user-specified category for the sake of sanity.')
-    domain = models.URLField(blank=True, help_text='A URL that identifies a categorization taxonomy.')
-    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES, blank=True, help_text='The frequency with which the episode\'s data changes. For sitemaps.', default='never')
-    summary = models.TextField(help_text='Allows 4,000 characters. Description will be used if summary is blank.', blank=True)
+    category = models.CharField(max_length=255, blank=True)
+    # A URL that identifies a categorization taxonomy.
+    domain = models.URLField(blank=True)
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES,
+                                 blank=True, default='never')
+    summary = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.filename
@@ -512,8 +512,7 @@ class Episode(models.Model):
         try:
             os.makedirs(self.storage_dir)
         except OSError, e:
-            if e.errno is not errno.EEXIST:
-                raise e
+            raise e
 
         tmp_path = self.podcast.tmp_dir + self.filename
         stor_path = self.podcast.storage_dir + self.filename
