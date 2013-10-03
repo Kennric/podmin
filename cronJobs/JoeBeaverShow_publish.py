@@ -6,7 +6,7 @@ from podmin.models import Podcast, Episode
 
 p = Podcast.objects.get(shortname='JoeBeaverShow')
 
-status = p.autoPublish()
+status = p.auto_publish()
 
 f = open('/home/kennric/beavertest', 'w')
 f.write(p.title)

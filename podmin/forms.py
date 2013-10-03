@@ -22,7 +22,14 @@ class EpisodeForm(ModelForm):
 
 
 class PodcastForm(ModelForm):
+    logo_image = FileField(required=False, label='Upload new logo image')
     class Meta:
         model = Podcast
-        exclude = ('updated', 'last_import', 'combine_segments',
-                   'publish_segments', 'up_dir', 'cleaner')
+        fields = ('title','station', 'description', 'website', 'subtitle',
+                  'author', 'contact', 'image', 'copyright', 'language',
+                  'explicit', 'itunes_categories', 'tags', 'pub_url', 'pub_dir',
+                  'storage_dir', 'storage_url', 'tmp_dir', 'up_dir', 'ttl',
+                  'max_age', 'credits')
+        
+        exclude = ('owner', 'updated', 'last_import', 'combine_segments',
+                   'publish_segments', 'up_dir', 'cleaner', 'shortname')
