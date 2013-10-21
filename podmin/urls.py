@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.conf.urls.static import static
 from django.conf import settings
 import views
@@ -24,7 +24,7 @@ urlpatterns = patterns('',
     #url(r'^my/$', 'podmin.views.control'),
     #url(r'^podcast/(\d{1,8})/$', 'podmin.views.edit_podcast'),
     #url(r'^episode/(\d{1,8})/$', 'podmin.views.edit_podcast'),
-
+    url(r'', include('podmin.urls_feeds'))
 )
 # for handling user-uploaded podcast logo in the future
 # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
