@@ -6,11 +6,11 @@ TODO
 Now
 ---
 
-add all relevant fields to models, itunes, etc
+use def get_show_upload_folder(instance, pathname): and upload_to=get_show_upload_folder to handle storage locations
 
 use feed framework to generate rss (and atom)
 
-use def get_show_upload_folder(instance, pathname): and upload_to=get_show_upload_folder to handle storage locations
+use filefield for audio
 
 
 Next
@@ -35,6 +35,8 @@ pull gumby sass out from top level, figure out var over-rides
 implement user registration
 
 "unpublish" episode
+
+replace sox with mutagen
 
 
 Eventually
