@@ -19,7 +19,7 @@ def index(request):
     """
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/default/index.html', context)
+    return render(request, 'podmin/site/index.html', context)
 
 
 def podcasts(request):
@@ -53,7 +53,7 @@ def podcast(request, pid):
       at top, general stats/graphs
       action links (delete, edit, promote) per episode
       and add episode link at top
-    otherwise, podcast homepage - get template name from podcast shortname
+    otherwise, podcast homepage - get template name from podcast slug
     see all the episodes
     play button
     subscribe links
@@ -109,8 +109,8 @@ def new_podcast(request):
             podcast = form.save()
             return HttpResponseRedirect('/podcast/' + str(podcast.id))
 
-    return render(request, 'podmin/podcast/default/podcast_edit.html',
-                  {'form': form, 'static_dir': '/static/podcast/default'})
+    return render(request, 'podmin/podcast/site/podcast_edit.html',
+                  {'form': form, 'static_dir': '/static/podcast/site'})
 
 
 def episode(request, eid):
@@ -188,6 +188,6 @@ def new_episode(request, pid):
 
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
-    return render(request, 'podmin/podcast/default/episode_edit.html',
+    return render(request, 'podmin/podcast/site/episode_edit.html',
                   {'form': form, 'podcast': podcast,
-                   'static_dir': '/static/podcast/default'})
+                   'static_dir': '/static/podcast/site'})
