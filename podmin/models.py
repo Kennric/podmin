@@ -8,7 +8,6 @@ from django.contrib.sites.models import Site
 
 # django contrib stuff
 from autoslug import AutoSlugField
-from licenses.fields import LicenseField
 
 # podmin app stuff
 import podmin
@@ -35,11 +34,14 @@ from mutagen.id3 import ID3
 
 def get_image_upload_folder(instance, pathname):
     # A standardized pathname for uploaded show images
-    title = instance.title
     if instance.__class__ is Episode:
         return "{0}/{1}/img/".format(instance.podcast.slug, instance.slug)
     if instance.__class__ is Podcast:
         return "{0}/img/".format(instance.slug)
+
+def get_media_upload_folder(instance, pathname):
+    # A standardized pathname for uploaded show images
+    return "{0}/media/".format(instance.podcast.slug)
 
 
 class Podcast(models.Model):
@@ -70,17 +72,28 @@ class Podcast(models.Model):
         ('Clean', 'Clean'),
     )
 
-    # admin
+    FREQUENCY_CHOICES = (
+        ('always', 'Always'),
+        ('hourly', 'Hourly'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+        ('yearly', 'Yearly'),
+        ('never', 'Never'),
+    )
+
+    # std
+    owner = models.ForeignKey(User, default=1)
     slug = AutoSlugField(populate_from='title', unique=True)
     last_import = models.IntegerField(default=1000000000)
     combine_segments = models.BooleanField()
     publish_segments = models.BooleanField()
-    pub_url = models.CharField('base publication url', max_length=255)
+    pub_url = models.URLField('base publication url')
     pub_dir = models.CharField('rss publication path', max_length=255)
     storage_dir = models.CharField('path to storage location', max_length=255)
-    storage_url = models.CharField('storage base url', max_length=255)
-    tmp_dir = models.CharField(
-        'path to temporary processing location', max_length=255)
+    storage_url = models.URLField('storage base url')
+    tmp_dir = models.CharField('path to temporary processing location',
+                               max_length=255)
     up_dir = models.CharField('path to the upload location', max_length=255)
     cleaner = models.CharField('file cleaner function name',
                                max_length=255, default='default')
@@ -89,15 +102,17 @@ class Podcast(models.Model):
                                    editable=False, default=datetime.now())
     updated = models.DateTimeField('updated', auto_now=True, editable=False,
                                    default=datetime.now())
-    owner = models.ForeignKey(User, default=1)
+    website = models.URLField('podcast website', blank=True, null=True)
+    rename_files = models.BooleanField()
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES,
+                                 blank=True, default='never')
 
-    # RSS
+    # RSS specific
     title = models.CharField(max_length=255)
     organization = models.CharField(max_length=255, default='')
     station = models.CharField('broadcasting station name',
                                max_length=16, blank=True)
     description = models.TextField(blank=True, null=True)
-    link = models.CharField(max_length=255, blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
@@ -115,10 +130,10 @@ class Podcast(models.Model):
     editor_email = models.EmailField('editor email', blank=True)
     webmaster_email = models.EmailField('webmaster email', blank=True)
 
-    # itunes
+    # itunes specific
     explicit = models.BooleanField()
-    itunes_categories = models.CharField(
-        'itunes cats', max_length=255, blank=True, null=True)
+    itunes_categories = models.CharField('itunes cats', max_length=255,
+                                         blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     explicit = models.CharField(max_length=255, default='No',
@@ -141,15 +156,23 @@ class Podcast(models.Model):
 
     """
     itunes = models.URLField('iTunes Store URL', blank=True)
-    license = LicenseField(null=True, blank=True)
+    license = models.TextField(null=True, blank=True)
+
+
 
     # This constant defines the groups and permissions that will be created
     # for each podcast when it is created
     GROUP_PERMS = {'managers': 'manage', 'editors': 'edit',
                    'webmasters': 'web', 'all': 'view'}
 
+
     def __unicode__(self):
         return self.title
+
+    @property
+    def generator(self):
+        return podmin.get_name() + " " + podmin.get_version()
+
 
     def publish_episodes(self, episodes, rssFile, type):
         """
@@ -226,14 +249,14 @@ class Podcast(models.Model):
         """
 
         # fp = util.FilePrep(self)
-        rssFile = self.pub_dir + self.shortname + ".xml"
+        rssFile = self.pub_dir + self.slug + ".xml"
         episodes = self.episode_set.filter(active=True, part=None,
                                            pub_date__lt=datetime.now())
         type = 'full'
         published = self.publish_episodes(episodes, rssFile, type)
 
         if self.publish_segments:
-            rssFile = self.pub_dir + self.shortname + "_segments.xml"
+            rssFile = self.pub_dir + self.slug + "_segments.xml"
             episodes = self.episode_set.filter(active=1).exclude(part=None)
             type = 'segments'
             published = self.publish_episodes(episodes, rssFile, type)
@@ -374,7 +397,7 @@ class Podcast(models.Model):
             datetime.now(), "%Y") + " " + self.copyright
 
         channel['feed'][
-            'generator'] = podmin.get_name() + " " + podmin.get_version()
+            'generator'] = self.generator
         channel['feed']['language'] = self.language
         channel['feed']['tags'] = regular_cats
 
@@ -398,19 +421,19 @@ class Podcast(models.Model):
     def get_theme(self):
         has_static_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
                                         'podmin', 'static', 'podcast',
-                                        self.shortname))
+                                        self.slug))
 
         if has_static_dir:
-            static_dir = '/static/podcast/%s' % self.shortname
+            static_dir = '/static/podcast/%s' % self.slug
         else:
             static_dir = '/static/podcast/default'
 
         has_template_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
                                           'podmin', 'templates', 'podmin',
-                                          'podcast', self.shortname))
+                                          'podcast', self.slug))
 
         if has_template_dir:
-            template_dir = self.shortname
+            template_dir = self.slug
         else:
             template_dir = 'default'
 
@@ -453,28 +476,21 @@ class Episode(models.Model):
     extract and set data about the episode.
 
     """
-    FREQUENCY_CHOICES = (
-        ('always', 'Always'),
-        ('hourly', 'Hourly'),
-        ('daily', 'Daily'),
-        ('weekly', 'Weekly'),
-        ('monthly', 'Monthly'),
-        ('yearly', 'Yearly'),
-        ('never', 'Never'),
-    )
+    podcast = models.ForeignKey(Podcast)
     created = models.DateTimeField('created', auto_now_add=True,
                                    editable=False, default=datetime.now())
     updated = models.DateTimeField('updated', auto_now=True, editable=False,
                                    default=datetime.now())
-    podcast = models.ForeignKey(Podcast)
+    published = models.DateTimeField('date published', null=True)
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     slug = AutoSlugField(populate_from='title', unique=True, default='')
     description = models.TextField('short episode description',
                                    blank=True, null=True)
-    filename = models.CharField('final published file name', max_length=255)
-    guid = models.CharField(
-        'published RSS GUID field', unique=True, max_length=255)
+    enclosure_file = models.FileField('file', upload_to=get_media_upload_folder)
+    #filename = models.CharField('final published file name', max_length=255)
+    guid = models.CharField('published RSS GUID field',
+                            unique=True, max_length=255)
     part = models.IntegerField(
         'part number of a multipart cast', blank=True, null=True)
     pub_date = models.DateTimeField('rss pubdate', blank=True, null=True)
@@ -482,27 +498,24 @@ class Episode(models.Model):
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
     active = models.BooleanField('active', default=1)
-    published = models.DateTimeField('date published', null=True)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
     show_notes = models.TextField('show notes', blank=True, null=True)
 
-    # new
     """
     image: For best results choose an attractive, original, and square JPEG
     (.jpg) or PNG (.png) image at a size of 1400x1400 pixels. Image will be
     scaled down to 50x50 pixels at smallest in iTunes. For reference see
     http://www.apple.com/itunes/podcasts/specs.html#metadata
     """
-    image = models.ImageField('original image',
-                              upload_to=get_image_upload_folder)
-
-    category = models.CharField(max_length=255, blank=True)
+    image = models.ImageField('image', upload_to=get_image_upload_folder)
+    itunes_categories = models.CharField(max_length=255, blank=True)
     # A URL that identifies a categorization taxonomy.
     domain = models.URLField(blank=True)
-    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES,
-                                 blank=True, default='never')
     summary = models.TextField(blank=True)
+    priority = models.DecimalField(max_digits=2, decimal_places=1,
+                                   blank=True, null=True)
+    block = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.filename
@@ -511,6 +524,9 @@ class Episode(models.Model):
         ordering = ["-pub_date, part"]
         get_latest_by = "pub_date"
         order_with_respect_to = 'podcast'
+
+    def get_absolute_url(self):
+        return reverse("episode", kwargs={"slug": self.id})
 
     def move_to_storage(self):
         """
@@ -679,7 +695,7 @@ class Episode(models.Model):
         date_string = datetime.strftime(self.pub_date, "%Y-%m-%d")
         extension = os.path.splitext(self.filename)[1]
 
-        new_filename = self.podcast.shortname + "_" + date_string + extension
+        new_filename = self.podcast.slug + "_" + date_string + extension
         old_path = self.podcast.tmp_dir + "/" + self.filename
         new_path = self.podcast.tmp_dir + "/" + new_filename
 
