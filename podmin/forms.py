@@ -29,7 +29,7 @@ class PodcastForm(ModelForm):
         fields = ('title', 'subtitle', 'description', 'keywords', 'tags', 
                   'summary', 'author', 'contact', 'image', 'website',
                   'organization', 'station', 'credits', 'frequency',
-                  'license', 'copyright', 'copyright_url', 'language',
+                  'copyright', 'copyright_url', 'language',
                   'domain', 'feedburner', 'ttl',  'max_age', 'editor_email',
                   'webmaster_email', 'explicit', 'itunes_categories',
                   'explicit', 'block', 'pub_url', 'itunes', 'rename_files',
