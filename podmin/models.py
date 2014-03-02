@@ -119,10 +119,10 @@ class Podcast(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
     image = models.ImageField('cover art', upload_to=get_image_upload_folder)
     copyright = models.TextField('copyright statement', blank=True, null=True)
-    copyright_url = models.TextField('copyright url', blank=True, null=True)
+    copyright_url = models.TextField('copyright url', blank=True, null=True,
+                                     choices=COPYRIGHT_CHOICES)
     language = models.CharField(max_length=8)
-    domain = models.URLField(blank=True)
-    feedburner = models.URLField('FeedBurner URL', blank=True)
+    feedburner_url = models.URLField('FeedBurner URL', blank=True)
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     tags = models.CharField('comma separated list of tags',
                             max_length=255, blank=True, null=True)
@@ -134,6 +134,7 @@ class Podcast(models.Model):
     explicit = models.BooleanField()
     itunes_categories = models.CharField('itunes cats', max_length=255,
                                          blank=True, null=True)
+    categorization_domain = models.URLField(blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     explicit = models.CharField(max_length=255, default='No',
@@ -155,8 +156,8 @@ class Podcast(models.Model):
     See https://github.com/jefftriplett/django-podcast for more.
 
     """
-    itunes = models.URLField('iTunes Store URL', blank=True)
-    license = models.TextField(null=True, blank=True)
+    itunes_url = models.URLField('iTunes Store URL', blank=True)
+
 
 
 
@@ -487,8 +488,8 @@ class Episode(models.Model):
     slug = AutoSlugField(populate_from='title', unique=True, default='')
     description = models.TextField('short episode description',
                                    blank=True, null=True)
-    enclosure_file = models.FileField('file', upload_to=get_media_upload_folder)
-    #filename = models.CharField('final published file name', max_length=255)
+    enclosure_file = models.FileField('enclosure file',
+                                      upload_to=get_media_upload_folder)
     guid = models.CharField('published RSS GUID field',
                             unique=True, max_length=255)
     part = models.IntegerField(
@@ -511,7 +512,7 @@ class Episode(models.Model):
     image = models.ImageField('image', upload_to=get_image_upload_folder)
     itunes_categories = models.CharField(max_length=255, blank=True)
     # A URL that identifies a categorization taxonomy.
-    domain = models.URLField(blank=True)
+    categorization_domain = models.URLField(blank=True)
     summary = models.TextField(blank=True)
     priority = models.DecimalField(max_digits=2, decimal_places=1,
                                    blank=True, null=True)
