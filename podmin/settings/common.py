@@ -1,6 +1,8 @@
 import os.path
-
 # Django settings for podcaster project.
+
+print "HEY!!!!!"
+
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), 'fixtures/'))
@@ -41,7 +43,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'podcaster.urls'
+ROOT_URLCONF = 'podmin.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or
