@@ -10,10 +10,11 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/home/kennric/projects/podcaster/db/podcaster.db',
+        'NAME': '/home/kennric/projects/podmin/db/podcaster.db',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',

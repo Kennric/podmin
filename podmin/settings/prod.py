@@ -2,8 +2,14 @@ import os.path
 from common import *
 
 # Prod settings for PodCaster
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+
+ADMINS = (
+    # ('Your Name', 'your_email@example.com'),
+)
+
+MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
