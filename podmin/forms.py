@@ -30,9 +30,9 @@ class PodcastForm(ModelForm):
                   'summary', 'author', 'contact', 'image', 'website',
                   'organization', 'station', 'credits', 'frequency',
                   'copyright', 'copyright_url', 'language',
-                  'domain', 'feedburner', 'ttl',  'max_age', 'editor_email',
+                  'feedburner_url', 'ttl',  'max_age', 'editor_email',
                   'webmaster_email', 'explicit', 'itunes_categories',
-                  'explicit', 'block', 'pub_url', 'itunes', 'rename_files',
+                  'explicit', 'block', 'pub_url', 'itunes_url', 'rename_files',
                   'pub_dir', 'storage_dir', 'storage_url', 'tmp_dir')
 
         exclude = ('owner', 'slug', 'last_import', 'combine_segments',
