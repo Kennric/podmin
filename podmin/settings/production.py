@@ -1,8 +1,8 @@
-import os
+import os.path
 from common import *
 
-# Dev settings for PodMin
-DEBUG = True
+# Prod settings for PodCaster
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -42,29 +42,30 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+
 """
 The following rely on variables that should be set in the environment.
 Make sure you set:
-    PODMIN_DEV_DB_ENGINE
-    PODMIN_DEV_DB_NAME
-    PODMIN_DEV_DB_USER
-    PODMIN_DEV_DB_PASS
-    PODMIN_DEV_DB_HOST
-    PODMIN_DEV_DB_PORT
-    PODMIN_DEV_SECRET_KEY
+    PODMIN_PROD_DB_ENGINE
+    PODMIN_PROD_DB_NAME
+    PODMIN_PROD_DB_USER
+    PODMIN_PROD_DB_PASS
+    PODMIN_PROD_DB_HOST
+    PODMIN_PROD_DB_PORT
+    PODMIN_PROD_SECRET_KEY
 from somewhere before the settings are loaded.
 """
 
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ['PODMIN_DEV_DB_ENGINE'],
-        'NAME': os.environ['PODMIN_DEV_DB_NAME'],
-        'USER': os.environ['PODMIN_DEV_DB_USER'],
-        'PASSWORD': os.environ['PODMIN_DEV_DB_PASS'],
-        'HOST': os.environ['PODMIN_DEV_DB_HOST'],
-        'PORT': os.environ['PODMIN_DEV_DB_PORT'],
+        'ENGINE': os.environ['PODMIN_PROD_DB_ENGINE'],
+        'NAME': os.environ['PODMIN_PROD_DB_NAME'],
+        'USER': os.environ['PODMIN_PROD_DB_USER'],
+        'PASSWORD': os.environ['PODMIN_PROD_DB_PASS'],
+        'HOST': os.environ['PODMIN_PROD_DB_HOST'],
+        'PORT': os.environ['PODMIN_PROD_DB_PORT'],
     }
 }
 
-SECRET_KEY = os.environ['PODMIN_DEV_SECRET_KEY']
+SECRET_KEY = os.environ['PODMIN_PROD_SECRET_KEY']
