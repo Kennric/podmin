@@ -2,7 +2,7 @@ import os.path
 from common import *
 
 # STG settings for PodCaster
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
