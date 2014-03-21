@@ -18,12 +18,12 @@ def get_version():
         vers.append("{releaselevel}{serial}".format(**__version_info__))
     return "".join(vers)
 
-
 __version__ = get_version()
 
 
 def get_name():
     return 'Podmin'
+
 
 # import the signal handlers here so they will be available before models
 import handlers
