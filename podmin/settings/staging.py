@@ -45,7 +45,7 @@ STATICFILES_DIRS = (
 """
 The following rely on variables that should be set in the environment.
 Make sure you set:
-    PODMIN__DB_ENGINE
+    PODMIN_STG_DB_ENGINE
     PODMIN_STG_DB_NAME
     PODMIN_STG_DB_USER
     PODMIN_STG_DB_PASS

@@ -42,7 +42,6 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-
 """
 The following rely on variables that should be set in the environment.
 Make sure you set:
