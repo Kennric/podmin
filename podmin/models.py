@@ -49,7 +49,7 @@ class Podcast(models.Model):
     Podcast model defines a podcast stream and methods to publish the RSS file
 
     """
-    COPYRIGHT_CHOICES = (
+    LICENSE_CHOICES = (
         ('All rights reserved', 'All rights reserved'),
         ('Creative Commons: Attribution (by)',
          'Creative Commons: Attribution (by)'),
@@ -63,7 +63,8 @@ class Podcast(models.Model):
          'Creative Commons: Attribution-Non-Commercial-Share Alike (by-nc-sa)'),
         ('Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)',
          'Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)'),
-        ('Public domain', 'Public domain')
+        ('Public domain', 'Public domain'),
+        ('Other', 'Other')
     )
 
     EXPLICIT_CHOICES = (
@@ -119,8 +120,8 @@ class Podcast(models.Model):
     updated = models.DateTimeField(auto_now_add=True)
     image = models.ImageField('cover art', upload_to=get_image_upload_folder, 
         default='settings.STATIC/podcast/default/img/default_cover.png')
-    copyright = models.ChoicesField('copyright statement', blank=True, null=True,
-        choices=COPYRIGHT_CHOICES)
+    copyright = models.CharField('license', max_length=255, blank=True, null=True,
+        choices=LICENSE_CHOICES)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
     feedburner_url = models.URLField('FeedBurner URL', blank=True)
