@@ -118,8 +118,7 @@ class Podcast(models.Model):
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField('cover art', upload_to=get_image_upload_folder, 
-        default='settings.STATIC/podcast/default/img/default_cover.png')
+    image = models.ImageField('cover art', upload_to=get_image_upload_folder)
     copyright = models.CharField('license', max_length=255, blank=True, null=True,
         choices=LICENSE_CHOICES)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
