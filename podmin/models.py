@@ -118,9 +118,9 @@ class Podcast(models.Model):
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
     image = models.ImageField('cover art', upload_to=get_image_upload_folder)
-    copyright = models.TextField('copyright statement', blank=True, null=True)
-    copyright_url = models.TextField('copyright url', blank=True, null=True,
-                                     choices=COPYRIGHT_CHOICES)
+    copyright = models.ChoicesField('copyright statement', blank=True, null=True,
+                                 choices=COPYRIGHT_CHOICES)
+    copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
     feedburner_url = models.URLField('FeedBurner URL', blank=True)
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
