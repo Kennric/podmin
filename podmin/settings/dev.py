@@ -1,4 +1,4 @@
-import os.path
+import os
 from common import *
 
 # Dev settings for PodMin

@@ -1,4 +1,4 @@
-import os.path
+import os
 from common import *
 
 # STG settings for PodCaster
