@@ -114,21 +114,22 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'simple',
         },
-    },
+    },    
     'loggers': {
         'django': {
-            'handlers': ['null'],
+            'handlers': ['null', 'logfile'],
             'propagate': True,
-            'level': 'INFO',
+            'level': 'DEBUG',
         },
         'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
+            'handlers': ['mail_admins', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
         'podmin': {
             'handlers': ['console', 'logfile'],
-            'level': 'INFO',
+            'level': 'DEBUG',
+            'propagate': True,
         }
     }
 }
