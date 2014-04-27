@@ -83,7 +83,7 @@ def edit_podcast(request, pid):
 
     podcast = Podcast.objects.get(pk=pid)
     if request.method == 'POST':
-        form = PodcastForm(request.POST, instance=podcast)
+        form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
             return HttpResponseRedirect('/podcast/' + str(podcast.id))
@@ -106,7 +106,7 @@ def new_podcast(request):
 
     form = PodcastForm()
     if request.method == 'POST':
-        form = PodcastForm(request.POST)
+        form = PodcastForm(request.POST, request.FILES)
         if form.is_valid():
             podcast = form.save()
             return HttpResponseRedirect('/podcast/' + str(podcast.id))
