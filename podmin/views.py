@@ -9,7 +9,9 @@ from forms import PodcastForm, EpisodeForm
 
 # python stuff
 from datetime import datetime
+import logging
 
+logger = logging.getLogger(__name__)
 
 def index(request):
     """
