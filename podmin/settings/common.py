@@ -103,7 +103,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        }        
+        },     
         'logfile': {
             'filters': ['require_debug_true'],
             'level':'DEBUG',
