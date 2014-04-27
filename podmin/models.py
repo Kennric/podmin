@@ -32,12 +32,12 @@ from mutagen.id3 import ID3
 """
 
 
-def get_image_upload_folder(instance, pathname):
+def get_image_upload_folder(instance, filename):
     # A standardized pathname for uploaded show images
     if instance.__class__ is Episode:
-        return "{0}/{1}/img".format(instance.podcast.slug, instance.slug)
+        return "{0}/{1}/img/{2}".format(instance.podcast.slug, instance.slug, filename)
     if instance.__class__ is Podcast:
-        return "{0}/img".format(instance.slug)
+        return "{0}/img/{1}".format(instance.slug, filename)
 
 def get_media_upload_folder(instance, pathname):
     # A standardized pathname for uploaded show images
