@@ -35,13 +35,13 @@ from mutagen.id3 import ID3
 def get_image_upload_folder(instance, pathname):
     # A standardized pathname for uploaded show images
     if instance.__class__ is Episode:
-        return "{0}/{1}/img/".format(instance.podcast.slug, instance.slug)
+        return "{0}/{1}/img".format(instance.podcast.slug, instance.slug)
     if instance.__class__ is Podcast:
-        return "{0}/img/".format(instance.slug)
+        return "{0}/img".format(instance.slug)
 
 def get_media_upload_folder(instance, pathname):
     # A standardized pathname for uploaded show images
-    return "{0}/media/".format(instance.podcast.slug)
+    return "{0}/media".format(instance.podcast.slug)
 
 
 class Podcast(models.Model):
