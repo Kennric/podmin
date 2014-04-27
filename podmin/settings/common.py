@@ -82,14 +82,12 @@ LOGGING = {
         },
     },
     'filters': {
-     'require_debug_false': {
-         '()': 'django.utils.log.RequireDebugFalse',
-     }
-    },
-    'filters': {
-     'require_debug_true': {
-         '()': 'django.utils.log.RequireDebugTrue',
-     }
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
     'handlers': {
         'null': {
@@ -130,7 +128,7 @@ LOGGING = {
         },
         'podmin': {
             'handlers': ['console', 'logfile'],
-            'level': 'INFO'
+            'level': 'INFO',
         }
     }
 }
