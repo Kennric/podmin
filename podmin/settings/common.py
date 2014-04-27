@@ -1,8 +1,8 @@
 import os.path
 # Django settings for podcaster project.
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), 'fixtures/'))
+PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
+FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), '../', 'fixtures/'))
 TIME_ZONE = 'America/Los_Angeles'
 
 LANGUAGE_CODE = 'en-us'
