@@ -84,6 +84,7 @@ class Podcast(models.Model):
     )
 
     # std
+    title = models.CharField(max_length=255)
     owner = models.ForeignKey(User, default=1)
     slug = AutoSlugField(populate_from='title', unique=True)
     last_import = models.IntegerField(default=1000000000)
@@ -109,7 +110,6 @@ class Podcast(models.Model):
                                  blank=True, default='never')
 
     # RSS specific
-    title = models.CharField(max_length=255)
     organization = models.CharField(max_length=255, default='')
     station = models.CharField('broadcasting station name',
                                max_length=16, blank=True)
