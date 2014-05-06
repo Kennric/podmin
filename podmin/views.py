@@ -13,30 +13,36 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def index(request, subsite=None):
+def index(request, subsite=''):
     """
     front page view: display news, new episodes, featured
     episodes, contact links, etc
     login link
     """
+    if subsite != '':
+        subsite = subsite + '/'
+
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts, 'subsite': subsite}
     return render(request, 'podmin/site/index.html', context)
 
 
-def podcasts(request, subsite=None):
+def podcasts(request, subsite=''):
     """
     all podcasts
     list of all podcasts, brief description, feed links
     brief stats
 
     """
+    if subsite != '':
+        subsite = subsite + '/'
+    
     podcasts = Podcast.objects.all()
-    context = {'podcasts': podcasts}
+    context = {'podcasts': podcasts, 'subsite': subsite}
     return render(request, 'podmin/site/podcasts.html', context)
 
 
-def home(request, subsite=None):
+def home(request, subsite=''):
     """
     my podcasts
     display all the podcasts owned by the current logged in
@@ -45,10 +51,12 @@ def home(request, subsite=None):
       action links - edit, promote, etc
     redirect here from login view
     """
+    if subsite != '':
+        subsite = subsite + '/'
     pass
 
 
-def podcast(request, slug, subsite=None):
+def podcast(request, slug, subsite=''):
     """
     view podcast
     if admin/owner add:
@@ -61,6 +69,9 @@ def podcast(request, slug, subsite=None):
     subscribe links
     share links
     """
+    if subsite != '':
+        subsite = subsite + '/'
+    
     podcast = get_object_or_404(Podcast, slug=slug)
     episodes = podcast.episode_set.all()
 
@@ -71,7 +82,7 @@ def podcast(request, slug, subsite=None):
                    'static_dir': static_dir})
 
 
-def edit_podcast(request, slug, subsite=None):
+def edit_podcast(request, slug, subsite=''):
     """
     edit podcast
     user-editable options for a specific podcast
@@ -80,6 +91,8 @@ def edit_podcast(request, slug, subsite=None):
     auto-processing
 
     """
+    if subsite != '':
+        subsite = subsite + '/'
 
     podcast = Podcast.objects.get(slug=slug)
     if request.method == 'POST':
@@ -97,12 +110,14 @@ def edit_podcast(request, slug, subsite=None):
                   {'form': form, 'pid': pid, 'static_dir': static_dir})
 
 
-def new_podcast(request, subsite=None):
+def new_podcast(request, subsite=''):
     """
     new podcast
     make a new one
 
     """
+    if subsite != '':
+        subsite = subsite + '/'
 
     form = PodcastForm()
     if request.method == 'POST':
@@ -115,12 +130,15 @@ def new_podcast(request, subsite=None):
                   {'form': form, 'static_dir': '/static/podcast/site'})
 
 
-def episode(request, eid, subsite=None):
+def episode(request, eid, subsite=''):
     """
     view episode
     specific episode page
     play, share, etc buttons
     """
+    if subsite != '':
+        subsite = subsite + '/'
+    
     episode = get_object_or_404(Episode, pk=eid)
 
     static_dir, template_dir = episode.podcast.get_theme()
@@ -129,7 +147,10 @@ def episode(request, eid, subsite=None):
                   {'episode': episode, 'static_dir': static_dir})
 
 
-def edit_episode(request, eid, subsite=None):
+def edit_episode(request, eid, subsite=''):
+    if subsite != '':
+        subsite = subsite + '/'
+    
     episode = Episode.objects.get(pk=eid)
     if request.method == 'POST':
         form = EpisodeForm(request.POST, request.FILES, instance=episode)
@@ -165,7 +186,10 @@ def edit_episode(request, eid, subsite=None):
                    'static_dir': static_dir})
 
 
-def new_episode(request, slug=None, subsite=None):
+def new_episode(request, slug=None, subsite=''):
+    if subsite != '':
+        subsite = subsite + '/'
+    
     podcast = get_object_or_404(Podcast, slug=slug)
     form = EpisodeForm()
 
