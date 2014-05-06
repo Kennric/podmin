@@ -20,7 +20,7 @@ def index(request, subsite=None):
     login link
     """
     podcasts = Podcast.objects.all()
-    context = {'podcasts': podcasts}
+    context = {'podcasts': podcasts, 'subsite': subsite}
     return render(request, 'podmin/site/index.html', context)
 
 
