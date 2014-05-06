@@ -2,8 +2,8 @@
 
 {% block content %}
 
-{% if pid %}
-<form action="/podcast/edit/{{pid}}/" method="post" enctype="multipart/form-data">
+{% if slug %}
+<form action="/podcast/edit/{{slug}}/" method="post" enctype="multipart/form-data">
 {% else %}
 <form action="/podcast/new/" method="post" enctype="multipart/form-data">
 {% endif %}
