@@ -10,15 +10,15 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('podmin.views',    
     url(r'^$', 'index', name='index'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcasts/$', 'podcasts', name='listpodcasts_list'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcasts/$', 'podcasts', name='podcasts_list'),
     url(r'^(?P<subsite>[A-Za-z0-9/]*)podcast/(?P<slug>[A-Za-z0-9\-]+)/$', 'podcast', name='podcast_show'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcast/edit/(?P<slug>[A-Za-z0-9\-]+)/$','edit_podcast', name='edit_podcast'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcast/new/$', 'new_podcast', name='new_podcast'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/(?P<eid>\d+)/$', 'episode', name='episode'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/edit/(?P<eid>\d+)/$', 'edit_episode', name='edit_episode'),
-    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/new/(?P<pid>\d+)/$', 'new_episode', name='new_episode'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcast/edit/(?P<slug>[A-Za-z0-9\-]+)/$','edit_podcast', name='podcast_edit'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)podcast/new/$', 'new_podcast', name='podcast_new'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/(?P<eid>\d+)/$', 'episode', name='episode_show'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/edit/(?P<eid>\d+)/$', 'edit_episode', name='episode_edit'),
+    url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/new/(?P<pid>\d+)/$', 'new_episode', name='episode_new'),
     url(r'^(?P<subsite>\w+)/$', 'index', name='index'),
-    
+
     #(?:/(?P<title>[a-zA-Z]+))?/$
     #url(r'^my/$', 'control'),
     #url(r'^podcast/(\d{1,8})/$', 'edit_podcast'),

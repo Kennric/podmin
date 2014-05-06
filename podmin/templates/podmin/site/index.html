@@ -8,7 +8,7 @@ All Podcasts:<br>
 
 <ul>
 {% for podcast in podcasts %}
-<li><a href="{% url 'podcast' slug=podcast.slug subsite=subsite %}">{{ podcast.title }}</a></li>
+<li><a href="{% url 'podcast_show' slug=podcast.slug subsite=subsite %}">{{ podcast.title }}</a></li>
 {% endfor %} 
 </ul>
 
