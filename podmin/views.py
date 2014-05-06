@@ -99,7 +99,7 @@ def edit_podcast(request, slug, subsite=''):
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect('/podcast/' + str(podcast.id))
+            return HttpResponseRedirect('/podcast/' + str(podcast.slug))
 
     form = PodcastForm(instance=podcast)
 
@@ -107,7 +107,7 @@ def edit_podcast(request, slug, subsite=''):
 
     return render(request,
                   'podmin/podcast/%s/podcast_edit.html' % template_dir,
-                  {'form': form, 'pid': pid, 'static_dir': static_dir})
+                  {'form': form, 'slug': slug, 'static_dir': static_dir})
 
 
 def new_podcast(request, subsite=''):
