@@ -100,7 +100,7 @@ def edit_podcast(request, slug, subsite=''):
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect(reverse('podcast_show', args=(slug=podcast.slug, subsite=subsite)))
+            return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': podcast.slug, 'subsite': subsite}))
 
     form = PodcastForm(instance=podcast)
 
@@ -125,8 +125,7 @@ def new_podcast(request, subsite=''):
         form = PodcastForm(request.POST, request.FILES)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect('/podcast/' + str(podcast.id))
-
+            return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': podcast.slug, 'subsite': subsite}))
     return render(request, 'podmin/default/podcast/podcast_edit.html',
                   {'form': form, 'static_dir': '/static/podcast/site'})
 
@@ -172,7 +171,7 @@ def edit_episode(request, eid, subsite=''):
                     messages.error(request,
                                    "Podcast not published: " + published)
 
-            return HttpResponseRedirect(reverse('episode_show', args=(str(episode.id,)))
+            return HttpResponseRedirect(reverse('episode_show',kwargs={'eid': episode.id, 'subsite': subsite}))
 
     else:
         form = EpisodeForm(instance=episode)
@@ -213,7 +212,7 @@ def new_episode(request, slug=None, subsite=''):
                     messages.error(request,
                                    "Podcast not published: " + published)
 
-            return HttpResponseRedirect('/episode/' + str(episode.id))
+            return HttpResponseRedirect(reverse('episode_show',kwargs={'eid': episode.id, 'subsite': subsite}))
 
     return render(request, 'podmin/default/episode/episode_edit.html',
                   {'form': form, 'podcast': podcast,
