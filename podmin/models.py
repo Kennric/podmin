@@ -437,7 +437,7 @@ class Podcast(models.Model):
         if has_template_dir:
             template_dir = self.slug
         else:
-            template_dir = 'site'
+            template_dir = 'default'
 
         return static_dir, template_dir
 

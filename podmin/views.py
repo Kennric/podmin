@@ -2,6 +2,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 
 # podmin app stuff
 from models import Podcast, Episode
@@ -77,7 +78,7 @@ def podcast(request, slug, subsite=''):
 
     static_dir, template_dir = podcast.get_theme()
 
-    return render(request, 'podmin/podcast/%s/podcast.html' % template_dir,
+    return render(request, 'podmin/%s/podcast/podcast.html' % template_dir,
                   {'podcast': podcast, 'episodes': episodes,
                    'static_dir': static_dir})
 
@@ -99,15 +100,15 @@ def edit_podcast(request, slug, subsite=''):
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect('/podcast/' + str(podcast.slug))
+            return HttpResponseRedirect(reverse('podcast_show', args=(slug=podcast.slug, subsite=subsite)))
 
     form = PodcastForm(instance=podcast)
 
     static_dir, template_dir = podcast.get_theme()
 
     return render(request,
-                  'podmin/podcast/%s/podcast_edit.html' % template_dir,
-                  {'form': form, 'slug': slug, 'static_dir': static_dir})
+                  'podmin/%s/podcast/podcast_edit.html' % template_dir,
+                  {'form': form, 'subsite': subsite, 'slug': slug, 'static_dir': static_dir})
 
 
 def new_podcast(request, subsite=''):
@@ -126,7 +127,7 @@ def new_podcast(request, subsite=''):
             podcast = form.save()
             return HttpResponseRedirect('/podcast/' + str(podcast.id))
 
-    return render(request, 'podmin/podcast/site/podcast_edit.html',
+    return render(request, 'podmin/default/podcast/podcast_edit.html',
                   {'form': form, 'static_dir': '/static/podcast/site'})
 
 
@@ -143,7 +144,7 @@ def episode(request, eid, subsite=''):
 
     static_dir, template_dir = episode.podcast.get_theme()
 
-    return render(request, 'podmin/podcast/%s/episode.html' % template_dir,
+    return render(request, 'podmin/%s/episode/episode.html' % template_dir,
                   {'episode': episode, 'static_dir': static_dir})
 
 
@@ -171,7 +172,7 @@ def edit_episode(request, eid, subsite=''):
                     messages.error(request,
                                    "Podcast not published: " + published)
 
-            return HttpResponseRedirect('/episode/' + str(episode.id))
+            return HttpResponseRedirect(reverse('episode_show', args=(str(episode.id,)))
 
     else:
         form = EpisodeForm(instance=episode)
@@ -181,7 +182,7 @@ def edit_episode(request, eid, subsite=''):
     static_dir, template_dir = episode.podcast.get_theme()
 
     return render(request,
-                  'podmin/podcast/%s/episode_edit.html' % template_dir,
+                  'podmin/%s/episode/episode_edit.html' % template_dir,
                   {'form': form, 'episode': episode,
                    'static_dir': static_dir})
 
@@ -214,6 +215,6 @@ def new_episode(request, slug=None, subsite=''):
 
             return HttpResponseRedirect('/episode/' + str(episode.id))
 
-    return render(request, 'podmin/podcast/site/episode_edit.html',
+    return render(request, 'podmin/default/episode/episode_edit.html',
                   {'form': form, 'podcast': podcast,
                    'static_dir': '/static/podcast/site'})
