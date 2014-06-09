@@ -7,6 +7,7 @@ from django.conf import settings
 
 
 class FilePrep():
+
     """
     contains methods for renaming and sorting podcast files
 
@@ -53,9 +54,10 @@ class FilePrep():
                 extension = filename_parts[1].lower()
                 # sanity check
                 if ((day_code - 1) != c_date.weekday()):
-                    print "DIE! Day code does not match date!"
-                    print "day code: %s, weekday:" % (str(day_code - 1),
-                                                      str(c_date.weekday()))
+
+                    print('DIE! Day code does not match date!')
+                    print('day code: %s, weekday:' % (str(day_code - 1),
+                                                      str(c_date.weekday())))
                     success = False
 
                 last_date = c_date
@@ -80,7 +82,7 @@ class FilePrep():
             uppath = file_path + '/' + file
             short_name = self.podcast.shortname
             filename_parts = file.split("_")
-            print file
+            print(file)
             if filename_parts[0] == 'changeme':
                 parts = filename_parts[1].split(".")
                 date = parts[0].split("-")
@@ -110,9 +112,11 @@ class FilePrep():
 
 
 class Segment():
+
     """
     contains methods for combining and managing segmented podcasts
     """
+
     def __init__(self, podcast):
         self.files = os.listdir(podcast.tmp_dir)
         self.podcast = podcast
@@ -145,11 +149,12 @@ class Segment():
 
                     try:
                         open(combined_file_path)
-                    except IOError as e:
+                    except IOError:
                         no_existing_file = True
 
                     if no_existing_file:
-                        self.combineEpisodes(segments, combined_file_path, mtime)
+                        self.combineEpisodes(
+                            segments, combined_file_path, mtime)
                         #check_output(sox_command)
 
                     combined_files.append(combined_file_path)

@@ -26,7 +26,7 @@ class PodcastForm(ModelForm):
     class Meta:
         model = Podcast
 
-        fields = ('title', 'subtitle', 'description', 'keywords', 'tags', 
+        fields = ('title', 'subtitle', 'description', 'keywords', 'tags',
                   'summary', 'author', 'contact', 'image', 'website',
                   'organization', 'station', 'credits', 'frequency',
                   'copyright', 'copyright_url', 'language',

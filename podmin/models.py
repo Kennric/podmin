@@ -4,7 +4,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.contrib.sites.models import Site
+# from django.contrib.sites.models import Site
 
 # django contrib stuff
 from autoslug import AutoSlugField
@@ -35,9 +35,13 @@ from mutagen.id3 import ID3
 def get_image_upload_folder(instance, filename):
     # A standardized pathname for uploaded show images
     if instance.__class__ is Episode:
-        return "{0}/{1}/img/{2}".format(instance.podcast.slug, instance.slug, filename)
+        return "{0}/{1}/img/{2}".format(
+            instance.podcast.slug,
+            instance.slug, filename)
+
     if instance.__class__ is Podcast:
         return "{0}/img/{1}".format(instance.slug, filename)
+
 
 def get_media_upload_folder(instance, pathname):
     # A standardized pathname for uploaded show images
@@ -45,6 +49,7 @@ def get_media_upload_folder(instance, pathname):
 
 
 class Podcast(models.Model):
+
     """
     Podcast model defines a podcast stream and methods to publish the RSS file
 
@@ -59,10 +64,14 @@ class Podcast(models.Model):
          'Creative Commons: Attribution-No Derivatives (by-nd)'),
         ('Creative Commons: Attribution-Non-Commercial (by-nc)',
          'Creative Commons: Attribution-Non-Commercial (by-nc)'),
-        ('Creative Commons: Attribution-Non-Commercial-Share Alike (by-nc-sa)',
-         'Creative Commons: Attribution-Non-Commercial-Share Alike (by-nc-sa)'),
-        ('Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)',
-         'Creative Commons: Attribution-Non-Commercial-No Dreivatives (by-nc-nd)'),
+        ('Creative Commons: Attribution-Non-Commercial-Share Alike \
+            (by-nc-sa)',
+         'Creative Commons: Attribution-Non-Commercial-Share Alike \
+            (by-nc-sa)'),
+        ('Creative Commons: Attribution-Non-Commercial-No Dreivatives \
+            (by-nc-nd)',
+         'Creative Commons: Attribution-Non-Commercial-No Dreivatives \
+            (by-nc-nd)'),
         ('Public domain', 'Public domain'),
         ('Other', 'Other')
     )
@@ -119,8 +128,9 @@ class Podcast(models.Model):
     contact = models.EmailField(max_length=255, blank=True, null=True)
     updated = models.DateTimeField(auto_now_add=True)
     image = models.ImageField('cover art', upload_to=get_image_upload_folder)
-    copyright = models.CharField('license', max_length=255, blank=True, null=True,
-        choices=LICENSE_CHOICES)
+    copyright = models.CharField('license',
+                                 max_length=255, blank=True, null=True,
+                                 choices=LICENSE_CHOICES)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
     feedburner_url = models.URLField('FeedBurner URL', blank=True)
@@ -159,14 +169,10 @@ class Podcast(models.Model):
     """
     itunes_url = models.URLField('iTunes Store URL', blank=True)
 
-
-
-
     # This constant defines the groups and permissions that will be created
     # for each podcast when it is created
     GROUP_PERMS = {'managers': 'manage', 'editors': 'edit',
                    'webmasters': 'web', 'all': 'view'}
-
 
     def __unicode__(self):
         return self.title
@@ -174,7 +180,6 @@ class Podcast(models.Model):
     @property
     def generator(self):
         return podmin.get_name() + " " + podmin.get_version()
-
 
     def publish_episodes(self, episodes, rssFile, type):
         """
@@ -199,10 +204,12 @@ class Podcast(models.Model):
             # and should overwrite the file in storage
 
             if os.path.isfile(self.tmp_dir + episode.filename):
+
                 try:
                     episode.move_to_storage()
-                except IOError, err:
+                except IOError as err:
                     return '; '.join(err.messages)
+
             else:
                 # make sure the file is in storage
                 if not os.path.isfile(self.storage_dir + episode.filename):
@@ -229,7 +236,7 @@ class Podcast(models.Model):
             f = open(rssFile, 'w')
             f.write(template.render(rssContext))
             f.close
-        except IOError, err:
+        except IOError as err:
             return '; '.join(err.messages)
 
         # now that the rss is written, update the published date
@@ -421,18 +428,17 @@ class Podcast(models.Model):
         return channel
 
     def get_theme(self):
-        has_static_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
-                                        'podmin', 'static', 'podcast',
-                                        self.slug))
+        has_static_dir = os.path.exists(os.path.join(
+            settings.PROJECT_ROOT, 'podmin', 'static', 'podcast', self.slug))
 
         if has_static_dir:
             static_dir = '/static/podcast/%s' % self.slug
         else:
             static_dir = '/static/podcast/default'
 
-        has_template_dir = os.path.exists(os.path.join(settings.PROJECT_ROOT,
-                                          'podmin', 'templates', 'podmin',
-                                          'podcast', self.slug))
+        has_template_dir = os.path.exists(os.path.join(
+            settings.PROJECT_ROOT, 'podmin', 'templates', 'podmin', 'podcast',
+            self.slug))
 
         if has_template_dir:
             template_dir = self.slug
@@ -466,13 +472,14 @@ class Podcast(models.Model):
 
         try:
             os.rename(tmp_path, pub_path)
-        except IOError, err:
+        except IOError as err:
             return '; '.join(err.messages)
 
         self.image = uploaded_file.name
 
 
 class Episode(models.Model):
+
     """
     Episode model, defines a single episode of a podcast and methods to
     extract and set data about the episode.
@@ -539,7 +546,7 @@ class Episode(models.Model):
         # Try to create the storage directory
         try:
             os.makedirs(self.storage_dir)
-        except OSError, e:
+        except OSError as e:
             raise e
 
         tmp_path = self.podcast.tmp_dir + self.filename
@@ -618,7 +625,7 @@ class Episode(models.Model):
                 audio[tag] = value
 
             audio.save()
-        except Exception, err:
+        except Exception as err:
             return '; '.join(err.messages)
 
         #audio.pprint()
@@ -703,7 +710,7 @@ class Episode(models.Model):
 
         try:
             os.rename(old_path, new_path)
-        except IOError, err:
+        except IOError as err:
             return '; '.join(err.messages)
 
         self.filename = new_filename

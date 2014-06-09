@@ -1,12 +1,12 @@
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.utils.feedgenerator import rfc2822_date, Rss201rev2Feed, Atom1Feed
+from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed, Enclosure
 from django.shortcuts import get_object_or_404
 
 from django.contrib.syndication.views import Feed
 
-from podmin.models import Podcast, Episode
+from podmin.models import Podcast
 
 
 class ITunesElements(object):
@@ -47,17 +47,18 @@ class ITunesElements(object):
 
         handler.addQuickElement(u"generator", podcast.generator)
 
-
     def add_item_elements(self, handler, item):
         """ Add additional elements to the episode object"""
         super(ITunesElements, self).add_item_elements(handler, item)
         episode = item["episode"]
         handler.addQuickElement(u"guid", str(episode.guid),
                                 attrs={"isPermaLink": "false"})
-        handler.addQuickElement(u"copyright",
-            "{0} {1} {2}".format(episode.podcast.copyright,
-            episode.podcast.copyright_url,
-            datetime.date.today().year))
+        handler.addQuickElement(
+            u"copyright", "{0} {1} {2}".format(
+                episode.podcast.copyright,
+                episode.podcast.copyright_url,
+                datetime.date.today().year))
+
         handler.addQuickElement(u"itunes:author", episode.podcast.author)
         handler.addQuickElement(u"itunes:subtitle", episode.subtitle)
         handler.addQuickElement(u"itunes:summary", episode.description)
@@ -79,6 +80,7 @@ class ITunesElements(object):
 
 
 class AtomITunesFeedGenerator(ITunesElements, Atom1Feed):
+
     def root_attributes(self):
         atom_attrs = super(AtomITunesFeedGenerator, self).root_attributes()
         atom_attrs.update(self.namespace_attributes())
@@ -86,6 +88,7 @@ class AtomITunesFeedGenerator(ITunesElements, Atom1Feed):
 
 
 class RssITunesFeedGenerator(ITunesElements, Rss201rev2Feed):
+
     def rss_attributes(self):
         rss_attrs = super(RssITunesFeedGenerator, self).rss_attributes()
         rss_attrs.update(self.namespace_attributes())
@@ -93,9 +96,11 @@ class RssITunesFeedGenerator(ITunesElements, Rss201rev2Feed):
 
 
 class PodcastFeed(Feed):
+
     """
     A feed of podcasts for iTunes and other compatible podcatchers.
     """
+
     def title(self, podcast):
         return podcast.title
 
@@ -124,7 +129,7 @@ class PodcastFeed(Feed):
         return episode.description
 
     def item_link(self, episode):
-        return reverse("episode", kwargs={"eid": episode.id})
+        return reverse("episode_show", kwargs={"eid": episode.id})
 
     # def item_author_link(self, episode):
     #     return "todo" #this one doesn't add anything in atom or rss
@@ -134,7 +139,6 @@ class PodcastFeed(Feed):
 
     def item_pubdate(self, episode):
         return episode.published
-
 
     def item_enclosure_url(self, episode):
         try:
@@ -184,7 +188,8 @@ class RssPodcastFeed(PodcastFeed):
     feed_type = RssITunesFeedGenerator
 
     def item_guid(self, episode):
-        "ITunesElements can't add isPermaLink attr unless None is returned here."
+        # ITunesElements can't add isPermaLink attr unless None is
+        # returned here."
         return None
 
     def description(self, podcast):

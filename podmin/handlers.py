@@ -1,6 +1,5 @@
 # django stuff
-from django.db import models
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import Group, Permission
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
@@ -37,18 +36,18 @@ def podcast_post_save(sender, **kwargs):
 @receiver(post_delete, sender=Podcast)
 def podcast_post_delete(sender, **kwargs):
     slug = kwargs['instance'].slug
+    content_type = ContentType.objects.get(app_label='podmin',
+                                           model='podcast')
     for group, perm in kwargs['instance'].GROUP_PERMS.iteritems():
         g = Group.objects.get(name='%s_%s' % (slug, group))
         g.permissions.clear()
         g.delete()
 
         p = Permission.objects.get(
-                codename='%s_%s' % (slug, perm),
-                name='Can %s podcast %s' % (perm, slug),
-                content_type=content_type)
+            codename='%s_%s' % (slug, perm),
+            name='Can %s podcast %s' % (perm, slug),
+            content_type=content_type)
         p.delete()
-
-
 
 post_save.connect(podcast_post_save, sender=Podcast)
 post_delete.connect(podcast_post_delete, sender=Podcast)
