@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def index(request, subsite=''):
     """
     front page view: display news, new episodes, featured
@@ -22,6 +23,14 @@ def index(request, subsite=''):
     """
     if subsite != '':
         subsite = subsite + '/'
+
+    try:
+        slug = os.environ['PODMIN_SLUG']
+        return HttpResponseRedirect(reverse(
+            'podcast_show',
+            kwargs={'slug': slug, 'subsite': subsite}))
+    except:
+        pass
 
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts, 'subsite': subsite}
@@ -37,7 +46,7 @@ def podcasts(request, subsite=''):
     """
     if subsite != '':
         subsite = subsite + '/'
-    
+
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts, 'subsite': subsite}
     return render(request, 'podmin/site/podcasts.html', context)
@@ -72,7 +81,7 @@ def podcast(request, slug, subsite=''):
     """
     if subsite != '':
         subsite = subsite + '/'
-    
+
     podcast = get_object_or_404(Podcast, slug=slug)
     episodes = podcast.episode_set.all()
 
@@ -100,7 +109,9 @@ def edit_podcast(request, slug, subsite=''):
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': podcast.slug, 'subsite': subsite}))
+            return HttpResponseRedirect(reverse(
+                'podcast_show',
+                kwargs={'slug': podcast.slug, 'subsite': subsite}))
 
     form = PodcastForm(instance=podcast)
 
@@ -108,7 +119,8 @@ def edit_podcast(request, slug, subsite=''):
 
     return render(request,
                   'podmin/%s/podcast/podcast_edit.html' % template_dir,
-                  {'form': form, 'subsite': subsite, 'slug': slug, 'static_dir': static_dir})
+                  {'form': form, 'subsite': subsite, 'slug': slug,
+                   'static_dir': static_dir})
 
 
 def new_podcast(request, subsite=''):
@@ -125,7 +137,10 @@ def new_podcast(request, subsite=''):
         form = PodcastForm(request.POST, request.FILES)
         if form.is_valid():
             podcast = form.save()
-            return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': podcast.slug, 'subsite': subsite}))
+            return HttpResponseRedirect(reverse(
+                'podcast_show', kwargs={
+                    'slug': podcast.slug, 'subsite': subsite}))
+
     return render(request, 'podmin/default/podcast/podcast_edit.html',
                   {'form': form, 'static_dir': '/static/podcast/site'})
 
@@ -138,7 +153,7 @@ def episode(request, eid, subsite=''):
     """
     if subsite != '':
         subsite = subsite + '/'
-    
+
     episode = get_object_or_404(Episode, pk=eid)
 
     static_dir, template_dir = episode.podcast.get_theme()
@@ -150,7 +165,7 @@ def episode(request, eid, subsite=''):
 def edit_episode(request, eid, subsite=''):
     if subsite != '':
         subsite = subsite + '/'
-    
+
     episode = Episode.objects.get(pk=eid)
     if request.method == 'POST':
         form = EpisodeForm(request.POST, request.FILES, instance=episode)
@@ -171,7 +186,9 @@ def edit_episode(request, eid, subsite=''):
                     messages.error(request,
                                    "Podcast not published: " + published)
 
-            return HttpResponseRedirect(reverse('episode_show',kwargs={'eid': episode.id, 'subsite': subsite}))
+            return HttpResponseRedirect(reverse(
+                'episode_show',
+                kwargs={'eid': episode.id, 'subsite': subsite}))
 
     else:
         form = EpisodeForm(instance=episode)
@@ -189,7 +206,7 @@ def edit_episode(request, eid, subsite=''):
 def new_episode(request, slug=None, subsite=''):
     if subsite != '':
         subsite = subsite + '/'
-    
+
     podcast = get_object_or_404(Podcast, slug=slug)
     form = EpisodeForm()
 
@@ -212,7 +229,9 @@ def new_episode(request, slug=None, subsite=''):
                     messages.error(request,
                                    "Podcast not published: " + published)
 
-            return HttpResponseRedirect(reverse('episode_show',kwargs={'eid': episode.id, 'subsite': subsite}))
+            return HttpResponseRedirect(reverse(
+                'episode_show',
+                kwargs={'eid': episode.id, 'subsite': subsite}))
 
     return render(request, 'podmin/default/episode/episode_edit.html',
                   {'form': form, 'podcast': podcast,
