@@ -25,16 +25,16 @@ if virtual_slug:
     urlpatterns += patterns(
         'podmin.views',
         url(r'^(?P<subsite>[A-Za-z0-9/]*)/$',
-            'podcast', name='podcast_show', {'slug': virtual_slug}),
+            'podcast', {'slug': virtual_slug}, name='podcast_show'),
 
         url(r'^(?P<subsite>[A-Za-z0-9/]*)edit/$',
-            'edit_podcast', name='podcast_edit', {'slug': virtual_slug}),
+            'edit_podcast',  {'slug': virtual_slug}, name='podcast_edit'),
         url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/(?P<eid>\d+)/$',
             'episode', name='episode_show'),
         url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/edit/(?P<eid>\d+)/$',
             'edit_episode', name='episode_edit'),
         url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/new/(?P<pid>\d+)/$',
-            'new_episode', name='episode_new'), {'slug': virtual_slug},
+            'new_episode',  {'slug': virtual_slug}, name='episode_new'),
         url(r'^(?P<subsite>\w+)/$', 'index', name='index'),
     )
 
