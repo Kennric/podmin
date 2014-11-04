@@ -1,6 +1,6 @@
 import os.path
 # Django settings for podcaster project.
- 
+
 PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), '../', 'fixtures/'))
 SITE_ROOT = os.path.normpath(os.path.join(PROJECT_ROOT, '../'))
@@ -65,7 +65,6 @@ INSTALLED_APPS = (
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'south',
     'podmin'
 )
 
@@ -104,7 +103,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        },     
+        },
         'logfile': {
             'filters': ['require_debug_true'],
             'level':'DEBUG',
@@ -114,7 +113,7 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'simple',
         },
-    },    
+    },
     'loggers': {
         'django': {
             'handlers': ['null', 'logfile'],
