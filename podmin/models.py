@@ -494,6 +494,7 @@ class Episode(models.Model):
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     slug = AutoSlugField(populate_from='title', unique=True, default='')
+    number = models.CharField(max_length=64)
     description = models.TextField('short episode description',
                                    blank=True, null=True)
     enclosure_file = models.FileField('enclosure file',
