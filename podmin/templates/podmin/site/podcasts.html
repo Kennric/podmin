@@ -4,7 +4,7 @@
 {% if podcasts %}
     {% for podcast in podcasts %}
     <h2>
-    <a href="{% url 'podcast_show' slug=podcast.slug subsite=subsite %}">{{ podcast.title }}</a>
+    <a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a>
     </h2>
     <p class="podlist-desc">
     {{ podcast.description }}

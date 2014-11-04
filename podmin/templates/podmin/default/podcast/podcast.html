@@ -35,8 +35,8 @@
 	</div>
 <ul>
 {% for episode in episodes %}
-<li><a href="{% url 'episode_show' eid=episode.id subsite=subsite %}">{{ episode.title }}</a></li>
-{% endfor %} 
+<li><a href="{% url 'episode_show' eid=episode.id %}">{{ episode.title }}</a></li>
+{% endfor %}
 </ul>
 
 {% endblock %}
