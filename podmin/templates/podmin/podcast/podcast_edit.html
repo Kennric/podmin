@@ -1,0 +1,54 @@
+{% extends "podmin/admin_base.html" %}
+
+{% load podmin_tags %}
+
+{% block content %}
+
+{% if form.non_field_errors %}
+    {{ form.non_field_errors }}
+{% endif %}
+
+<div class="row">
+  <div class="twelve columns">
+    {% if slug %}
+    <form action="{% url 'podcast_edit' slug=slug %}" method="post" enctype="multipart/form-data">
+
+    {% else %}
+    <form action="{% url 'podcast_new' %}" method="post" enctype="multipart/form-data">
+    {% endif %}
+        {% csrf_token %}
+
+        {% for field in form %}
+        <ul>
+        {% if field.errors %}
+            <li class="danger alert">{{ field.errors }}</li>
+        {% endif %}
+        <li class="field">
+
+
+            {% if field|is_checkbox  %}
+                <label class="checkbox inline" for="{{ field.name }}">
+                    {{ field.label }}{{ field }}
+                    <span class="helptext">{{ field.help_text }}</span>
+                </label>
+            {% else %}
+                <label for="{{ field.name }}">
+                    {{ field.label }}
+                    <br><span class="helptext">{{ field.help_text }}</span>
+                </label>
+                {% if field.name == 'image' and field.value %}
+                    <img class="thumb" src="{{ MEDIA_URL }}{{ field.value }}">
+                {% endif %}
+                {{ field }}
+            {% endif %}
+        </li>
+        </ul>
+        {% endfor %}
+        <div class="medium info btn">
+            <input type="submit" value="Submit" />
+        </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

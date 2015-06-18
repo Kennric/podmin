@@ -1,0 +1,14 @@
+export PYTHONPATH=/var/www/staging/podmin.hypothetical.net/
+export DJANGO_ENVIRONMENT=staging
+export DJANGO_SETTINGS_MODULE=podmin.settings
+export PODMIN_STG_STATIC_ROOT=/var/www/staging/podmin.hypothetical.net/static
+export PODMIN_STG_MEDIA_ROOT=/var/www/staging/podmin.hypothetical.net/media
+export PODMIN_STG_MEDIA_URL=http://podmin.staging.hypothetical.net/media/
+export PODMIN_STG_BUFFER_ROOT=/var/www/staging/p/
+export PODMIN_STG_DB_ENGINE=django.db.backends.mysql
+export PODMIN_STG_DB_NAME=podmin_staging
+export PODMIN_STG_DB_USER=podmin_stg
+export PODMIN_STG_DB_PASS=XFZ9DxRidgCax5td6H7KVPT5
+export PODMIN_STG_DB_HOST=127.0.0.1
+export PODMIN_STG_DB_PORT=3306
+export PODMIN_STG_SECRET_KEY="8kf-rst4iw64xiie(^fze2ps-t7%#s1*e&fm+@io&(&*c5ot0a"

@@ -1,0 +1,118 @@
+{% extends "podmin/site/base.html" %}
+{% load static from staticfiles %}
+{% block externals %}
+{% endblock %}
+
+{% block title %}{{ episode.podcast.title }}{% endblock %}
+{% block episode.podcast_subtitle %}{{ episode.podcast.subtitle }}{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="twelve columns">
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+        <h2><a href="{% url 'podcast_show' slug=episode.podcast.slug %}">
+            {{ episode.podcast.title }}
+            </a>
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="three columns">
+    {% if episode.image %}
+        <img src="{{episode.image.url}}" alt="podcast image">
+    {% endif %}
+    </div>
+
+    <div class="nine columns">
+        <h3>{{ episode.title }}</h3>
+        {% if episode.subtitle %}
+        <h4>{{ episode.subtitle }}</h4>
+        {% endif %}
+        <ul>
+            <li>Published: {{ episode.pub_date }}</li>
+            <li>Filed under: {{ episode.tags|default:'None' }}</li>
+            <li>{{ episode.length }}</li>
+        </ul>
+        <div id="jquery_jplayer_{{ episode.id }}" class="jp-jplayer"></div>
+        <div id="jp_container_{{ episode.id }}" class="jp-audio" role="application" aria-label="media player">
+          <div class="jp-type-single">
+              <div class="jp-gui jp-interface">
+                <div class="jp-volume-controls">
+                    <div class="jp-volume-bar">
+                      <div class="jp-volume-bar-value"></div>
+                    </div>
+                </div>
+                <div class="jp-controls-holder">
+                  <div class="jp-controls">
+                    <button class="jp-play" role="button" tabindex="0">play</button>
+                    <button class="jp-stop" role="button" tabindex="0">stop</button>
+                  </div>
+                  <div class="jp-progress">
+                    <div class="jp-seek-bar">
+                      <div class="jp-play-bar"></div>
+                    </div>
+                  </div>
+                  <div class="jp-current-time" role="timer" aria-label="time">&nbsp;</div>
+                  <div class="jp-duration" role="timer" aria-label="duration">&nbsp;</div>
+                </div>
+              </div>
+            <div class="jp-details">
+              <div class="jp-title" aria-label="title">&nbsp;</div>
+            </div>
+            <div class="jp-no-solution">
+              Player not available.
+            </div>
+          </div>
+        </div>
+
+  </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="twelve columns">
+    {{ episode.show_notes }}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footscripts %}
+
+<link type="text/css" href="{% static 'bower_components/jplayer/skin/blue.monday/jplayer.blue.monday.css' %}" rel="stylesheet" />
+<script src="{% static 'bower_components/jplayer/dist/jplayer/jquery.jplayer.min.js' %}"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+
+      $("#jquery_jplayer_{{ episode.id }}").jPlayer({
+        ready: function () {
+          $(this).jPlayer("setMedia", {
+            title: "{{ episode.title }}",
+            mp3: "{{ episode.podcast.storage_url }}/media/{{ episode.audio_filename }}"
+          });
+        },
+        cssSelectorAncestor: "#jp_container_{{ episode.id }}",
+        play: function() { // To avoid multiple jPlayers playing together.
+          $(this).jPlayer("pauseOthers");
+        },
+        swfPath: "{% static 'bower_components/jplayer/dist/jplayer/' %}",
+        supplied: "mp3",
+        wmode: "window",
+        globalVolume: true,
+        useStateClassSkin: true,
+        autoBlur: false,
+        smoothPlayBar: true,
+        keyEnabled: true
+      });
+
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "master.html" %}
+
+{% block externals %}
+	{% include 'podmin/_base_externals.html' %}
+	{% include 'podmin/_admin_externals.html' %}
+{% endblock %}
+
+<div id="content">
+    {% block content %}{% endblock %}
+</div>

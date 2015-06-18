@@ -1,0 +1,22 @@
+{
+  "name": "podmin",
+  "version": "0.0.1",
+  "authors": [
+    "Kennric <kennric@hypothetical.net>"
+  ],
+  "description": "packages supporting podmin",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "gumby": "=2.6.3",
+    "jquery": "=2.1.1",
+    "jplayer": "=2.9.0"
+  }
+}
