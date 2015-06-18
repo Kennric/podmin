@@ -20,7 +20,7 @@ implement user registration
 
 "unpublish" episode
 
-replace sox with mutagen
+replace sox with mutagen? (maybe not, mutagen length issues)
 
 re-integrate beaver show podcast tools
 
@@ -34,6 +34,8 @@ archive old eps (remove/archive files, mark archived)
 paginate!
 
 figure out ownership, user profiles
+
+REST api
 
 Eventually
 ----------
