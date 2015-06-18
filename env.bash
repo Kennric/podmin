@@ -1,14 +1,21 @@
-export PYTHONPATH=/var/www/staging/podmin.hypothetical.net/
-export DJANGO_ENVIRONMENT=staging
+#!/bin/bash
+
+# This is a convenience file to set podmin's env variables
+# in the current shell for things like manage.py commands
+# and running the dev server. Replace ENV with a supported
+# environment, DEV, STG, PROD, and set DJANGO_ENVIRONMENT
+# to the corresponding string, dev, staging, production.
+export PYTHONPATH=/home/kennric/projects/podmin/
+export DJANGO_ENVIRONMENT=env
 export DJANGO_SETTINGS_MODULE=podmin.settings
-export PODMIN_STG_STATIC_ROOT=/var/www/staging/podmin.hypothetical.net/static
-export PODMIN_STG_MEDIA_ROOT=/var/www/staging/podmin.hypothetical.net/media
-export PODMIN_STG_MEDIA_URL=http://podmin.staging.hypothetical.net/media/
-export PODMIN_STG_BUFFER_ROOT=/var/www/staging/p/
-export PODMIN_STG_DB_ENGINE=django.db.backends.mysql
-export PODMIN_STG_DB_NAME=podmin_staging
-export PODMIN_STG_DB_USER=podmin_stg
-export PODMIN_STG_DB_PASS=XFZ9DxRidgCax5td6H7KVPT5
-export PODMIN_STG_DB_HOST=127.0.0.1
-export PODMIN_STG_DB_PORT=3306
-export PODMIN_STG_SECRET_KEY="8kf-rst4iw64xiie(^fze2ps-t7%#s1*e&fm+@io&(&*c5ot0a"
+export PODMIN_DEV_STATIC_ROOT=/tmp/podmin/static
+export PODMIN_DEV_MEDIA_ROOT=/tmp/podmin/media
+export PODMIN_DEV_MEDIA_URL=http://example.com/media/
+export PODMIN_DEV_BUFFER_ROOT=/tmp/p/
+export PODMIN_DEV_DB_ENGINE=django.db.backends.mysql
+export PODMIN_DEV_DB_NAME=podmin
+export PODMIN_DEV_DB_USER=podmin
+export PODMIN_DEV_DB_PASS=secret
+export PODMIN_DEV_DB_HOST=127.0.0.1
+export PODMIN_DEV_DB_PORT=3306
+export PODMIN_DEV_SECRET_KEY="8kf-rst4iw64xiie(^fze2ps-t7%#s1*e&fm+@io&(&*c5ot0a"
