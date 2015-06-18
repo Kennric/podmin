@@ -28,14 +28,9 @@ STATICFILES_DIRS = (
 )
 
 """
-The following rely on variables that should be set in the environment.
+The following rely on variables that should be set in the environment. The
+Dev environment uses sqlite, so no db vars are needed.
 Make sure you set:
-    PODMIN_DEV_DB_ENGINE
-    PODMIN_DEV_DB_NAME
-    PODMIN_DEV_DB_USER
-    PODMIN_DEV_DB_PASS
-    PODMIN_DEV_DB_HOST
-    PODMIN_DEV_DB_PORT
     PODMIN_DEV_SECRET_KEY
     PODMIN_DEV_MEDIA_ROOT
     PODMIN_DEV_MEDIA_URL
@@ -46,29 +41,25 @@ from somewhere before the settings are loaded.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.environ['PODMIN_STG_MEDIA_ROOT']
+MEDIA_ROOT = os.environ['PODMIN_DEV_MEDIA_ROOT']
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = os.environ['PODMIN_STG_MEDIA_URL']
+MEDIA_URL = os.environ['PODMIN_DEV_MEDIA_URL']
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.environ['PODMIN_STG_STATIC_ROOT']
+STATIC_ROOT = os.environ['PODMIN_DEV_STATIC_ROOT']
 
-BUFFER_ROOT = os.environ['PODMIN_STG_BUFFER_ROOT']
+BUFFER_ROOT = os.environ['PODMIN_DEV_BUFFER_ROOT']
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ['PODMIN_DEV_DB_ENGINE'],
-        'NAME': os.environ['PODMIN_DEV_DB_NAME'],
-        'USER': os.environ['PODMIN_DEV_DB_USER'],
-        'PASSWORD': os.environ['PODMIN_DEV_DB_PASS'],
-        'HOST': os.environ['PODMIN_DEV_DB_HOST'],
-        'PORT': os.environ['PODMIN_DEV_DB_PORT'],
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/podmin/db',
     }
 }
 
