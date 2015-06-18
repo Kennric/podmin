@@ -1,67 +1,45 @@
 from django.conf.urls import patterns, url, include
-#from django.conf.urls.static import static
-#from django.conf import settings
-#import views
+from django.contrib import admin
 
 
-"""
-The web server gives us a slug to load up if we are called as a virtual
-domain. i.e. mysite.com/podcasts should result in the podcast/mysite view
-"""
-
-try:
-    virtual_slug = os.environ['PODMIN_SLUG']
-except:
-    virtual_slug = False
-
-
-urlpatterns = patterns('', url(
-    r'^login/$', 'django.contrib.auth.views.login',
-    {'template_name': 'podmin/login.html'}),
+urlpatterns = patterns('',
+    #url(
+    #r'^accounts/login/$', 'django.contrib.auth.views.login',
+    #{'template_name': 'podmin/login.html'}),
+    # Uncomment the next line to enable the admin:
+    url(r'^admin/', include(admin.site.urls)),
 )
 
 urlpatterns += patterns('', url(r'', include('podmin.urls_feeds')))
 
-"""
-if virtual_slug:
-    urlpatterns += patterns(
-        'podmin.views',
-        url(r'^(?P<subsite>[A-Za-z0-9/]*)/$',
-            'podcast', {'slug': virtual_slug}, name='podcast_show'),
-        url(r'^(?P<subsite>[A-Za-z0-9/]*)edit/$',
-            'edit_podcast',  {'slug': virtual_slug}, name='podcast_edit'),
-        url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/(?P<eid>\d+)/$',
-            'episode', name='episode_show'),
-        url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/edit/(?P<eid>\d+)/$',
-            'edit_episode', name='episode_edit'),
-        url(r'^(?P<subsite>[A-Za-z0-9/]*)episode/new/(?P<pid>\d+)/$',
-            'new_episode',  {'slug': virtual_slug}, name='episode_new'),
-        url(r'^(?P<subsite>\w+)/$', 'index', name='index'),
-    )
 
-else:
-"""
 urlpatterns += patterns(
     'podmin.views',
+
+    url(r'^login/?$', 'login_user', name='login'),
+    url(r'^logout/?$', 'logout_user', name='logout'),
+
     url(r'^$', 'index', name='index'),
+    url(r'^about/$',
+        'podmin_info', name='about'),
+    url(r'^home/$',
+        'home', name='user_home'),
     url(r'^podcasts/$',
         'podcasts', name='podcasts_list'),
-    url(r'^podcast/(?P<slug>[A-Za-z0-9\-]+)/$',
-        'podcast', name='podcast_show'),
-    url(r'^podcast/edit/(?P<slug>[A-Za-z0-9\-]+)/$',
-        'edit_podcast', name='podcast_edit'),
-    url(r'^podcast/new/$',
+    url(r'^new/$',
         'new_podcast', name='podcast_new'),
-    url(r'^episode/(?P<eid>\d+)/$',
-        'episode', name='episode_show'),
-    url(r'^episode/edit/(?P<eid>\d+)/$',
-        'edit_episode', name='episode_edit'),
-    url(r'^episode/new/(?P<pid>\d+)/$',
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/$',
+        'podcast', name='podcast_show'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/edit/$',
+        'edit_podcast', name='podcast_edit'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/delete/$',
+        'delete_podcast', name='podcast_delete'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/new/$',
         'new_episode', name='episode_new'),
-
-    #(?:/(?P<title>[a-zA-Z]+))?/$
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/$',
+        'episode', name='episode_show'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/edit/$',
+        'edit_episode', name='episode_edit'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/delete/$',
+        'delete_episode', name='episode_delete'),
 )
-
-
-# for handling user-uploaded podcast logo in the future
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

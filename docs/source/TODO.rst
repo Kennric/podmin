@@ -6,21 +6,9 @@ TODO
 Now
 ---
 
-use def get_show_upload_folder(instance, pathname): and upload_to=get_show_upload_folder to handle storage locations
-
-use feed framework to generate rss (and atom)
-
-use filefield for audio
-
-
-Next
-----
-
-implement user perms on views
-
-add site model/id
-
 add graphics handling for thumbnails
+
+finalize feed generation
 
 js date picker
 
@@ -28,16 +16,24 @@ js media player
 
 choices for all the things (categories, etc)
 
-pretty default theme
-
-pull gumby sass out from top level, figure out var over-rides
-
 implement user registration
 
 "unpublish" episode
 
 replace sox with mutagen
 
+re-integrate beaver show podcast tools
+
+tag beta
+
+Next
+----
+
+archive old eps (remove/archive files, mark archived)
+
+paginate!
+
+figure out ownership, user profiles
 
 Eventually
 ----------
@@ -72,7 +68,7 @@ video podcast support
 
 storage to cloud
 
-archive old eps (remove/archive files, mark archived)
+
 
 twitter, fb etc integration
 

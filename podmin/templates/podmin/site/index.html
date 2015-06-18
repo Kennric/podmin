@@ -2,14 +2,18 @@
 
 {% block content %}
 
-<h2>Hypothetical Industries PodCaster</h2>
+<div class="twelve columns">
 
-All Podcasts:<br>
+    <h3>Podcasts:</h3>
 
-<ul>
-{% for podcast in podcasts %}
-<li><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></li>
-{% endfor %}
-</ul>
+    <ul>
+    {% for podcast in podcasts %}
+    <li>
+    <a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a>
+    </li>
+    {% endfor %}
+    </ul>
+
+</div>
 
 {% endblock %}

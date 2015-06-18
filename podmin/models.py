@@ -1,9 +1,12 @@
 # django stuff
 from django.db import models
-from django.template.loader import get_template
-from django.template import Context
+from django.contrib.sites.models import Site
+#from django.template.loader import get_template
+#from django.template import Context
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.core.files.storage import FileSystemStorage
 # from django.contrib.sites.models import Site
 
 # django contrib stuff
@@ -11,12 +14,14 @@ from autoslug import AutoSlugField
 
 # podmin app stuff
 import podmin
-import util
+from util import podcast_audio
 
 # python stuff
 import shutil
 import os
 from datetime import datetime, timedelta, date
+import requests
+
 """
 import logging
 import re
@@ -31,21 +36,44 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 """
 
+buffer_storage = FileSystemStorage(location=settings.BUFFER_ROOT)
 
-def get_image_upload_folder(instance, filename):
-    # A standardized pathname for uploaded show images
+
+def get_image_upload_path(instance, filename):
     if instance.__class__ is Episode:
-        return "{0}/{1}/img/{2}".format(
-            instance.podcast.slug,
-            instance.slug, filename)
+        return "%s/img/%s" % (instance.podcast.slug, filename)
 
     if instance.__class__ is Podcast:
-        return "{0}/img/{1}".format(instance.slug, filename)
+        return "%s/img/%s" % (instance.slug, filename)
 
 
-def get_media_upload_folder(instance, pathname):
-    # A standardized pathname for uploaded show images
-    return "{0}/media".format(instance.podcast.slug)
+def get_media_upload_path(instance, filename):
+    if instance.__class__ is Episode:
+        return "%s/media/%s" % (instance.podcast.slug, filename)
+
+    if instance.__class__ is Podcast:
+        return "%s/media/%s" % (instance.slug, filename)
+
+
+class Category(models.Model):
+
+    """
+    Category model, stores the tree of iTunes categories
+
+    """
+    itunes = models.BooleanField(default=True)
+    name = models.CharField(max_length=255)
+    parent = models.ForeignKey('self', blank=True, null=True)
+
+    def __unicode__(self):
+        if self.parent:
+            return "%s / %s" % (self.parent, self.name)
+        else:
+            return self.name
+
+    class Meta:
+        ordering = ["name"]
+        order_with_respect_to = 'parent'
 
 
 class Podcast(models.Model):
@@ -54,69 +82,42 @@ class Podcast(models.Model):
     Podcast model defines a podcast stream and methods to publish the RSS file
 
     """
-    LICENSE_CHOICES = (
-        ('All rights reserved', 'All rights reserved'),
-        ('Creative Commons: Attribution (by)',
-         'Creative Commons: Attribution (by)'),
-        ('Creative Commons: Attribution-Share Alike (by-sa)',
-         'Creative Commons: Attribution-Share Alike (by-sa)'),
-        ('Creative Commons: Attribution-No Derivatives (by-nd)',
-         'Creative Commons: Attribution-No Derivatives (by-nd)'),
-        ('Creative Commons: Attribution-Non-Commercial (by-nc)',
-         'Creative Commons: Attribution-Non-Commercial (by-nc)'),
-        ('Creative Commons: Attribution-Non-Commercial-Share Alike \
-            (by-nc-sa)',
-         'Creative Commons: Attribution-Non-Commercial-Share Alike \
-            (by-nc-sa)'),
-        ('Creative Commons: Attribution-Non-Commercial-No Dreivatives \
-            (by-nc-nd)',
-         'Creative Commons: Attribution-Non-Commercial-No Dreivatives \
-            (by-nc-nd)'),
-        ('Public domain', 'Public domain'),
-        ('Other', 'Other')
-    )
-
-    EXPLICIT_CHOICES = (
-        ('Yes', 'Yes'),
-        ('No', 'No'),
-        ('Clean', 'Clean'),
-    )
-
-    FREQUENCY_CHOICES = (
-        ('always', 'Always'),
-        ('hourly', 'Hourly'),
-        ('daily', 'Daily'),
-        ('weekly', 'Weekly'),
-        ('monthly', 'Monthly'),
-        ('yearly', 'Yearly'),
-        ('never', 'Never'),
-    )
-
-    # std
+    # standard things
     title = models.CharField(max_length=255)
     owner = models.ForeignKey(User, default=1)
     slug = AutoSlugField(populate_from='title', unique=True)
-    last_import = models.IntegerField(default=1000000000)
-    combine_segments = models.BooleanField()
-    publish_segments = models.BooleanField()
-    pub_url = models.URLField('base publication url')
-    pub_dir = models.CharField('rss publication path', max_length=255)
-    storage_dir = models.CharField('path to storage location', max_length=255)
-    storage_url = models.URLField('storage base url')
-    tmp_dir = models.CharField('path to temporary processing location',
-                               max_length=255)
-    up_dir = models.CharField('path to the upload location', max_length=255)
-    cleaner = models.CharField('file cleaner function name',
-                               max_length=255, default='default')
     credits = models.TextField('art and music credits', blank=True, null=True)
     created = models.DateTimeField('created', auto_now_add=True,
                                    editable=False, default=datetime.now())
-    updated = models.DateTimeField('updated', auto_now=True, editable=False,
-                                   default=datetime.now())
+    updated = models.DateTimeField('updated', auto_now=True)
     website = models.URLField('podcast website', blank=True, null=True)
-    rename_files = models.BooleanField()
-    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES,
+    frequency = models.CharField(max_length=10,
+                                 choices=settings.FREQUENCY_CHOICES,
                                  blank=True, default='never')
+
+    # directories
+    buffer_dir = models.CharField('buffer path', max_length=255, blank=True,
+                                  default="")
+    pub_url = models.URLField('base publication url', blank=True,
+                              default="")
+    pub_dir = models.CharField('rss publication path', max_length=255,
+                               blank=True, default="")
+    storage_dir = models.CharField('storage base dir', max_length=255,
+                                   blank=True, default="")
+    storage_url = models.URLField('storage base url', blank=True,
+                                  default="")
+    tmp_dir = models.CharField('path to temporary processing location',
+                               max_length=255, default="/tmp")
+
+
+    # things related to importing from the filesystem
+    last_import = models.IntegerField(default=1000000000)
+    combine_segments = models.BooleanField(default=False)
+    publish_segments = models.BooleanField(default=False)
+    up_dir = models.CharField('path to the upload location', max_length=255)
+    cleaner = models.CharField('file cleaner function name',
+                               max_length=255, default='default')
+    rename_files = models.BooleanField(default=False)
 
     # RSS specific
     organization = models.CharField(max_length=255, default='')
@@ -126,11 +127,11 @@ class Podcast(models.Model):
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
-    updated = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField('cover art', upload_to=get_image_upload_folder)
+    image = models.ImageField('cover art',
+                              upload_to=get_image_upload_path)
     copyright = models.CharField('license',
                                  max_length=255, blank=True, null=True,
-                                 choices=LICENSE_CHOICES)
+                                 choices=settings.LICENSE_CHOICES)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
     feedburner_url = models.URLField('FeedBurner URL', blank=True)
@@ -142,15 +143,16 @@ class Podcast(models.Model):
     webmaster_email = models.EmailField('webmaster email', blank=True)
 
     # itunes specific
-    explicit = models.BooleanField()
-    itunes_categories = models.CharField('itunes cats', max_length=255,
-                                         blank=True, null=True)
+    explicit = models.BooleanField(default=False)
     categorization_domain = models.URLField(blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
     explicit = models.CharField(max_length=255, default='No',
-                                choices=EXPLICIT_CHOICES, blank=True)
+                                choices=settings.EXPLICIT_CHOICES, blank=True)
     block = models.BooleanField(default=False)
+
+    itunes_categories = models.ManyToManyField(Category, blank=True)
+
     """
     The show's new URL feed if changing the URL of the current show feed.
     Must continue old feed for at least two weeks and write a 301 redirect
@@ -169,8 +171,15 @@ class Podcast(models.Model):
     """
     itunes_url = models.URLField('iTunes Store URL', blank=True)
 
-    # This constant defines the groups and permissions that will be created
-    # for each podcast when it is created
+
+    """
+    This constant defines the groups and permissions that will be created
+    for each podcast when it is created
+    manage: edit podcast itself (Podcast model parameters)
+    edit: add and edit episodes
+    web: edit show notes, episode picture, etc
+    """
+
     GROUP_PERMS = {'managers': 'manage', 'editors': 'edit',
                    'webmasters': 'web', 'all': 'view'}
 
@@ -181,100 +190,200 @@ class Podcast(models.Model):
     def generator(self):
         return podmin.get_name() + " " + podmin.get_version()
 
-    def publish_episodes(self, episodes, rssFile, type):
-        """
-        Publish full episodes of the podcast.
+    @property
+    def itunes_image(self):
+        return
+
+    @property
+    def rss_image(self):
+        return
+
+
+    def save(self, *args, **kwargs):
+
+        super(Podcast, self).save(*args, **kwargs)
 
         """
+        Because we use os operations to move files out of the buffer
+        and into the publication location, we need to make sure all
+        the directories exist. We also want to set these directories
+        to some sensible defaults if not specified.
+        """
+        if self.pub_dir == "":
+            print("blank pub_dir!")
+            self.pub_dir = "%s/%s" % (settings.MEDIA_ROOT, self.slug)
 
-        rssBakFile = rssFile + ".bak"
-        template = get_template('feed.xml')
+        if not self.storage_dir:
+            self.storage_dir = "%s/%s" % (settings.MEDIA_ROOT, self.slug)
 
-        rssContext = Context(self.make_channel(type))
-        rssContext['entries'] = []
+        if not self.buffer_dir:
+            self.buffer_dir = "%s/%s" % (settings.BUFFER_ROOT, self.slug)
+
+        if not self.pub_url:
+            self.pub_url = "%s%s" % (settings.MEDIA_URL, self.slug)
+
+        if not self.storage_url:
+            self.storage_url = "%s%s" % (settings.MEDIA_URL, self.slug)
+
+        if not os.path.isdir(self.pub_dir):
+            os.makedirs(self.pub_dir)
+
+        # make sure the media storage directory exists
+        media_storage_dir = "%s/media" % self.storage_dir
+
+        if not os.path.isdir(media_storage_dir):
+            os.makedirs(media_storage_dir)
+
+        # make sure the image storage directory exists
+        img_storage_dir = "%s/img" % (self.storage_dir)
+
+        if not os.path.isdir(img_storage_dir):
+            os.makedirs(img_storage_dir)
+
+        # make sure the media buffer directory exists
+        media_buffer_dir = "%s/media" % (self.buffer_dir)
+
+        if not os.path.isdir(media_buffer_dir):
+            os.makedirs(media_buffer_dir)
+
+        # make sure the image buffer directory exists
+        img_buffer_dir = "%s/img" % (self.buffer_dir)
+
+        if not os.path.isdir(img_buffer_dir):
+            os.makedirs(img_buffer_dir)
+
+        super(Podcast, self).save(*args, **kwargs)
+
+    def publish(self):
+        self.publish_files()
+        self.publish_feed()
+        self.update_published()
+        self.expire_episodes()
+
+        return True
+
+    def publish_files(self):
+        """
+        Look at the episodes ready for publishing
+        if the files exist in the buffer, move them to the published
+        location
+
+        """
+        expired_date = date.today() - timedelta(days=self.max_age)
+
+        episodes = self.episode_set.filter(pub_date__gte=expired_date,
+                                           active=True)
 
         for episode in episodes:
-            # create a new entry
-            entry = episode.build_entry()
-            # insert the entry into the rssContext
-            rssContext['entries'].insert(0, entry)
+            audio_file = os.path.basename(episode.audio.name)
+            image_file = os.path.basename(episode.image.name)
 
-            # if the file is in the tmp dir, either it hasn't been put
-            # in storage yet (new), or a new version has been uploaded
-            # and should overwrite the file in storage
+            # TODO if 'rename_file', change the filename here
 
-            if os.path.isfile(self.tmp_dir + episode.filename):
+            audio_source = "%s/media/%s" % (self.buffer_dir, audio_file)
+            image_source = "%s/img/%s" % (self.buffer_dir, image_file)
 
-                try:
-                    episode.move_to_storage()
-                except IOError as err:
-                    return '; '.join(err.messages)
+            audio_destination = "%s/media/%s" % (self.storage_dir, audio_file)
+            image_destination = "%s/img/%s" % (self.storage_dir, image_file)
 
-            else:
-                # make sure the file is in storage
-                if not os.path.isfile(self.storage_dir + episode.filename):
-                    return """Episode {0} from {1} is missing its file:\n
-                                 {2} is not found in {3} or {4}
-                            """.format(episode.id,
-                                       episode.pub_date,
-                                       episode.filename,
-                                       self.tmp_dir,
-                                       self.storage_dir)
 
-        rssContext['feed']['updated'] = datetime.strftime(
-            datetime.now(), "%a, %d %b %Y %X") + " PST"
+            # if there is audio in the buffer, move it and set data, tag, etc
+            if os.path.isfile(audio_source):
+                os.rename(audio_source, audio_destination)
+                """
+                TODO:
+                if episode.tag_audio:
+                    # TODO: tag it
+                    pass
+                """
 
-        # copy the existing rss file to a backup, if it exists
+                # and set some data for convenience
+                audiofile = podcast_audio.PodcastAudio(audio_destination)
+                episode.length = audiofile.duration()
+                # TODO mimetype
+
+                episode.mime_type = audiofile.get_mimetype()[0]
+                episode.save()
+
+                """
+                TODO:
+                if self.add_image:
+                    #insert image into audio file
+                """
+
+            if os.path.isfile(image_source):
+                os.rename(image_source, image_destination)
+
+
+
+    def publish_feed(self):
+        """
+        Pull the feed from the feed generator, store it in the
+        pub_dir. For each current episode, move the audio from
+        the backlog to storage_dir (Episode.push_audio)
+
+        Feed methods: RssPodcastFeed(), AtomPodcastFeed()
+        """
+
+        atom_url = "%s%s%s" % ("http://", Site.objects.get_current().domain,
+                               reverse('podcasts_podcast_feed_atom',
+                                       args=(self.slug,)))
+
+        atom_feed = requests.request('GET', atom_url).text
+
+        if not self.pub_dir:
+            self.pub_dir = "%s/%s" % (settings.MEDIA_ROOT, self.slug)
+
+        atom_file = "%s/atom.xml" % self.pub_dir
+
         try:
-            with open(rssFile):
-                shutil.copy2(rssFile, rssBakFile)
-        except IOError:
-            pass
-
-        # write the new rss file
-        try:
-            f = open(rssFile, 'w')
-            f.write(template.render(rssContext))
+            f = open(atom_file, 'w')
+            f.write(atom_feed)
             f.close
         except IOError as err:
             return '; '.join(err.messages)
 
-        # now that the rss is written, update the published date
-        # on all the episodes we published
-        for episode in episodes:
-            if not episode.published:
-                episode.published = datetime.now()
-                episode.save(update_fields=['published'])
-
-        self.updated = datetime.now()
-        self.save()
-
-        return True
-
-    def publish(self):
+    def update_published(self):
         """
-        Wrapper method to publish all new episodes.
+        Update the 'pubished' date for all the episodes we have just
+        published.
 
         """
+        expired_date = date.today() - timedelta(days=self.max_age)
+        self.episode_set.filter(pub_date__gte=expired_date,
+                                active=True).update(published=datetime.now())
 
-        # fp = util.FilePrep(self)
-        rssFile = self.pub_dir + self.slug + ".xml"
-        episodes = self.episode_set.filter(active=True, part=None,
-                                           pub_date__lt=datetime.now())
-        type = 'full'
-        published = self.publish_episodes(episodes, rssFile, type)
+    def expire_episodes(self):
+        """
+        Expire old episodes by setting active = False where the pubDate
+        plus the given delta is less than today's date
 
-        if self.publish_segments:
-            rssFile = self.pub_dir + self.slug + "_segments.xml"
-            episodes = self.episode_set.filter(active=1).exclude(part=None)
-            type = 'segments'
-            published = self.publish_episodes(episodes, rssFile, type)
+        """
+        expired_date = date.today() - timedelta(days=self.max_age)
 
-        # now expire the old episodes
-        self.expire()
-        # and cleanup directories
-        # fp.cleanupDirs(self)
-        return published
+        self.episode_set.filter(pub_date__lte=expired_date,
+                                active=True).update(active=False,
+                                                    published=None)
+
+    def get_theme(self):
+        has_static_dir = os.path.exists(os.path.join(
+            settings.PROJECT_ROOT, 'podmin', 'static', 'podcast', self.slug))
+
+        if has_static_dir:
+            static_dir = '/static/podcast/%s' % self.slug
+        else:
+            static_dir = '/static/podcast/default'
+
+        has_template_dir = os.path.exists(os.path.join(
+            settings.PROJECT_ROOT, 'podmin', 'templates', 'podmin', 'podcast',
+            self.slug))
+
+        if has_template_dir:
+            template_dir = self.slug
+        else:
+            template_dir = 'default'
+
+        return static_dir, template_dir
 
     def publish_episode(self):
         """
@@ -290,9 +399,11 @@ class Podcast(models.Model):
 
         """
 
-        new_files = self.get_new_files()
-        self.import_from_files(new_files)
+        #new_files = self.get_new_files()
+        #self.import_from_files(new_files)
+        self.expire()
         self.publish()
+
         return "Podcast Published"
 
     def get_new_files(self):
@@ -354,99 +465,6 @@ class Podcast(models.Model):
             self.last_import = int(last_date.strftime("%s"))
             self.save()
 
-    def expire(self):
-        """
-        Expire old episodes by setting current = False where the pubDate
-        plus the given delta is less than today's date
-
-        """
-
-        delta = timedelta(days=self.max_age)
-        expired_date = date.today() - delta
-        episodes = self.episode_set.filter(pub_date__lte=expired_date)
-        for episode in episodes:
-            episode.active = False
-            episode.save()
-
-    def make_channel(self, type):
-        """
-        Update the channel properties of the podcast's RSS file.
-
-        """
-
-        channel = {}
-        channel['feed'] = {}
-        itunes_cats = []
-        if self.itunes_categories:
-            cats = self.itunes_categories.split('/')
-            for cat in cats:
-                pieces = cat.split(':')
-                category = pieces[0]
-                if len(pieces) > 1:
-                    terms = pieces[1].split(',')
-                    itunes_cats.append({'name': category, 'terms': [
-                                       (x) for x in terms]})
-                else:
-                    itunes_cats.append({'name': category})
-        regular_cats = [(x) for x in self.tags.split(',')]
-
-        if type == 'segments':
-            self.subtitle = self.subtitle + " - Segments"
-
-        channel['feed']['title'] = self.title
-        channel['feed']['subtitle'] = self.subtitle
-        channel['feed']['description'] = self.description
-        channel['feed']['links'] = [{'rel': 'alternate',
-                                     'type': 'text/html',
-                                     'href': self.website,
-                                     'title': self.title},
-                                    ]
-
-        channel['feed']['rights'] = datetime.strftime(
-            datetime.now(), "%Y") + " " + self.copyright
-
-        channel['feed'][
-            'generator'] = self.generator
-        channel['feed']['language'] = self.language
-        channel['feed']['tags'] = regular_cats
-
-        if self.image:
-            channel['feed']['image'] = {'href': self.image,
-                                        'title': self.title,
-                                        'link': self.website}
-
-        if self.ttl:
-            channel['feed']['ttl'] = self.ttl
-
-        channel['feed']['author'] = self.author
-        channel['feed']['itunes_cats'] = itunes_cats
-        channel['feed']['author_detail'] = {
-            'email': self.contact, 'name': self.author}
-        channel['feed']['itunes_explicit'] = "yes" if self.explicit else "no"
-        channel['feed']['itunes_block'] = "no"
-
-        return channel
-
-    def get_theme(self):
-        has_static_dir = os.path.exists(os.path.join(
-            settings.PROJECT_ROOT, 'podmin', 'static', 'podcast', self.slug))
-
-        if has_static_dir:
-            static_dir = '/static/podcast/%s' % self.slug
-        else:
-            static_dir = '/static/podcast/default'
-
-        has_template_dir = os.path.exists(os.path.join(
-            settings.PROJECT_ROOT, 'podmin', 'templates', 'podmin', 'podcast',
-            self.slug))
-
-        if has_template_dir:
-            template_dir = self.slug
-        else:
-            template_dir = 'default'
-
-        return static_dir, template_dir
-
     def handle_uploaded_logo(self, form, messages, request):
         uploaded_file = form.cleaned_data['upload_file']
 
@@ -457,7 +475,7 @@ class Podcast(models.Model):
                 destination.write(chunk)
 
         # we might want to scale this or something at some point
-        # before moving it to it's final resting place
+        # before moving it to its final resting place
 
         """
         try:
@@ -486,19 +504,19 @@ class Episode(models.Model):
 
     """
     podcast = models.ForeignKey(Podcast)
-    created = models.DateTimeField('created', auto_now_add=True,
-                                   editable=False, default=datetime.now())
-    updated = models.DateTimeField('updated', auto_now=True, editable=False,
-                                   default=datetime.now())
+    created = models.DateTimeField('created', auto_now_add=True)
+    updated = models.DateTimeField('updated', auto_now=True)
     published = models.DateTimeField('date published', null=True)
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     slug = AutoSlugField(populate_from='title', unique=True, default='')
-    number = models.CharField(max_length=64)
+
     description = models.TextField('short episode description',
                                    blank=True, null=True)
-    enclosure_file = models.FileField('enclosure file',
-                                      upload_to=get_media_upload_folder)
+
+    audio = models.FileField('audio file', upload_to=get_media_upload_path,
+                             storage=buffer_storage)
+
     guid = models.CharField('published RSS GUID field',
                             unique=True, max_length=255)
     part = models.IntegerField(
@@ -507,6 +525,9 @@ class Episode(models.Model):
     size = models.IntegerField('size in bytes', blank=True, null=True)
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
+    mime_type = models.CharField('audio mime type',
+                                 default="application/octet-stream",
+                                 max_length=32)
     active = models.BooleanField('active', default=1)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
@@ -518,8 +539,9 @@ class Episode(models.Model):
     scaled down to 50x50 pixels at smallest in iTunes. For reference see
     http://www.apple.com/itunes/podcasts/specs.html#metadata
     """
-    image = models.ImageField('image', upload_to=get_image_upload_folder)
-    itunes_categories = models.CharField(max_length=255, blank=True)
+    image = models.ImageField('image', upload_to=get_image_upload_path,
+                              storage=buffer_storage)
+
     # A URL that identifies a categorization taxonomy.
     categorization_domain = models.URLField(blank=True)
     summary = models.TextField(blank=True)
@@ -527,8 +549,24 @@ class Episode(models.Model):
                                    blank=True, null=True)
     block = models.BooleanField(default=False)
 
+    @property
+    def audio_filename(self):
+        return os.path.basename(self.audio.name)
+
+    @property
+    def image_filename(self):
+        return os.path.basename(self.image.name)
+
+    @property
+    def audio_url(self):
+        return "%s/media/%s" % (self.podcast.pub_url, self.audio_filename)
+
+    @property
+    def image_url(self):
+        return "%s/img/%s" % (self.podcast.pub_url, self.image_filename)
+
     def __unicode__(self):
-        return self.filename
+        return self.title
 
     class Meta:
         ordering = ["-pub_date, part"]
@@ -536,7 +574,8 @@ class Episode(models.Model):
         order_with_respect_to = 'podcast'
 
     def get_absolute_url(self):
-        return reverse("episode", kwargs={"slug": self.id})
+        return reverse("episode_show", kwargs={"eid": self.id,
+                                               "slug": self.podcast.slug})
 
     def move_to_storage(self):
         """
@@ -550,9 +589,13 @@ class Episode(models.Model):
         except OSError as e:
             raise e
 
-        tmp_path = self.podcast.tmp_dir + self.filename
-        stor_path = self.podcast.storage_dir + self.filename
+        tmp_path = os.path.join(self.podcast.tmp_dir, self.filename)
+        stor_path = os.path.join(self.podcast.storage_dir, self.filename)
         os.rename(tmp_path, stor_path)
+
+    def get_audio_duration(self):
+        self.length = check_output(["soxi", "-d", path]).split('.')[0]
+        self.save()
 
     def set_data_from_file(self):
         """
@@ -632,68 +675,6 @@ class Episode(models.Model):
         #audio.pprint()
         #audio.save()
         return True
-
-    def build_entry(self):
-        """
-        Build the RSS item entry for this episode
-
-        """
-
-        pubDate = datetime.strftime(
-            self.pub_date, "%a, %d %b %Y %H:%M:%S") + " PST"
-
-        if self.podcast.explicit:
-            explicit = "yes"
-        else:
-            explicit = "no"
-
-        tags = [(x) for x in self.podcast.tags.split(',')]
-        # at a minimum, we need a pubDate, content, title and enclosure
-        entry = {'updated': pubDate,
-                 'title': self.title,
-                 'title_detail': {
-                     'base': u'',
-                     'type': 'text/plain',
-                     'value': self.title,
-                     'language': u'en'
-                 },
-                 'content': {
-                     'base': u'',
-                     'type': 'text/plain',
-                     'value': self.description,
-                     'language': u'en'
-                 },
-                 'link': self.podcast.storage_url + self.filename,
-                 'links': [
-                     {'length': self.size,
-                      'href': self.podcast.storage_url + self.filename,
-                      'type': u'audio/mpeg',
-                      'rel': u'enclosure'},
-                     {'href':  self.podcast.website,
-                      'type': u'text/html',
-                      'rel': u'alternate'}
-                 ],
-                 'id': self.guid,
-                 'guidislink': 'false',
-                 'itunes_duration': self.length,
-                 'itunes_explicit': explicit,
-                 'summary_detail': {
-                     'base': u'',
-                     'type': u'text/html',
-                     'value': self.description,
-                     'language': None
-                 },
-                 'summary': self.description,
-                 }
-
-        # now add any extra data if we have it
-        if self.subtitle:
-            entry['subtitle'] = self.subtitle
-
-        if self.tags:
-            entry['itunes_keywords'] = tags
-
-        return entry
 
     def save_to_tmp(self, uploaded_file):
         path = self.podcast.tmp_dir + "/" + uploaded_file.name

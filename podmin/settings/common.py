@@ -1,16 +1,20 @@
 import os.path
+from constants import *
+from image_settings import *
+
 # Django settings for podcaster project.
 
 PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), '../', 'fixtures/'))
 SITE_ROOT = os.path.normpath(os.path.join(PROJECT_ROOT, '../'))
 
-
 TIME_ZONE = 'America/Los_Angeles'
 
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+
+LOGIN_URL = '/login'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -62,12 +66,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    #'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'podmin'
 )
 
+"""
 
 LOGGING = {
     'version': 1,
@@ -132,3 +137,4 @@ LOGGING = {
         }
     }
 }
+"""

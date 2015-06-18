@@ -58,7 +58,8 @@ Itunes Categories
 
 - News & Politics
 
-  - Religion & Spirituality
+- Religion & Spirituality
+
   - Buddhism
   - Christianity
   - Hinduism

@@ -1,12 +1,37 @@
 import os
 import shutil
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 import time
+import mutagen
 from subprocess import check_output
 from django.conf import settings
 
 
-class FilePrep():
+class PodcastAudio:
+
+    """
+    some methods for getting data about the audio file and setting
+    tags in a generic way.
+    """
+
+    def __init__(self, filepath):
+        self.file = mutagen.File("filepath")
+        self.filetype = self.file.__class__.__name__
+        self.mime = self.file.mime
+
+    def duration(self):
+        td = timedelta(self.file.info.length)
+        hours, remainder = divmod(td.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return (hours, minutes, seconds)
+
+    def get_mimetype(self):
+        # what is the appropriate podcast mimetype? Probably
+        # the first in this list, the most specific. But maybe
+        # we'll need to do more logic here some day
+        return self.mime[0]
+
+class FilePrep:
 
     """
     contains methods for renaming and sorting podcast files

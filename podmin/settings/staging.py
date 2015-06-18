@@ -40,7 +40,8 @@ Make sure you set:
     PODMIN_STG_MEDIA_ROOT
     PODMIN_STG_MEDIA_URL
     PODMIN_STG_STATIC_ROOT
-    
+    PODMIN_STG_BUFFER_ROOT
+
 from somewhere before the settings are loaded.
 """
 
@@ -59,6 +60,7 @@ MEDIA_URL = os.environ['PODMIN_STG_MEDIA_URL']
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.environ['PODMIN_STG_STATIC_ROOT']
 
+BUFFER_ROOT = os.environ['PODMIN_STG_BUFFER_ROOT']
 
 DATABASES = {
     'default': {

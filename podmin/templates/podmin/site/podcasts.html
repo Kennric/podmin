@@ -1,6 +1,7 @@
 {% extends "podmin/site/base.html" %}
 
 {% block content %}
+<div class="twelve columns">
 {% if podcasts %}
     {% for podcast in podcasts %}
     <h2>
@@ -14,4 +15,5 @@
     <p>No podcasts are available.</p>
 {% endif %}
 
+</div>
 {% endblock %}
