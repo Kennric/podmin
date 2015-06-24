@@ -15,7 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "gumby": "=2.6.3",
+    "gumby": "=2.6.4",
     "jquery": "=2.1.1",
     "jplayer": "=2.9.0"
   }
