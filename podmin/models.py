@@ -14,7 +14,6 @@ from autoslug import AutoSlugField
 
 # podmin app stuff
 import podmin
-from util import podcast_audio
 
 # python stuff
 import shutil
@@ -191,12 +190,29 @@ class Podcast(models.Model):
         return podmin.get_name() + " " + podmin.get_version()
 
     @property
-    def itunes_image(self):
-        return
+    def rss_image(self):
+        file, ext = os.path.splitext(self.image.name)
+        return settings.MEDIA_URL + file + "_rss" + ext
 
     @property
-    def rss_image(self):
-        return
+    def itunes_image(self):
+        file, ext = os.path.splitext(self.image.name)
+        return settings.MEDIA_URL + file + "_itunes" + ext
+
+    @property
+    def small_image(self):
+        file, ext = os.path.splitext(self.image.name)
+        return settings.MEDIA_URL + file + "_small" + ext
+
+    @property
+    def medium_image(self):
+        file, ext = os.path.splitext(self.image.name)
+        return settings.MEDIA_URL + file + "_medium" + ext
+
+    @property
+    def large_image(self):
+        file, ext = os.path.splitext(self.image.name)
+        return settings.MEDIA_URL + file + "_large" + ext
 
 
     def save(self, *args, **kwargs):
@@ -564,6 +580,10 @@ class Episode(models.Model):
     @property
     def image_url(self):
         return "%s/img/%s" % (self.podcast.pub_url, self.image_filename)
+
+    @property
+    def itunes_image(self):
+        return "itunes_" + self.image.path
 
     def __unicode__(self):
         return self.title

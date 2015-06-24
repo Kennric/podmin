@@ -33,8 +33,9 @@ class PodcastElements(object):
         handler.addQuickElement(u"itunes:email", podcast.owner.email)
         handler.endElement(u"itunes:owner")
 
-        handler.addQuickElement(u"itunes:image",
-                                attrs={"href": podcast.image.url})
+        if podcast.itunes_image:
+            handler.addQuickElement(u"itunes:image",
+                attrs={"href": podcast.itunes_image})
 
 
         # iTunes categories are, annoyingly, a tree. Children must be nested in
@@ -118,11 +119,12 @@ class RSSElements(PodcastElements):
 
     def add_root_elements(self, handler):
         super(RSSElements, self).add_root_elements(handler)
-        handler.startElement(u"image", {})
-        handler.addQuickElement(u"url", self.feed["podcast"].image.url)
-        handler.addQuickElement(u"title", self.feed["title"])
-        handler.addQuickElement(u"link", self.feed["link"])
-        handler.endElement(u"image")
+        if self.feed["podcast"].rss_image:
+            handler.startElement(u"image", {})
+            handler.addQuickElement(u"url", self.feed["podcast"].rss_image)
+            handler.addQuickElement(u"title", self.feed["title"])
+            handler.addQuickElement(u"link", self.feed["link"])
+            handler.endElement(u"image")
 
     def add_item_elements(self, handler, item):
         super(RSSElements, self).add_item_elements(handler, item)

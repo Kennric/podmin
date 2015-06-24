@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 
 # podmin app stuff
 from models import Podcast
-
+from util import podcast_audio, image_sizer
 
 # signal catcher, post save for podcast, create groups with
 # permissions as defined in GROUP_PERMS
@@ -30,6 +30,8 @@ def podcast_post_save(sender, **kwargs):
             g.permissions.add(p)
             g.save()
 
+    # now resize the podcast cover art for web, itunes and rss
+    image_sizer.make_image_sizes(kwargs['instance'].image.path)
 
 # signal catcher, post delete for podcast:
 # delete all the associated groups and perms
@@ -48,6 +50,9 @@ def podcast_post_delete(sender, **kwargs):
             name='Can %s podcast %s' % (perm, slug),
             content_type=content_type)
         p.delete()
+
+    # now resize the episode cover art for web, itunes and rss
+    image_sizer.make_image_sizes(kwargs['instance'].image.path)
 
 post_save.connect(podcast_post_save, sender=Podcast)
 post_delete.connect(podcast_post_delete, sender=Podcast)
