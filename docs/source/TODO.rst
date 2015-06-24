@@ -6,7 +6,9 @@ TODO
 Now
 ---
 
-add graphics handling for thumbnails
+implement user registration
+
+"unpublish" episode
 
 finalize feed generation
 
@@ -16,15 +18,11 @@ js media player
 
 choices for all the things (categories, etc)
 
-implement user registration
-
-"unpublish" episode
-
 replace sox with mutagen? (maybe not, mutagen length issues)
 
 re-integrate beaver show podcast tools
 
-tag beta
+put refactor on github
 
 Next
 ----
