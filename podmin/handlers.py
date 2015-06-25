@@ -51,8 +51,6 @@ def podcast_post_delete(sender, **kwargs):
             content_type=content_type)
         p.delete()
 
-    # now resize the episode cover art for web, itunes and rss
-    image_sizer.make_image_sizes(kwargs['instance'].image.path)
 
 post_save.connect(podcast_post_save, sender=Podcast)
 post_delete.connect(podcast_post_delete, sender=Podcast)
