@@ -1,9 +1,13 @@
 #from datetime import timedelta
-import mutagen
+
 from subprocess import check_output
+import base64
+import mutagen
+#from mutagen.flac import Picture
+import os
+
 
 class PodcastAudio:
-
     """
     some methods for getting data about the audio file and setting
     tags in a generic way.
@@ -32,3 +36,181 @@ class PodcastAudio:
         # the first in this list, the most specific. But maybe
         # we'll need to do more logic here some day
         return self.mime
+
+    def tag_audio(self,episode):
+        """
+        this method sets the tags, if possible, on the audio file
+        tag content is pulled from the episode and podcast instances
+
+        These tags can be set to the same unicode string for both
+        tag types:
+
+        MP3/MP4     OGG/FLAC                field
+        TALB        ALBUM                   podcast title
+        TIT2        TITLE                   episode title
+        TIT3        DESCRIPTION             episode description
+        TPE1        ARTIST                  podcast author
+        TCON        GENRE                   'podcast'
+        TRCK        TRACKNUMBER             episode number
+        COMM        COMMENT                 show notes
+        WXXX        WEBSITE                 podcast website
+        TCOP        COPYRIGHT               podcast copyright
+        USER        LICENSE                 podcast license
+        TDRC        YEAR                    pubdate year
+
+        For these tags, VorbisComment takes multiple tag instances
+        while id3 takes a list:
+        TIPL        PERFORMER               guests
+        TMCL        CREDITS                 credits
+
+        The album art is handled differently as well:
+        APIC        METADATA_BLOCK_PICTURE  episode / podcast image
+
+
+        This tag is a boolean, and is only used by iTunes to mark
+        a file as a podcast
+
+        PCST                                True (podcast flag)
+        """
+        singleton_tags = [
+        {'MP3': 'TALB', 'MP4': 'TALB',  'OggVorbis': 'ALBUM',
+         'value': episode.podcast.title.decode('utf-8')},
+
+        {'MP3': 'TIT2', 'MP4': 'TIT2',  'OggVorbis': 'TITLE',
+         'value': episode.title.decode('utf-8')},
+
+        {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'DESCRIPTION',
+         'value': episode.description.decode('utf-8')},
+
+        {'MP3': 'TPE1', 'MP4': 'TPE1',  'OggVorbis': 'ARTIST',
+         'value': episode.podcast.author.decode('utf-8')},
+
+        {'MP3': 'TCON', 'MP4': 'TCON',  'OggVorbis': 'GENRE',
+         'value': u'podcast'},
+
+        {'MP3': 'TRCK', 'MP4': 'TRCK',  'OggVorbis': 'TRACKNUMBER',
+         'value': str(episode.number).decode('utf-8')},
+
+        {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'COMMENT',
+         'value': episode.show_notes.decode('utf-8')},
+
+        {'MP3': 'WXXX', 'MP4': 'WXXX',  'OggVorbis': 'WEBSITE',
+         'value': episode.podcast.website.decode('utf-8')},
+
+        {'MP3': 'TCOP', 'MP4': 'TCOP',  'OggVorbis': 'COPYRIGHT',
+         'value': episode.podcast.copyright.decode('utf-8')},
+
+        {'MP3': 'USER', 'MP4': 'USER',  'OggVorbis': 'LICENSE',
+         'value': episode.podcast.license.decode('utf-8')},
+
+        {'MP3': 'TDRC', 'MP4': 'TDRC',  'OggVorbis': 'YEAR',
+         'value': str(episode.pub_date.year).decode('utf-8')}
+        ]
+
+        if episode.guests:
+            guests = episode.guests.split('\n')
+        else:
+            guests = [u'']
+
+        if episode.credits:
+            credits = episode.credits.split('\n')
+        else:
+            credits = [u'']
+
+        """
+        we have an image problem. Is this a new audio file that needs
+        to be tagged with an existing published image? Is the image new too?
+        Where is the image?
+        """
+        buffer_image = episode.image.path
+        published_image = os.path.join(episode.podcast.storage_dir,
+                                       "img",
+                                       os.path.basename(episode.image.name))
+
+        podcast_image = os.path.join(episode.podcast.storage_dir,
+                                     "img",
+                                     os.path.basename(
+                                        episode.podcast.image.name))
+
+        if os.path.isfile(buffer_image):
+            #look in the buffer location
+            image_data = episode.image.read()
+        elif os.path.isfile(published_image):
+            #maybe it's already published?
+            with open(published_image) as f:
+                image_data = f.read()
+        elif: s.path.isfile(episode.podcast.image):
+            #I guess we just don't have an image at all, so use the podcast
+            # image
+           with open(podcast_image) as f:
+                image_data = f.read()
+        else:
+            # no images.
+            image_data = False
+
+
+        if self.filetype is 'MP3' or 'MP4':
+            # set singleton tags
+            for tag in singleton_tags:
+                self.file.tags.add(
+                    getattr(mutagen.id3, tag[self.filetype])(
+                        encoding=3,
+                        text=tag['value'],
+                    )
+                )
+
+            self.file.tags.add(
+                mutagen.id3.TIPL(
+                    encoding=3,
+                    text=guests,
+                )
+            )
+
+            self.file.tags.add(
+                mutagen.id3.TMCL(
+                    encoding=3,
+                    text=credits,
+                )
+            )
+            if image_data:
+                self.file.tags.add(
+                    mutagen.id3.APIC(
+                        encoding=3, # 3 is for utf-8
+                        mime=episode.image_type.decode('utf-8'),
+                        type=3, # 3 is for the cover image
+                        desc=u'Cover',
+                        data=image_data
+                    )
+                )
+
+
+            #set PCST = 1
+
+        if self.filetype is 'OggVorbis' or 'FLAC':
+            print("ogg or flac!")
+        """
+            for tag in singleton_tags:
+                self.file[tag[self.filetype]] = tag['value']
+
+            self.file['PERFORMER'] = guests
+            self.file['CREDITS'] = credits
+
+
+            data = episode.image.read()
+
+            picture = Picture()
+            picture.data = data
+            picture.type = 17
+            picture.desc = u"episode image"
+            picture.mime = episode.image_type
+
+            picture_data = picture.write()
+            encoded_data = base64.b64encode(picture_data)
+
+            episode_image = encoded_data.decode("ascii")
+
+            self.file["metadata_block_picture"] = [episode_image]
+        """
+
+        self.file.save()
+        return True

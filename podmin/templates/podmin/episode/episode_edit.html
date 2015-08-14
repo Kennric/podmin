@@ -14,6 +14,8 @@
         <h2>Edit {{episode.podcast.title}} episode {{episode.id}}</h2>
         {% if episode.published %}
             This episode was published on {{episode.published|date}} at {{episode.published|time}}
+        {% else %}
+            This episode is not published.
         {% endif %}
         <form action="/{{episode.podcast.slug}}/{{episode.id}}/edit/" method="post" enctype="multipart/form-data">
     {% else %}
@@ -41,8 +43,12 @@
                     <br><span class="helptext">{{ field.help_text }}</span>
                 </label>
                 {% if field.name == 'image' and field.value %}
-                    <img class="thumb" src="{{ MEDIA_URL }}{{ field.value }}">
+                    <img class="thumb" src="{{ episode.medium_image }}">
                 {% endif %}
+                {% if field.name == 'audio' and field.value %}
+                    <em>{{ field.value.name|filename }}</em>
+                {% endif %}
+
                 {{ field }}
             {% endif %}
         </li>

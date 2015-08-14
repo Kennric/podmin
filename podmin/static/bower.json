@@ -17,8 +17,8 @@
   "dependencies": {
     "gumby": "=2.6.4",
     "jquery": "=2.1.1",
-    "jplayer": "=2.9.0",
     "modular-scale": "2.1.1",
-    "sassy-math": "1.5.1"
+    "sassy-math": "1.5.1",
+    "mediaelement": "2.17.0"
   }
 }

@@ -6,7 +6,7 @@
       <link>{{ link.href|escape }}</link>
       <atom:link rel="{{ link.rel }}" type="{{ link.type }}" href="{{ link.href|escape }}" title="{{ link.title }}"/>
     {% endfor %}
-    <description>{{ feed.description }}</description>
+    <description><![CDATA[{{ feed.description }}]]></description>
     {% if feed.rights %}<copyright>{{ feed.rights }}</copyright>{% endif %}
     <generator>{{ feed.generator }}</generator>
     <language>{{ feed.language }}</language>
@@ -48,7 +48,7 @@
       <item>
         <title>{{ entry.title }}</title>
         {% if entry.subtitle %}<itunes:subtitle>{{ entry.subtitle }}</itunes:subtitle>{% endif %}
-        <description>{{ entry.content.value }}</description>
+        <description><![CDATA[{{ entry.content.value }}]]></description>
         <pubDate>{{ entry.updated }}</pubDate>
         {% for link in entry.links %}{% ifequal link.rel 'enclosure' %}<enclosure url="{{ link.href|escape }}" length="{{ link.length }}" type="{{ link.type }}"/>{% endifequal %}
         {% ifnotequal link.rel 'enclosure' %}<link>{{ link.href|escape }}</link>{% endifnotequal %}{% endfor %}

@@ -28,7 +28,7 @@
     <p>
     Tags: {{ podcast.tags }}
     </p>
-    <p>{{podcast.description}}</p>
+    <p>{{podcast.description|safe}}</p>
   </div>
 </div>
 
@@ -37,7 +37,7 @@
   <div class="two columns">
 
     {% if e.image %}
-    <img src="{{e.image.url}}" alt="episode image">
+    <img src="{{e.small_image}}" alt="episode image">
     {% endif %}
   </div>
   <div class="six columns">
@@ -105,7 +105,7 @@
         ready: function () {
           $(this).jPlayer("setMedia", {
             title: "{{ e.title }}",
-            mp3: "{{ podcast.storage_url }}/media/{{ e.audio_filename }}"
+            mp3: "{{ e.audio_url }}"
           });
         },
         cssSelectorAncestor: "#jp_container_{{ e.id }}",

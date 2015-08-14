@@ -4,6 +4,7 @@ from django.conf import settings
 
 
 def make_image_sizes(filename):
+
     file, ext = os.path.splitext(filename)
 
     original = Image.open(filename)

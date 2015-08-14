@@ -27,6 +27,10 @@ class EpisodeForm(ModelForm):
                    'type': 'text',
                    'placeholder': 'Episode Subtitle'}))
 
+    number = CharField(label='Episode Number',
+                       widget=TextInput(attrs={'class': 'input',
+                                               'type': 'text'}))
+
     guid = CharField(label='GUID',
                      widget=TextInput(attrs={'class': 'input',
                                              'type': 'text'}))
@@ -34,13 +38,13 @@ class EpisodeForm(ModelForm):
         label='Episode Description',
         widget=Textarea(
             attrs={'class': 'input textarea',
-                    'type': 'text',
-                    'rows': 5}),
+                   'type': 'text',
+                   'rows': 5}),
         help_text='AKA Summary')
 
     image = ImageField(label='Episode Image', required=False,
                        widget=FileInput(attrs={'class': 'input',
-                                              'type': 'file'}))
+                                               'type': 'file'}))
 
     pub_date = DateTimeField(label='Publication Date',
                              initial=datetime.datetime.today,
@@ -58,12 +62,6 @@ class EpisodeForm(ModelForm):
                       widget=FileInput(attrs={'class': 'input',
                                               'type': 'file'}))
 
-    rename_file = BooleanField(label='Rename File', required=False,
-        widget=CheckboxInput(attrs={'class': 'checkbox'}))
-
-    tag_audio = BooleanField(label='Tag Audio File', required=False,
-        widget=CheckboxInput(attrs={'class': 'checkbox'}))
-
     show_notes = CharField(label='Show Notes',
                            widget=Textarea(
                               attrs={'class': 'input textarea',
@@ -71,11 +69,27 @@ class EpisodeForm(ModelForm):
                                       'rows': 5}),
                            help_text='Notes about this episode')
 
+    credits = CharField(label='Credits',
+                        widget=Textarea(
+                            attrs={'class': 'input textarea',
+                                   'type': 'text',
+                                   'rows': 5}),
+                        help_text='Art and Music Credits')
+
+    guests = CharField(label='Guests',
+                           widget=Textarea(
+                              attrs={'class': 'input textarea',
+                                      'type': 'text',
+                                      'rows': 5}),
+                           help_text='Guests appearing in this episode')
+
     class Meta:
         model = Episode
-        fields = ['title', 'subtitle', 'guid', 'description', 'image',
-                  'pub_date', 'tags', 'active', 'audio', 'rename_file',
-                  'tag_audio', 'show_notes']
+        fields = ['title', 'subtitle', 'number', 'guid', 'description',
+                  'image',
+                  'pub_date', 'tags', 'active', 'audio', 'show_notes',
+                  'credits', 'guests']
+
         exclude = ('podcast', 'size', 'length', 'part', 'mime_type')
 
 
@@ -109,7 +123,7 @@ class PodcastForm(ModelForm):
     author = CharField(label='Author Name', required=False,
                        widget=TextInput(attrs={'class': 'input',
                                                'type': 'text'}))
-    contact = CharField(label='Contact Email', required=False,
+    contact = CharField(label='Author Email', required=False,
                         widget=EmailInput(attrs={'class': 'input',
                                                  'type': 'email'}))
     image = ImageField(label='Podcast Image', required=False,
@@ -131,12 +145,12 @@ class PodcastForm(ModelForm):
     frequency = ChoiceField(label='Publishing Frequency',
                             widget=Select(attrs={'class': 'input'}),
                             choices=settings.FREQUENCY_CHOICES)
-    copyright = ChoiceField(label='Podcast License',
+    licence = ChoiceField(label='Podcast License',
                           widget=Select(attrs={'class': 'input'}),
                           choices=settings.LICENSE_CHOICES)
-    copyright_url = CharField(label='URL to Copyright Document',
-                              required=False,
-                              widget=TextInput(attrs={'class': 'input'}))
+    copyright = CharField(label='Copyright',
+                          required=False,
+                          widget=TextInput(attrs={'class': 'input'}))
     language = CharField(label='Podcast Language',
                          widget=TextInput(attrs={'class': 'input'}))
     ttl = IntegerField(label='Minutes this feed can be cached',
@@ -163,15 +177,18 @@ class PodcastForm(ModelForm):
     block = BooleanField(label='Blocked', required=False,
       widget=CheckboxInput(attrs={'class': 'checkbox'}))
 
+    rename_files = BooleanField(label='Rename File', required=False,
+        widget=CheckboxInput(attrs={'class': 'checkbox'}))
+
+    tag_audio = BooleanField(label='Tag Audio File', required=False,
+        widget=CheckboxInput(attrs={'class': 'checkbox'}))
+
     pub_url = CharField(label='Publication (rss) URL',
                         required=False,
                         widget=TextInput(attrs={'class': 'input'}))
 
     itunes_url = CharField(label='iTunes URL', required=False,
                            widget=TextInput(attrs={'class': 'input'}))
-
-    rename_files = BooleanField(label='Rename Files', required=False,
-      widget=CheckboxInput(attrs={'class': 'checkbox'}))
 
     pub_dir = CharField(label='Publication Directory',
                         required=False,
@@ -185,7 +202,9 @@ class PodcastForm(ModelForm):
     tmp_dir = CharField(label='Temporary Directory',
                         initial='/tmp',
                         widget=TextInput(attrs={'class': 'input'}))
-
+    buffer_dir = CharField(label='File Buffer Directory',
+                            required=False,
+                            widget=TextInput(attrs={'class': 'input'}))
     def __init__(self, *args, **kwargs):
         super(PodcastForm, self).__init__(*args, **kwargs)
 
@@ -214,14 +233,14 @@ class PodcastForm(ModelForm):
         fields = ('title', 'subtitle', 'description', 'keywords', 'tags',
                   'summary', 'author', 'contact', 'image', 'website',
                   'organization', 'station', 'credits', 'frequency',
-                  'copyright', 'copyright_url', 'language',
+                  'copyright', 'license', 'language',
                   'feedburner_url', 'ttl',  'max_age', 'editor_email',
                   'webmaster_email', 'explicit', 'itunes_categories',
-                  'explicit', 'block', 'pub_url', 'itunes_url',
-                  'rename_files', 'pub_dir', 'storage_dir', 'storage_url',
-                  'tmp_dir')
+                  'explicit', 'block', 'rename_files', 'tag_audio',
+                  'pub_url', 'itunes_url', 'rename_files', 'pub_dir',
+                  'storage_dir', 'storage_url', 'tmp_dir', 'buffer_dir')
 
-        exclude = ('owner', 'slug', 'last_import', 'combine_segments',
+        exclude = ('owner', 'copyright_url', 'slug', 'last_import', 'combine_segments',
                    'publish_segments', 'summary', 'up_dir', 'cleaner',
                    'updated', 'redirect', 'created', 'updated',
                    'feedburner_url', 'keywords')

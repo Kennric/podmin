@@ -14,12 +14,13 @@ from autoslug import AutoSlugField
 
 # podmin app stuff
 import podmin
+from util import podcast_audio, image_sizer
 
 # python stuff
-import shutil
 import os
 from datetime import datetime, timedelta, date
 import requests
+import glob
 
 """
 import logging
@@ -117,6 +118,7 @@ class Podcast(models.Model):
     cleaner = models.CharField('file cleaner function name',
                                max_length=255, default='default')
     rename_files = models.BooleanField(default=False)
+    tag_audio = models.BooleanField(default=False)
 
     # RSS specific
     organization = models.CharField(max_length=255, default='')
@@ -128,9 +130,10 @@ class Podcast(models.Model):
     contact = models.EmailField(max_length=255, blank=True, null=True)
     image = models.ImageField('cover art',
                               upload_to=get_image_upload_path)
-    copyright = models.CharField('license',
-                                 max_length=255, blank=True, null=True,
-                                 choices=settings.LICENSE_CHOICES)
+    copyright = models.CharField(max_length=255, blank=True, null=True)
+    license = models.CharField('license',
+                               max_length=255, blank=True, null=True,
+                               choices=settings.LICENSE_CHOICES)
     copyright_url = models.TextField('copyright url', blank=True, null=True)
     language = models.CharField(max_length=8)
     feedburner_url = models.URLField('FeedBurner URL', blank=True)
@@ -142,7 +145,7 @@ class Podcast(models.Model):
     webmaster_email = models.EmailField('webmaster email', blank=True)
 
     # itunes specific
-    explicit = models.BooleanField(default=False)
+
     categorization_domain = models.URLField(blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
     summary = models.TextField(blank=True)
@@ -191,8 +194,10 @@ class Podcast(models.Model):
 
     @property
     def rss_image(self):
-        file, ext = os.path.splitext(self.image.name)
-        return settings.MEDIA_URL + file + "_rss" + ext
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_rss" + ext
+        return "%s/img/%s" % (self.storage_url, rss_file)
 
     @property
     def itunes_image(self):
@@ -213,7 +218,6 @@ class Podcast(models.Model):
     def large_image(self):
         file, ext = os.path.splitext(self.image.name)
         return settings.MEDIA_URL + file + "_large" + ext
-
 
     def save(self, *args, **kwargs):
 
@@ -291,44 +295,31 @@ class Podcast(models.Model):
                                            active=True)
 
         for episode in episodes:
+
             audio_file = os.path.basename(episode.audio.name)
             image_file = os.path.basename(episode.image.name)
 
-            # TODO if 'rename_file', change the filename here
-
             audio_source = "%s/media/%s" % (self.buffer_dir, audio_file)
-            image_source = "%s/img/%s" % (self.buffer_dir, image_file)
+            #image_source = "%s/img/%s" % (self.buffer_dir, image_file)
+            image_source = "%s/img/" % (self.buffer_dir)
+            image_name, ext = os.path.splitext(image_file)
 
             audio_destination = "%s/media/%s" % (self.storage_dir, audio_file)
-            image_destination = "%s/img/%s" % (self.storage_dir, image_file)
+            image_destination = "%s/img/" % (self.storage_dir)
 
 
             # if there is audio in the buffer, move it and set data, tag, etc
             if os.path.isfile(audio_source):
                 os.rename(audio_source, audio_destination)
-                """
-                TODO:
-                if episode.tag_audio:
-                    # TODO: tag it
-                    pass
-                """
 
-                # and set some data for convenience
-                audiofile = podcast_audio.PodcastAudio(audio_destination)
-                episode.length = audiofile.duration()
-                # TODO mimetype
+            # if there is an image in the buffer, copy it at all its
+            # associated resized versions to the storage dir using
+            # glob
 
-                episode.mime_type = audiofile.get_mimetype()[0]
-                episode.save()
-
-                """
-                TODO:
-                if self.add_image:
-                    #insert image into audio file
-                """
-
-            if os.path.isfile(image_source):
-                os.rename(image_source, image_destination)
+            if os.path.isfile(image_source + image_file):
+                image_glob = image_source + image_name + '*' + ext
+                for image in glob.iglob(image_glob):
+                    os.rename(image, image_destination + os.path.basename(image))
 
 
 
@@ -527,6 +518,8 @@ class Episode(models.Model):
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     slug = AutoSlugField(populate_from='title', unique=True, default='')
 
+    number = models.IntegerField('episode number')
+
     description = models.TextField('short episode description',
                                    blank=True, null=True)
 
@@ -548,6 +541,8 @@ class Episode(models.Model):
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
     show_notes = models.TextField('show notes', blank=True, null=True)
+    guests = models.TextField('guests', blank=True, null=True)
+    credits = models.TextField('art and music credits', blank=True, null=True)
 
     """
     image: For best results choose an attractive, original, and square JPEG
@@ -557,6 +552,7 @@ class Episode(models.Model):
     """
     image = models.ImageField('image', upload_to=get_image_upload_path,
                               storage=buffer_storage)
+    image_type = models.CharField('image file type', max_length=16)
 
     # A URL that identifies a categorization taxonomy.
     categorization_domain = models.URLField(blank=True)
@@ -565,25 +561,91 @@ class Episode(models.Model):
                                    blank=True, null=True)
     block = models.BooleanField(default=False)
 
+
+    @property
+    def audio_url(self):
+        audio_filename = os.path.basename(self.audio.name)
+        return "%s/media/%s" % (self.podcast.storage_url, audio_filename)
+
     @property
     def audio_filename(self):
         return os.path.basename(self.audio.name)
 
     @property
-    def image_filename(self):
-        return os.path.basename(self.image.name)
-
-    @property
-    def audio_url(self):
-        return "%s/media/%s" % (self.podcast.pub_url, self.audio_filename)
-
-    @property
-    def image_url(self):
-        return "%s/img/%s" % (self.podcast.pub_url, self.image_filename)
+    def rss_image(self):
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_rss" + ext
+        return "%s/img/%s" % (self.podcast.storage_url, rss_file)
 
     @property
     def itunes_image(self):
-        return "itunes_" + self.image.path
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_itunes" + ext
+        return "%s/img/%s" % (self.podcast.storage_url, rss_file)
+
+    @property
+    def small_image(self):
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_small" + ext
+        return "%s/img/%s" % (self.podcast.storage_url, rss_file)
+
+    @property
+    def medium_image(self):
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_medium" + ext
+        return "%s/img/%s" % (self.podcast.storage_url, rss_file)
+
+    @property
+    def large_image(self):
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_large" + ext
+        return "%s/img/%s" % (self.podcast.storage_url, rss_file)
+
+    def save(self, *args, **kwargs):
+
+        super(Episode, self).save(*args, **kwargs)
+
+        """
+        If image or audio were added or updated, the new versions will
+        be in the buffer at this point. Any manipulations we do on them
+        should happen here, before the episode is published and the files
+        get moved out to the world.
+        """
+
+        tagged = False
+        # and set some data for convenience
+        if os.path.isfile(self.audio.path):
+
+            audio = podcast_audio.PodcastAudio(self.audio.path)
+
+            self.length = audio.duration()
+
+            self.mime_type = audio.get_mimetype()[0]
+
+            if self.podcast.tag_audio:
+                tagged = audio.tag_audio(self)
+
+        # resize the episode image
+        if os.path.isfile(self.image.path):
+            image_sizer.make_image_sizes(self.image.path)
+            #while we are here, if we have no new audio but a picture
+            #is in the buffer, we should add the image to the already
+            #published file
+            if not tagged:
+                published_audio = os.path.join(self.podcast.storage_dir,
+                                               "media",
+                                               os.path.basename(self.audio.name))
+                audio = podcast_audio.PodcastAudio(published_audio)
+                audio.tag_audio(self)
+
+        #if self.podcast.rename_files:
+        #    rename_files(self)
+
 
     def __unicode__(self):
         return self.title
@@ -592,10 +654,13 @@ class Episode(models.Model):
         ordering = ["-pub_date, part"]
         get_latest_by = "pub_date"
         order_with_respect_to = 'podcast'
+        unique_together = ("podcast", "number")
 
     def get_absolute_url(self):
         return reverse("episode_show", kwargs={"eid": self.id,
                                                "slug": self.podcast.slug})
+
+
 
     def move_to_storage(self):
         """

@@ -12,6 +12,7 @@
 
         <link href="{% static 'bower_components/gumby/css/gumby.css' %}" rel="stylesheet" type="text/css">
 
+        <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
         <script src="{% static 'bower_components/gumby/js/libs/modernizr-2.6.2.min.js' %}"></script>
 
         {% block externals %}{% endblock %}
@@ -62,7 +63,6 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
 
     <script gumby-debug gumby-touch="{% static 'bower_components/gumby/js/libs' %}" src="{% static 'bower_components/gumby/js/libs/gumby.min.js' %}"></script>
 

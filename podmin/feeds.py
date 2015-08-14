@@ -1,12 +1,13 @@
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed, Enclosure
+from django.utils.feedgenerator import Atom1Feed, Enclosure
 from django.shortcuts import get_object_or_404
 
 from django.contrib.syndication.views import Feed
 
 from podmin.models import Podcast
+from podmin.enhanced_feeds import EnhancedRss201rev2Feed
 
 
 class PodcastElements(object):
@@ -29,8 +30,8 @@ class PodcastElements(object):
         handler.addQuickElement(u"itunes:author", podcast.author)
 
         handler.startElement(u"itunes:owner", {})
-        handler.addQuickElement(u"itunes:name", podcast.owner.get_full_name())
-        handler.addQuickElement(u"itunes:email", podcast.owner.email)
+        handler.addQuickElement(u"itunes:name", podcast.author)
+        handler.addQuickElement(u"itunes:email", podcast.contact)
         handler.endElement(u"itunes:owner")
 
         if podcast.itunes_image:
@@ -76,13 +77,6 @@ class PodcastElements(object):
         super(PodcastElements, self).add_item_elements(handler, item)
         episode = item["episode"]
 
-        """
-        handler.addQuickElement(
-            u"copyright", "{0} {1} {2}".format(
-                episode.podcast.copyright,
-                episode.podcast.copyright_url,
-                datetime.date.today().year))
-        """
 
         handler.addQuickElement(u"itunes:author", episode.podcast.author)
         handler.addQuickElement(u"itunes:subtitle", episode.subtitle)
@@ -140,7 +134,7 @@ class AtomPodcastFeedGenerator(AtomElements, Atom1Feed):
         return atom_attrs
 
 
-class RssPodcastFeedGenerator(RSSElements, Rss201rev2Feed):
+class RssPodcastFeedGenerator(RSSElements, EnhancedRss201rev2Feed):
 
     def rss_attributes(self):
         rss_attrs = super(RssPodcastFeedGenerator, self).rss_attributes()
@@ -184,12 +178,6 @@ class PodcastFeed(Feed):
         return reverse("episode_show",
                        kwargs={"slug": episode.podcast.slug,
                                "eid": episode.id})
-
-    # def item_author_link(self, episode):
-    #     return "todo" #this one doesn't add anything in atom or rss
-    #
-    # def item_author_email(self, episode):
-    #     return "todo" #this one doesn't add anything in atom or rss
 
     def item_pubdate(self, episode):
         return episode.published

@@ -185,7 +185,10 @@ def edit_episode(request, eid, slug):
 
         if form.is_valid():
             episode = form.save(commit=False)
-
+            try:
+                episode.image_type = request.FILES['image'].content_type
+            except:
+                pass
             episode.save()
             episode.podcast.publish()
 
@@ -211,6 +214,9 @@ def new_episode(request, slug):
 
     guid = "%s%s" % (slug, time.time())
 
+    # get the next episode number for this podcast
+    #episode_number = podcast.episode_set.latest().number + 1
+
     form = EpisodeForm(initial={'guid': guid})
 
     if request.method == 'POST':
@@ -219,7 +225,10 @@ def new_episode(request, slug):
             episode = form.save(commit=False)
             episode.podcast = podcast
             episode.size = request.FILES['audio'].size
-
+            try:
+                episode.image_type = request.FILES['image'].content_type
+            except:
+                pass
             episode.save()
 
             episode.podcast.publish()
