@@ -10,6 +10,8 @@ implement user registration
 
 "unpublish" episode
 
+proper delete confirmation (delets all episodes)
+
 finalize feed generation
 
 js date picker
