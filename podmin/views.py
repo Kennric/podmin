@@ -180,10 +180,6 @@ def edit_episode(request, eid, slug):
 
     episode = Episode.objects.get(pk=eid)
 
-    print(HttpResponse(reverse(
-                'podcasts_podcast_feed_rss',
-                kwargs={'podcast_slug': episode.podcast.slug})).read())
-
     if request.method == 'POST':
         form = EpisodeForm(request.POST, request.FILES, instance=episode)
 
