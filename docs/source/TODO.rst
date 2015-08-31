@@ -8,7 +8,7 @@ Now
 
 implement user registration
 
-"unpublish" episode
+rss/itunes link buttons
 
 proper delete confirmation (delets all episodes)
 
@@ -16,18 +16,18 @@ finalize feed generation
 
 js date picker
 
-js media player
+rename file
 
 choices for all the things (categories, etc)
 
-replace sox with mutagen? (maybe not, mutagen length issues)
-
 re-integrate beaver show podcast tools
 
-put refactor on github
+'advanced settings' form
 
 Next
 ----
+
+put refactor on github
 
 archive old eps (remove/archive files, mark archived)
 
@@ -39,6 +39,8 @@ REST api
 
 Eventually
 ----------
+
+guest pictures/profile
 
 change last_import to datetime field
 

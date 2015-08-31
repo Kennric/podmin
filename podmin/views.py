@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 # podmin app stuff
 from models import Podcast, Episode
 from forms import PodcastForm, EpisodeForm
+from feeds import RssPodcastFeed
 
 # python stuff
 from datetime import datetime
@@ -167,8 +168,6 @@ def episode(request, eid, slug):
     """
     view episode
     """
-    user, manager, editor, webmaster = user_role_check(request, slug)
-
     episode = get_object_or_404(Episode, pk=eid)
 
     return render(request, 'podmin/episode/episode.html', {'episode': episode})
@@ -180,16 +179,32 @@ def edit_episode(request, eid, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     episode = Episode.objects.get(pk=eid)
+
+    print(HttpResponse(reverse(
+                'podcasts_podcast_feed_rss',
+                kwargs={'podcast_slug': episode.podcast.slug})).read())
+
     if request.method == 'POST':
         form = EpisodeForm(request.POST, request.FILES, instance=episode)
 
         if form.is_valid():
             episode = form.save(commit=False)
             try:
-                episode.image_type = request.FILES['image'].content_type
+                episode.size = request.FILES['buffer_audio'].size
+                episode.image_type = request.FILES['buffer_image'].content_type
             except:
                 pass
             episode.save()
+
+            if episode.podcast.rename_files:
+                episode.rename_audio()
+                episode.rename_image()
+
+            episode.process_images()
+
+            if episode.podcast.tag_audio:
+                episode.tag()
+
             episode.podcast.publish()
 
             return HttpResponseRedirect(reverse(
@@ -208,6 +223,7 @@ def edit_episode(request, eid, slug):
 
 @login_required
 def new_episode(request, slug):
+
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
@@ -224,12 +240,21 @@ def new_episode(request, slug):
         if form.is_valid():
             episode = form.save(commit=False)
             episode.podcast = podcast
-            episode.size = request.FILES['audio'].size
+            episode.size = request.FILES['buffer_audio'].size
             try:
-                episode.image_type = request.FILES['image'].content_type
+                episode.image_type = request.FILES['buffer_image'].content_type
             except:
                 pass
             episode.save()
+
+            if episode.podcast.rename_files:
+                episode.rename_audio()
+                episode.rename_image()
+
+            episode.process_images()
+
+            if episode.podcast.tag_audio:
+                episode.tag()
 
             episode.podcast.publish()
 

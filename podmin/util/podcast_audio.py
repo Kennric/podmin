@@ -37,7 +37,7 @@ class PodcastAudio:
         # we'll need to do more logic here some day
         return self.mime
 
-    def tag_audio(self,episode):
+    def tag_audio(self, episode):
         """
         this method sets the tags, if possible, on the audio file
         tag content is pulled from the episode and podcast instances
@@ -89,7 +89,7 @@ class PodcastAudio:
          'value': u'podcast'},
 
         {'MP3': 'TRCK', 'MP4': 'TRCK',  'OggVorbis': 'TRACKNUMBER',
-         'value': str(episode.number).decode('utf-8')},
+         'value': str(episode.track_number).decode('utf-8')},
 
         {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'COMMENT',
          'value': episode.show_notes.decode('utf-8')},
@@ -122,34 +122,31 @@ class PodcastAudio:
         to be tagged with an existing published image? Is the image new too?
         Where is the image?
         """
-        buffer_image = episode.image.path
-        published_image = os.path.join(episode.podcast.storage_dir,
-                                       "img",
-                                       os.path.basename(episode.image.name))
 
-        podcast_image = os.path.join(episode.podcast.storage_dir,
-                                     "img",
-                                     os.path.basename(
-                                        episode.podcast.image.name))
+        # if the buffer file is set and exists on disk, try that one
 
-        if os.path.isfile(buffer_image):
-            #look in the buffer location
-            image_data = episode.image.read()
-        elif os.path.isfile(published_image):
-            #maybe it's already published?
-            with open(published_image) as f:
-                image_data = f.read()
-        elif: s.path.isfile(episode.podcast.image):
-            #I guess we just don't have an image at all, so use the podcast
-            # image
-           with open(podcast_image) as f:
-                image_data = f.read()
-        else:
-            # no images.
-            image_data = False
+        if episode.buffer_image:
+            try:
+                image_data = episode.buffer_image.read()
+            except:
+                image_data = False
+
+        # try the published image istead
+        if episode.image and not image_data:
+            try:
+                image_data = episode.image.read()
+            except:
+                image_data = False
+
+        # lets try the podcast cover art then
+        if episode.podcast.image and not image_data:
+            try:
+                image_data = episode.podcast.image.read()
+            except:
+                image_data = False
 
 
-        if self.filetype is 'MP3' or 'MP4':
+        if self.filetype in ('MP3', 'MP4'):
             # set singleton tags
             for tag in singleton_tags:
                 self.file.tags.add(
@@ -186,7 +183,7 @@ class PodcastAudio:
 
             #set PCST = 1
 
-        if self.filetype is 'OggVorbis' or 'FLAC':
+        if self.filetype in ('OggVorbis', 'FLAC'):
             print("ogg or flac!")
         """
             for tag in singleton_tags:

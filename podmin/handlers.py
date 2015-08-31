@@ -78,13 +78,15 @@ def podcast_post_delete(sender, **kwargs):
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
-
-    if path.isfile():
+    pass
+    """
+    TODO: delete crap
+    if path.isfile(media_dir):
         rmtree(media_dir)
 
     if path.isdir(buffer_dir):
         rmtree(buffer_dir)
-
+    """
 
 post_save.connect(podcast_post_save, sender=Podcast)
 post_delete.connect(podcast_post_delete, sender=Podcast)

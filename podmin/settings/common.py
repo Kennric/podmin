@@ -1,5 +1,4 @@
 import os.path
-from constants import *
 from image_settings import *
 
 # Django settings for podcaster project.
@@ -72,8 +71,8 @@ INSTALLED_APPS = (
     'podmin'
 )
 
+LOGFILE = "podmin.log"
 """
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -82,7 +81,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(asctime)s %(levelname)s %(message)s'
         },
     },
     'filters': {
@@ -113,7 +112,7 @@ LOGGING = {
             'filters': ['require_debug_true'],
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': SITE_ROOT + "/logfile",
+            'filename': os.path.join(SITE_ROOT, LOGFILE),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'simple',

@@ -58,9 +58,14 @@ BUFFER_ROOT = os.environ['PODMIN_DEV_BUFFER_ROOT']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/tmp/podmin/db',
+        'ENGINE': os.environ['PODMIN_DEV_DB_ENGINE'],
+        'NAME': os.environ['PODMIN_DEV_DB_NAME'],
+        'USER': os.environ['PODMIN_DEV_DB_USER'],
+        'PASSWORD': os.environ['PODMIN_DEV_DB_PASS'],
+        'HOST': os.environ['PODMIN_DEV_DB_HOST'],
+        'PORT': os.environ['PODMIN_DEV_DB_PORT'],
     }
 }
+
 
 SECRET_KEY = os.environ['PODMIN_DEV_SECRET_KEY']

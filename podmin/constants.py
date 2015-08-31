@@ -35,3 +35,12 @@ FREQUENCY_CHOICES = (
     ('yearly', 'Yearly'),
     ('never', 'Never'),
 )
+
+LANGUAGE_CHOICES= (
+    ('en', 'English'),
+)
+
+FEED_TYPE_CHOICES = (
+    ('atom', 'Atom'),
+    ('rss', 'RSS'),
+)
