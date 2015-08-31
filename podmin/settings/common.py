@@ -4,7 +4,7 @@ from image_settings import *
 # Django settings for podcaster project.
 
 PROJECT_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
-FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), '../', 'fixtures/'))
+#FIXTURE_DIRS = (os.path.join(os.path.basename(__file__), '../', 'fixtures/'))
 SITE_ROOT = os.path.normpath(os.path.join(PROJECT_ROOT, '../'))
 
 TIME_ZONE = 'America/Los_Angeles'

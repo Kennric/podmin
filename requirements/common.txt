@@ -1,4 +1,4 @@
-Django==1.7.1
+Django
 Pillow==2.2.1
 PyRSS2Gen==1.1
 South==0.8.2
@@ -9,3 +9,4 @@ mutagen==1.22
 mysql-python
 sphinx
 requests
+psycopg2

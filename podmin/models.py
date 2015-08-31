@@ -89,7 +89,7 @@ class Podcast(models.Model):
     slug = models.SlugField(unique=True)
     credits = models.TextField('art and music credits', blank=True, null=True)
     created = models.DateTimeField('created', auto_now_add=True,
-                                   editable=False, default=datetime.now())
+                                   editable=False)
     published = models.DateTimeField('last published date', blank=True, null=True)
     updated = models.DateTimeField('updated', auto_now=True)
     website = models.URLField('podcast website', blank=True, null=True)
