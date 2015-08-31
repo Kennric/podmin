@@ -1,13 +1,11 @@
 # django stuff
 from django.db import models
 from django.contrib.sites.models import Site
-#from django.template.loader import get_template
-#from django.template import Context
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.core.files.storage import FileSystemStorage
-# from django.contrib.sites.models import Site
+from django.http import HttpRequest
 
 # django contrib stuff
 from autoslug import AutoSlugField
@@ -223,6 +221,7 @@ class Podcast(models.Model):
 
     def save(self, *args, **kwargs):
 
+
         # super(Podcast, self).save(*args, **kwargs)
 
         """
@@ -284,15 +283,18 @@ class Podcast(models.Model):
         if self.feed_format == 'atom':
             feed_filename = 'atom.xml'
             reverse_name = 'podcasts_podcast_feed_atom'
+            url_path = "%s/atom/" % (self.slug)
 
         elif self.feed_format == 'rss':
             feed_filename = 'rss.xml'
             reverse_name = 'podcasts_podcast_feed_rss'
+            url_path = "%s/rss/" % (self.slug)
 
-        feed_url = "%s%s%s" % ("http://", Site.objects.get_current().domain,
-                               reverse(reverse_name, args=(self.slug,)))
-
-        feed_content = requests.request('GET', feed_url).text
+        view, args, kwargs = resolve(url_path)
+        request = HttpRequest()
+        feed_content = view(request, *args, **kwargs)
+        
+        #requests.request('GET', feed_url).text
 
         feed_file = os.path.join(settings.MEDIA_ROOT, self.slug, feed_filename)
 
