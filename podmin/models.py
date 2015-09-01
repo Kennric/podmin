@@ -36,6 +36,9 @@ from mutagen.id3 import ID3
 buffer_storage = FileSystemStorage(location=settings.BUFFER_ROOT)
 
 
+def get_default_image():
+    return os.path.join(settings.STATIC_ROOT, 'img', 'default_podcast.png')
+
 def get_image_upload_path(instance, filename):
     if instance.__class__ is Episode:
         return os.path.join(instance.podcast.slug, "img", filename)
@@ -93,9 +96,8 @@ class Podcast(models.Model):
                                  choices=FREQUENCY_CHOICES,
                                  blank=True, default='never')
     active = models.BooleanField(default=True)
-
     feed_format = models.CharField('feed format',
-                                   max_length=16, default='atom',
+                                   max_length=16, default='rss',
                                    choices=FEED_TYPE_CHOICES)
     # directories
     pub_url = models.URLField('base publication url', blank=True,
