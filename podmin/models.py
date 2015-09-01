@@ -1,6 +1,5 @@
 # django stuff
 from django.db import models
-from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.urlresolvers import reverse, resolve
@@ -18,7 +17,6 @@ from constants import *
 # python stuff
 import os
 from datetime import datetime, timedelta, date
-import requests
 import glob
 
 """
@@ -88,7 +86,7 @@ class Podcast(models.Model):
     credits = models.TextField('art and music credits', blank=True, null=True)
     created = models.DateTimeField('created', auto_now_add=True,
                                    editable=False)
-    published = models.DateTimeField('last published date', blank=True, null=True)
+    published = models.DateTimeField('last published', blank=True, null=True)
     updated = models.DateTimeField('updated', auto_now=True)
     website = models.URLField('podcast website', blank=True, null=True)
     frequency = models.CharField(max_length=10,
@@ -118,6 +116,8 @@ class Podcast(models.Model):
     up_dir = models.CharField('path to the upload location', max_length=255)
     cleaner = models.CharField('file cleaner function name',
                                max_length=255, default='default')
+
+    # general file manipulation things
     rename_files = models.BooleanField(default=False)
     tag_audio = models.BooleanField(default=False)
 
@@ -173,7 +173,6 @@ class Podcast(models.Model):
     """
     itunes_url = models.URLField('iTunes Store URL', blank=True)
 
-
     """
     This constant defines the groups and permissions that will be created
     for each podcast when it is created
@@ -201,29 +200,33 @@ class Podcast(models.Model):
 
     @property
     def itunes_image(self):
-        file, ext = os.path.splitext(self.image.name)
-        return settings.MEDIA_URL + file + "_itunes" + ext
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_itunes" + ext
+        return os.path.join(self.storage_url, "img", rss_file)
 
     @property
     def small_image(self):
-        file, ext = os.path.splitext(self.image.name)
-        return settings.MEDIA_URL + file + "_small" + ext
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_small" + ext
+        return os.path.join(self.storage_url, "img", rss_file)
 
     @property
     def medium_image(self):
-        file, ext = os.path.splitext(self.image.name)
-        return settings.MEDIA_URL + file + "_medium" + ext
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_medium" + ext
+        return os.path.join(self.storage_url, "img", rss_file)
 
     @property
     def large_image(self):
-        file, ext = os.path.splitext(self.image.name)
-        return settings.MEDIA_URL + file + "_large" + ext
+        filename = os.path.basename(self.image.name)
+        file, ext = os.path.splitext(filename)
+        rss_file = file + "_large" + ext
+        return os.path.join(self.storage_url, "img", rss_file)
 
     def save(self, *args, **kwargs):
-
-
-        # super(Podcast, self).save(*args, **kwargs)
-
         """
         set these urls to local media urls if not specified.
         """
@@ -250,9 +253,7 @@ class Podcast(models.Model):
         except:
             pass
 
-
         super(Podcast, self).save(*args, **kwargs)
-
 
     def publish(self):
         self.publish_episodes()
@@ -272,7 +273,6 @@ class Podcast(models.Model):
         for episode in episodes:
             episode.publish()
 
-
     def publish_feed(self):
         """
         Pull the feed from the feed generator, store it in the
@@ -282,19 +282,16 @@ class Podcast(models.Model):
 
         if self.feed_format == 'atom':
             feed_filename = 'atom.xml'
-            reverse_name = 'podcasts_podcast_feed_atom'
-            url_path = "%s/atom/" % (self.slug)
+            url_path = "/{0}/atom/".format(self.slug)
 
         elif self.feed_format == 'rss':
             feed_filename = 'rss.xml'
-            reverse_name = 'podcasts_podcast_feed_rss'
-            url_path = "%s/rss/" % (self.slug)
+            url_path = "/{0}/rss/".format(self.slug)
 
         view, args, kwargs = resolve(url_path)
         request = HttpRequest()
-        feed_content = view(request, *args, **kwargs)
-        
-        #requests.request('GET', feed_url).text
+
+        feed_content = view(request, *args, **kwargs).content
 
         feed_file = os.path.join(settings.MEDIA_ROOT, self.slug, feed_filename)
 
@@ -309,7 +306,6 @@ class Podcast(models.Model):
 
         self.save()
 
-
     def expire_episodes(self):
         """
         Expire old episodes by setting active = False where the pubDate
@@ -322,11 +318,21 @@ class Podcast(models.Model):
                                 active=True).update(active=False,
                                                     published=None)
 
-
     def publish_from_files(self):
         """
         Wrapper method to check for new files on disk and publish
         them if found
+
+        find files on disk
+        use filecleaner to clean and/or combine files
+            move to tmp area
+            combine if needed
+
+        collect data from file info
+        copy files to buffer_dir
+        create episode from file info
+
+        publish feed
 
         """
 
@@ -335,7 +341,7 @@ class Podcast(models.Model):
     def get_new_files(self):
         """
         Process new files on disk, calling the podcast's file cleaner
-        function, if one is defined.
+        function, if one is defined
 
         """
 
@@ -459,7 +465,6 @@ class Episode(models.Model):
                                    blank=True, null=True)
     block = models.BooleanField(default=False)
 
-
     @property
     def audio_url(self):
         audio_filename = os.path.basename(self.audio.name)
@@ -562,7 +567,6 @@ class Episode(models.Model):
                 # TODO handle this error
                 pass
 
-
         # no new audio, but is there a new image?
         if self.buffer_image:
 
@@ -595,7 +599,6 @@ class Episode(models.Model):
             pass
         else:
             self.published = datetime.now()
-
 
         """
         Move the files.
