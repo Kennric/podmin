@@ -1,5 +1,6 @@
 {% extends "podmin/admin_base.html" %}
 
+{% load static from staticfiles %}
 {% load podmin_tags %}
 
 {% block content %}
@@ -43,8 +44,12 @@
             {{ field.label }}
             <br><span class="helptext">{{ field.help_text }}</span>
         </label>
-        {% if field.name == 'image' and field.value %}
-        <img class="thumb" src="{{ podcast.medium_image }}">
+        {% if field.name == 'image' %} 
+          {% if field.value %}
+          <img class="thumb" src="{{ podcast.medium_image }}">
+          {% else %}
+          <img class="thumb" src="{% static 'img/podcast_default.png' %}">
+          {% endif %}
         {% endif %}
 
         {{ field }}

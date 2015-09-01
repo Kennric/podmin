@@ -19,6 +19,9 @@
     "jquery": "=2.1.1",
     "modular-scale": "2.1.1",
     "sassy-math": "1.5.1",
-    "mediaelement": "2.17.0"
+    "mediaelement": "2.17.0",
+    "datetimepicker": "2.4.5",
+    "jplayer": "2.9.0",
+    "jQuery-Slugify-Plugin": "https://github.com/pmcelhaney/jQuery-Slugify-Plugin.git"
   }
 }

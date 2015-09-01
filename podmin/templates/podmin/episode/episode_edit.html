@@ -63,3 +63,11 @@
 </div>
 
 {% endblock %}
+
+{% block footscripts %}
+<script type='text/javascript'>
+  jQuery('#id_pub_date').datetimepicker({
+      format:'Y-m-d H:i:s'
+      });
+</script>
+{% endblock %}
