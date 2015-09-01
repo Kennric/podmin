@@ -1,5 +1,5 @@
 from django.forms import (ModelForm, FileField, BooleanField,
-                          SplitDateTimeField,
+                          SplitDateTimeField, DateTimeField,
                           CharField, TextInput, Textarea, EmailInput,
                           FileInput, ImageField, Select, ChoiceField,
                           IntegerField, NullBooleanSelect, CheckboxInput,
@@ -46,10 +46,11 @@ class EpisodeForm(ModelForm):
                               widget=FileInput(attrs={'class': 'input',
                                                       'type': 'file'}))
 
-    pub_date = SplitDateTimeField(label='Publication Date',
+    pub_date = DateTimeField(label='Publication Date',
                                   initial=datetime.datetime.today,
-                                  widget=SplitDateTimeWidget(
-                                  attrs={'class': 'input','type': 'text'}))
+                                  widget=TextInput(
+                                  attrs={'class': 'input datetimepicker',
+                                         'type': 'text'}))
 
     tags = CharField(label='Tags', required=False,
                      widget=TextInput(attrs={'class': 'input',
