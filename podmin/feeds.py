@@ -1,6 +1,5 @@
 import datetime
 
-from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed, Enclosure
 from django.shortcuts import get_object_or_404
 
@@ -36,8 +35,7 @@ class PodcastElements(object):
 
         if podcast.itunes_image:
             handler.addQuickElement(u"itunes:image",
-                attrs={"href": podcast.itunes_image})
-
+                                    attrs={"href": podcast.itunes_image})
 
         # iTunes categories are, annoyingly, a tree. Children must be nested in
         # parent tags, but not all categories have parents or children.
@@ -46,15 +44,16 @@ class PodcastElements(object):
             for category in podcast.itunes_categories.all():
                 if category.parent:
                     handler.startElement(u"itunes:category",
-                        {'text': category.parent.name})
+                                         {'text': category.parent.name})
                     handler.addQuickElement(u"itunes:category",
-                        attrs={'text': category.name})
+                                            attrs={'text': category.name})
                     handler.endElement(u"itunes:category")
                 else:
                     handler.addQuickElement(u"itunes:category",
-                        attrs={'text': category.name})
+                                            attrs={'text': category.name})
 
-        handler.addQuickElement(u"itunes:summary", podcast.description)
+        handler.addQuickElement(u"itunes:summary", "<![CDATA[{0}]]>".format(
+            podcast.description))
         handler.addQuickElement(u"itunes:explicit",
                                 podcast.get_explicit_display())
         if podcast.redirect:
@@ -77,10 +76,10 @@ class PodcastElements(object):
         super(PodcastElements, self).add_item_elements(handler, item)
         episode = item["episode"]
 
-
         handler.addQuickElement(u"itunes:author", episode.podcast.author)
         handler.addQuickElement(u"itunes:subtitle", episode.subtitle)
-        handler.addQuickElement(u"itunes:summary", episode.description)
+        handler.addQuickElement(u"itunes:summary",
+            "<![CDATA[{0}]]>".format(podcast.description))
         handler.addQuickElement(u"itunes:duration", episode.length)
         handler.addQuickElement(u"itunes:keywords", episode.tags)
         handler.addQuickElement(u"itunes:explicit", episode.podcast.explicit)
@@ -88,7 +87,7 @@ class PodcastElements(object):
             handler.addQuickElement(u"itunes:block", "yes")
         if episode.image:
             handler.addQuickElement(u"itunes:image",
-                                    attrs={"href": episode.image.url})
+                                    attrs={"href": episode.itunes_image})
 
     def namespace_attributes(self):
         return {u"xmlns:itunes": u"http://www.itunes.com/dtds/podcast-1.0.dtd"}
@@ -159,8 +158,8 @@ class PodcastFeed(Feed):
         return podcast.ttl
 
     def items(self, podcast):
-        return podcast.episode_set.filter(pub_date__lte=datetime.datetime.now(),
-                                          active=True)
+        return podcast.episode_set.filter(
+            pub_date__lte=datetime.datetime.now(), active=True)
 
     def get_object(self, request, *args, **kwargs):
         self.podcast = get_object_or_404(Podcast, slug=kwargs["podcast_slug"])
@@ -171,13 +170,13 @@ class PodcastFeed(Feed):
 
     def item_description(self, episode):
         "renders summary for atom"
-        return episode.description
+        return "<![CDATA[{0}]]>".format(episode.description)
 
     def item_link(self, episode):
-        #return "http://fuck.you.com"
-        return reverse("episode_show",
-                       kwargs={"slug": episode.podcast.slug,
-                               "eid": episode.id})
+        try:
+            return episode.audio_url
+        except Enclosure.DoesNotExist:
+            pass
 
     def item_pubdate(self, episode):
         return episode.published
@@ -235,10 +234,11 @@ class AtomPodcastFeed(PodcastFeed):
         return podcast.contact
 
     def link(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "atom.xml-feed_link_atom")
+        return "%s/%s" % (podcast.pub_url, "atom.xml")
 
     def feed_url(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "atom.xml-feed_url_atom")
+        return "%s/%s" % (podcast.pub_url, "atom.xml")
+
 
 class RssPodcastFeed(PodcastFeed):
     feed_type = RssPodcastFeedGenerator
@@ -249,13 +249,13 @@ class RssPodcastFeed(PodcastFeed):
         return None
 
     def description(self, podcast):
-        return podcast.description
+        return "<![CDATA[{0}]]>".format(podcast.description)
 
     def subtitle(self, podcast):
         return podcast.subtitle
 
     def link(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "rss.xml-feed_link_rss")
+        return "%s/%s" % (podcast.pub_url, "rss.xml")
 
     def feed_url(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "rss.xml-feed_url_rss")
+        return "%s/%s" % (podcast.pub_url, "rss.xml")
