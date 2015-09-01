@@ -1,18 +1,18 @@
-from django.forms import (ModelForm, FileField, BooleanField, DateTimeField,
+from django.forms import (ModelForm, FileField, BooleanField,
+                          SplitDateTimeField,
                           CharField, TextInput, Textarea, EmailInput,
                           FileInput, ImageField, Select, ChoiceField,
                           IntegerField, NullBooleanSelect, CheckboxInput,
                           ModelMultipleChoiceField, SelectMultiple,
                           RadioSelect, SplitDateTimeWidget)
-#from django.forms.widgets import TextInput
+
 from podmin.models import Episode, Podcast, Category
 import datetime
-from django.conf import settings
 from django.db.models import Count
 from constants import *
 
-class EpisodeForm(ModelForm):
 
+class EpisodeForm(ModelForm):
     title = CharField(
         label='Title',
         widget=TextInput(
@@ -43,30 +43,30 @@ class EpisodeForm(ModelForm):
         help_text='AKA Summary')
 
     buffer_image = ImageField(label='Episode Image', required=False,
-                       widget=FileInput(attrs={'class': 'input',
-                                               'type': 'file'}))
+                              widget=FileInput(attrs={'class': 'input',
+                                                      'type': 'file'}))
 
-    pub_date = DateTimeField(label='Publication Date',
-                             initial=datetime.datetime.today,
-                             widget=SplitDateTimeWidget(
-                                attrs={'class': 'input','type': 'text'}))
+    pub_date = SplitDateTimeField(label='Publication Date',
+                                  initial=datetime.datetime.today,
+                                  widget=SplitDateTimeWidget(
+                                  attrs={'class': 'input','type': 'text'}))
 
-    tags = CharField(label='Tags',required=False,
+    tags = CharField(label='Tags', required=False,
                      widget=TextInput(attrs={'class': 'input',
                                              'type': 'text'}))
 
     active = BooleanField(label='Active', required=False,
-        widget=CheckboxInput(attrs={'class': 'checkbox'}))
+                          widget=CheckboxInput(attrs={'class': 'checkbox'}))
 
     buffer_audio = FileField(label='Episode Audio', required=True,
-                      widget=FileInput(attrs={'class': 'input',
-                                              'type': 'file'}))
+                             widget=FileInput(attrs={'class': 'input',
+                                                     'type': 'file'}))
 
     show_notes = CharField(label='Show Notes',
                            widget=Textarea(
                               attrs={'class': 'input textarea',
-                                      'type': 'text',
-                                      'rows': 5}),
+                                     'type': 'text',
+                                     'rows': 5}),
                            help_text='Notes about this episode')
 
     credits = CharField(label='Credits',
@@ -77,11 +77,10 @@ class EpisodeForm(ModelForm):
                         help_text='Art and Music Credits')
 
     guests = CharField(label='Guests',
-                           widget=Textarea(
-                              attrs={'class': 'input textarea',
-                                      'type': 'text',
-                                      'rows': 5}),
-                           help_text='Guests appearing in this episode')
+                       widget=Textarea(attrs={'class': 'input textarea',
+                                              'type': 'text',
+                                              'rows': 5}),
+                       help_text='Guests appearing in this episode')
 
     class Meta:
         model = Episode
@@ -121,12 +120,10 @@ class PodcastForm(ModelForm):
 
     description = CharField(
         label='Podcast Description',
-        widget=Textarea(
-            attrs={'class': 'input textarea',
-                    'type': 'text',
-                    'rows': 5}),
+        widget=Textarea(attrs={'class': 'input textarea',
+                               'type': 'text',
+                               'rows': 5}),
         help_text='In iTunes, this is the Summary')
-
 
     language = ChoiceField(label='Podcast Language',
                            widget=Select(attrs={'class': 'input inline'}),
@@ -137,7 +134,7 @@ class PodcastForm(ModelForm):
                            choices=EXPLICIT_CHOICES,
                            help_text='Is this for adults only?')
 
-    tags = CharField(label='Tags',required=False,
+    tags = CharField(label='Tags', required=False,
                      widget=TextInput(attrs={'class': 'input',
                                              'type': 'text'}),
                      help_text='Comma-separated list of arbitrary tags.')
@@ -156,7 +153,7 @@ class PodcastForm(ModelForm):
                                                  'type': 'email'}))
     image = ImageField(label='Podcast Image', required=False,
                        widget=FileInput(attrs={'class': 'wide input',
-                                              'type': 'file'}),
+                                               'type': 'file'}),
                        help_text='Minimum 1400x1400 RGB PNG or JPEG')
     website = CharField(label='Podcast Website', required=False,
                         widget=TextInput(attrs={'class': 'wide input',
@@ -182,21 +179,19 @@ class PodcastForm(ModelForm):
     """
 
     feed_format = ChoiceField(label='Feed Type',
-                            widget=Select(attrs={'class': 'input'}),
-                            choices=FEED_TYPE_CHOICES,
-                            help_text='Type of feed to publish.')
+                              widget=Select(attrs={'class': 'input'}),
+                              choices=FEED_TYPE_CHOICES,
+                              help_text='Type of feed to publish.')
 
     organization = CharField(label='Organization', required=False,
-                            widget=TextInput(attrs={'class': 'narrow input',
-                                                    'type': 'text'}))
+                             widget=TextInput(attrs={'class': 'narrow input',
+                                                     'type': 'text'}))
     station = CharField(label='Radio Station', required=False,
                         widget=TextInput(attrs={'class': 'narrow input',
                                                 'type': 'text'}))
-
     copyright = CharField(label='Copyright',
                           required=False,
                           widget=TextInput(attrs={'class': 'wide input'}))
-
     ttl = IntegerField(label='Minutes this feed can be cached',
                        initial=1440,
                        widget=TextInput(attrs={'class': 'xnarrow input'}))
@@ -206,17 +201,16 @@ class PodcastForm(ModelForm):
     editor_email = CharField(label='Editor Email', required=False,
                              widget=TextInput(attrs={'class': 'input'}))
     webmaster_email = CharField(label='Webmaster Email', required=False,
-                                widget=TextInput(attrs={'class': 'wide input'}))
-
+                                widget=TextInput(
+                                  attrs={'class': 'wide input'}))
     block = BooleanField(label='Blocked', required=False,
-      widget=CheckboxInput(attrs={'class': 'checkbox'}))
+                         widget=CheckboxInput(attrs={'class': 'checkbox'}))
 
     rename_files = BooleanField(label='Rename File', required=False,
-        widget=CheckboxInput(attrs={'class': 'checkbox'}))
-
+                                widget=CheckboxInput(
+                                  attrs={'class': 'checkbox'}))
     tag_audio = BooleanField(label='Tag Audio File', required=False,
-        widget=CheckboxInput(attrs={'class': 'checkbox'}))
-
+                             widget=CheckboxInput(attrs={'class': 'checkbox'}))
     pub_url = CharField(label='Publication (rss) URL',
                         required=False,
                         widget=TextInput(attrs={'class': 'wide input'}))
@@ -231,7 +225,6 @@ class PodcastForm(ModelForm):
     tmp_dir = CharField(label='Temporary Directory',
                         initial='/tmp',
                         widget=TextInput(attrs={'class': 'wide input'}))
-
 
     def __init__(self, *args, **kwargs):
         super(PodcastForm, self).__init__(*args, **kwargs)
@@ -254,11 +247,11 @@ class PodcastForm(ModelForm):
 
         self.fields['itunes_categories'].choices = category_choices
 
-
     class Meta:
         model = Podcast
 
-        fields = ('title', 'slug', 'subtitle', 'description', 'keywords', 'tags',
+        fields = ('title', 'slug', 'subtitle', 'description', 'keywords',
+                  'tags',
                   'summary', 'author', 'contact', 'image', 'website',
                   'organization', 'station', 'credits', 'frequency',
                   'copyright', 'license', 'feed_format', 'language',

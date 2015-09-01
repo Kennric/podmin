@@ -12,13 +12,9 @@ rss/itunes link buttons
 
 proper delete confirmation (delets all episodes)
 
-finalize feed generation
-
 js date picker
 
 rename file
-
-choices for all the things (categories, etc)
 
 re-integrate beaver show podcast tools
 
