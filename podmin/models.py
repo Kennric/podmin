@@ -18,6 +18,7 @@ from constants import *
 import os
 from datetime import datetime, timedelta, date
 import glob
+import shutil
 
 """
 import logging
@@ -324,19 +325,38 @@ class Podcast(models.Model):
         """
         Wrapper method to check for new files on disk and publish
         them if found
-
-        find files on disk
-        use filecleaner to clean and/or combine files
-            move to tmp area
-            combine if needed
-
-        collect data from file info
-        copy files to buffer_dir
-        create episode from file info
-
-        publish feed
-
         """
+
+        #find files on disk
+        new_files = []
+
+        try:
+            new_files = os.listdir(self.up_dir)
+        except:
+            # TODO handle this
+            print("couldn't get files list!")
+
+
+        #use filecleaner to clean and/or combine files
+        #    copy to tmp area
+
+        print new_files
+
+        for filename in new_files:
+            shutil.copy2(os.path.join(self.up_dir, filename),
+                         "/tmp/" + filename)
+
+        if self.combine_segments:
+
+        #    combine if needed
+
+        #collect data from file info
+        #copy files to buffer_dir
+        #create episode from file info
+
+        #publish feed
+
+
 
         return "Podcast Published"
 

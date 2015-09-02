@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login, logout
 # podmin app stuff
 from models import Podcast, Episode
 from forms import PodcastForm, EpisodeForm
-from feeds import RssPodcastFeed
 
 # python stuff
 from datetime import datetime
@@ -20,6 +19,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def testo(request, slug):
+    podcast = get_object_or_404(Podcast, slug=slug)
+    podcast.publish_from_files()
+    episodes = podcast.episode_set.all()
+
+    return render(request, 'podmin/podcast/podcast.html',
+                  {'podcast': podcast, 'episodes': episodes})
 
 def user_role_check(req, slug):
     user = req.user
