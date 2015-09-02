@@ -347,7 +347,7 @@ class Podcast(models.Model):
                          "/tmp/" + filename)
 
         if self.combine_segments:
-
+  
         #    combine if needed
 
         #collect data from file info
