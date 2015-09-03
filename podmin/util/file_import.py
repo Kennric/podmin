@@ -14,19 +14,32 @@ class FileImporter():
     """
 
     def __init__(self, podcast):
-        self.files = os.listdir(podcast.config.up_dir)
+        self.new_files = []
         self.tmp_dir = podcast.config.tmp_dir
         self.up_dir = podcast.config.up_dir
 
     def check(self):
         # return true if audio files exist in up_dir
-        pass
-
+        up_files = os.listdir(podcast.config.up_dir)
+        if up_files:
+            for up_file in up_files:
+                filepath = os.path.join(podcast.config.up_dir, up_file)
+                # check file type
+                self.new_files.append(filepath)
+            if self.new_files:
+                return True
+        return False
+         
     def fetch(self):
-        # copy files to tmp location
-        # add files to self.new_files
-        # return new files list
-        pass
+        new_new_files = []
+        for new_file in self.new_files:
+            source = os.path.join(podcast.config.up_dir, new_file)
+            destination = os.path.join(podcast.config.tmp_dir, new_file)
+            os.copy2(source, destination)
+            new_new_files.append(destination)
+        
+        self.new_files = new_new_files
+        return self.new_files
 
     def clean(self):
         # use defined filecleaner, or default, to prepare files
