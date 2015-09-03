@@ -11,7 +11,10 @@ from autoslug import AutoSlugField
 
 # podmin app stuff
 import podmin
-from util import podcast_audio, image_sizer
+from util.podcast_audio import PodcastAudio
+from util import image_sizer
+from util.file_import import FileImporter
+
 from constants import *
 
 # python stuff
@@ -113,7 +116,7 @@ class Podcast(models.Model):
                                max_length=255, default="/tmp")
 
     # things related to importing from the filesystem
-    last_import = models.IntegerField(default=1000000000)
+    last_import = models.DateTimeField('last import', blank=True, null=True)
     combine_segments = models.BooleanField(default=False)
     publish_segments = models.BooleanField(default=False)
     up_dir = models.CharField('path to the upload location', max_length=255)
@@ -327,36 +330,67 @@ class Podcast(models.Model):
         them if found
         """
 
-        #find files on disk
-        new_files = []
+        # if the up_dir is not set, what are we even doing here?
+        if not self.up_dir:
+            print("up_dir not set!")
+            return False
+
+        # if the up_dir isn't a directory, this is going nowhere
+        if not os.path.isidr(self.up_dir):
+            print("up_dir isn't a dir!")
+            return False
 
         try:
-            new_files = os.listdir(self.up_dir)
+            importer = FileImporter(self)
         except:
             # TODO handle this
-            print("couldn't get files list!")
+            print("importer failed to init!")
 
+        status = importer.check()
 
-        #use filecleaner to clean and/or combine files
-        #    copy to tmp area
+        if not status:
+            # TODO handle this
+            print("no files!")
 
-        print new_files
+        try:
+            new_files = importer.fetch()
+        except:
+            # TODO handle this
+            return False
 
-        for filename in new_files:
-            shutil.copy2(os.path.join(self.up_dir, filename),
-                         "/tmp/" + filename)
+        try:
+            new_files = importer.clean()
+        except:
+            # TODO handle this
+            return False
 
-        if self.combine_segments:
-  
-        #    combine if needed
+        if self.combine_segments():
+            try:
+                new_files = importer.combine()
+            except:
+                # TODO handle this
+                return False
 
-        #collect data from file info
-        #copy files to buffer_dir
-        #create episode from file info
+        print(new_files)
 
-        #publish feed
+        try:
+            new_episodes = importer.episodify()
+        except:
+            # TODO handle this
+            return False
 
+        try:
+            for episode in new_episodes:
+                episode.save()
+        except:
+            # TODO handle this
+            return False
 
+        self.last_import = datetime.now()
+
+        self.save()
+
+        self.publish()
 
         return "Podcast Published"
 
@@ -580,7 +614,7 @@ class Episode(models.Model):
             tagged = False
 
             try:
-                audio = podcast_audio.PodcastAudio(self.buffer_audio.path)
+                audio = PodcastAudio(self.buffer_audio.path)
 
                 if self.podcast.tag_audio:
                     tagged = audio.tag_audio(self)
@@ -595,7 +629,7 @@ class Episode(models.Model):
             # do we need to tag it, or did we get it already?
             if not tagged:
                 try:
-                    audio = podcast_audio.PodcastAudio(self.audio.path)
+                    audio = PodcastAudio(self.audio.path)
                     audio.tag_audio(self)
                 except:
                     pass
@@ -633,7 +667,7 @@ class Episode(models.Model):
             audio_source = self.buffer_audio.path
             audio_dest = os.path.join(settings.MEDIA_ROOT,
                                       self.buffer_audio.name)
-            audio = podcast_audio.PodcastAudio(audio_source)
+            audio = PodcastAudio(audio_source)
 
             self.length = audio.duration()
             self.mime_type = audio.get_mimetype()[0]
