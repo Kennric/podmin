@@ -336,7 +336,7 @@ class Podcast(models.Model):
             return False
 
         # if the up_dir isn't a directory, this is going nowhere
-        if not os.path.isidr(self.up_dir):
+        if not os.path.isdir(self.up_dir):
             print("up_dir isn't a dir!")
             return False
 
@@ -360,10 +360,14 @@ class Podcast(models.Model):
 
         try:
             new_files = importer.clean()
+            print(new_files)
         except:
             # TODO handle this
             return False
 
+
+
+        """
         if self.combine_segments():
             try:
                 new_files = importer.combine()
@@ -393,7 +397,7 @@ class Podcast(models.Model):
         self.publish()
 
         return "Podcast Published"
-
+        """
     def get_new_files(self):
         """
         Process new files on disk, calling the podcast's file cleaner

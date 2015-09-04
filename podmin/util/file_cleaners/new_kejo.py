@@ -3,7 +3,7 @@ import re
 import time
 
 
-def newKejo(self):
+def new_kejo():
   # get directories from podcast, process new-style kejo files
   # files are named with the prefix 00539 followed by a 2 digit
   # day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
@@ -11,6 +11,9 @@ def newKejo(self):
   # rename the file by the podcast short name, file creation date
   # and part number
 
+  print("you have reached new_kejo!")
+
+  """
   last_date = 0
   part = 1
 
@@ -51,4 +54,4 @@ def newKejo(self):
 
       new_name = podcast_shortname + '_' +  datetime_string + '_' + part + '.' + extension
       shutil.copy2(tmpath, tmpdir + "/" + new_name)
-
+  """
