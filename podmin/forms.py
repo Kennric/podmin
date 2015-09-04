@@ -1,10 +1,11 @@
-from django.forms import (ModelForm, FileField, BooleanField,
+from django.forms import (FileField, BooleanField,
                           SplitDateTimeField, DateTimeField,
                           CharField, TextInput, Textarea, EmailInput,
                           FileInput, ImageField, Select, ChoiceField,
                           IntegerField, NullBooleanSelect, CheckboxInput,
                           ModelMultipleChoiceField, SelectMultiple,
                           RadioSelect, SplitDateTimeWidget)
+from form_utils.forms import BetterModelForm
 
 from podmin.models import Episode, Podcast, Category
 import datetime
@@ -12,7 +13,7 @@ from django.db.models import Count
 from constants import *
 
 
-class EpisodeForm(ModelForm):
+class EpisodeForm(BetterModelForm):
     title = CharField(
         label='Title',
         widget=TextInput(
@@ -93,7 +94,7 @@ class EpisodeForm(ModelForm):
         exclude = ('podcast', 'size', 'length', 'part', 'mime_type')
 
 
-class PodcastForm(ModelForm):
+class PodcastForm(BetterModelForm):
 
     """
     Start with the common fields
