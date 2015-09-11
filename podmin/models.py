@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse, resolve
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpRequest
+from django.core.files import File
 
 # django contrib stuff
 from autoslug import AutoSlugField
@@ -21,6 +22,7 @@ from constants import *
 import os
 from datetime import datetime, timedelta, date
 import glob
+import time
 import shutil
 
 """
@@ -346,7 +348,7 @@ class Podcast(models.Model):
             # TODO handle this
             print("importer failed to init!")
 
-        status = importer.check()
+        status = importer.scan()
 
         if not status:
             # TODO handle this
@@ -360,35 +362,46 @@ class Podcast(models.Model):
 
         try:
             new_files = importer.clean()
-            print(new_files)
         except:
             # TODO handle this
             return False
 
-
-
-        """
-        if self.combine_segments():
+        if self.combine_segments:
             try:
                 new_files = importer.combine()
             except:
                 # TODO handle this
+                print("whoops!")
                 return False
 
-        print(new_files)
+        # now make episodes
+        for new_file in new_files:
 
-        try:
-            new_episodes = importer.episodify()
-        except:
-            # TODO handle this
-            return False
+            filename, ext = os.path.splitext(new_file['filename'])
 
-        try:
-            for episode in new_episodes:
-                episode.save()
-        except:
-            # TODO handle this
-            return False
+            ep = Episode()
+            ep.podcast = self
+            ep.pub_date = datetime.fromtimestamp(new_file['mtime'])
+            datestring = ep.pub_date.strftime("%Y-%m-%d")
+            ep.title = "{0} - {1}".format(self.title, datestring)
+            ep.description = "{0} for {1}".format(self.title,
+                                                  datestring)
+
+            ep.guid = "{0}{1}".format(self.slug, time.time())
+
+            if new_file['part']:
+                ep.part = new_file['part']
+
+            # copy audio to buffer, make file object
+            rel_path = os.path.join(self.slug, "audio", new_file['filename'])
+            print(rel_path)
+
+            with open(new_file['path']) as f:
+                new_audio = File(f)
+                ep.buffer_audio.save(new_file['filename'], new_audio, save=True)
+
+            print(ep)
+
 
         self.last_import = datetime.now()
 
@@ -397,65 +410,6 @@ class Podcast(models.Model):
         self.publish()
 
         return "Podcast Published"
-        """
-    def get_new_files(self):
-        """
-        Process new files on disk, calling the podcast's file cleaner
-        function, if one is defined
-
-        """
-
-        file_list = []
-        fp = util.FilePrep(self)
-
-        result = getattr(util.FilePrep, self.cleaner)(fp)
-
-        if result:
-            # files are moved and renamed
-            segmental = util.Segment(self)
-
-            if self.combine_segments:
-                combined_episodes = segmental.combine()
-                for combined in combined_episodes:
-                    file_list.append(combined)
-
-            if self.publish_segments:
-                segments = segmental.getSegments()
-                for segment in segments:
-                    file_list.append(segment)
-
-            if not self.publish_segments and not self.combine_segments:
-                full_files = segmental.getFiles()
-                for full_file in full_files:
-                    file_list.append(full_file)
-
-        return file_list
-
-    def import_from_files(self, file_list):
-        """
-        Take a list of files and create podcast episodes from them.
-
-        """
-
-        last_date = False
-
-        for file in file_list:
-            filename = os.path.basename(file)
-            guid = file
-            episode = self.episode_set.get_or_create(
-                title=self.title,
-                filename=filename,
-                guid=guid,
-                active=True)[0]
-
-            episode.set_data_from_file()
-            episode.set_tags()
-            # episode.move_to_storage()
-            last_date = episode.pub_date
-
-        if last_date:
-            self.last_import = int(last_date.strftime("%s"))
-            self.save()
 
 
 class Episode(models.Model):

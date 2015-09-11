@@ -79,7 +79,7 @@ class PodcastElements(object):
         handler.addQuickElement(u"itunes:author", episode.podcast.author)
         handler.addQuickElement(u"itunes:subtitle", episode.subtitle)
         handler.addQuickElement(u"itunes:summary",
-            "<![CDATA[{0}]]>".format(podcast.description))
+            "<![CDATA[{0}]]>".format(episode.podcast.description))
         handler.addQuickElement(u"itunes:duration", episode.length)
         handler.addQuickElement(u"itunes:keywords", episode.tags)
         handler.addQuickElement(u"itunes:explicit", episode.podcast.explicit)

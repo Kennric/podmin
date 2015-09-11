@@ -1,57 +1,72 @@
-from datetime import datetime, date, time
-import re
-import time
+from datetime import date
+import os
+import shutil
+
+"""
+FIle cleaners may do any manipulation on audio files, but must return
+a list of files with standardized names (even if there is only one file)
+
+The filename must be in this format:
+
+{podcast_slug}_{uploaded date}_{optional part number}.{extension}
+
+For instance, a podcast with slug 'testo' with a 2-part mp3 episode
+uploaded on Sept 5th 2015 will return:
+
+[testo_2015-09-05_01.mp3, testo_2015-09-05_02.mp3]
+
+A single-part episode must omit the part number:
+
+[testo_2015-09-05.mp3]
 
 
-def new_kejo():
-  # get directories from podcast, process new-style kejo files
-  # files are named with the prefix 00539 followed by a 2 digit
-  # day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
-  # part number, generally 01 - 08
-  # rename the file by the podcast short name, file creation date
-  # and part number
+"""
+def new_kejo(files, podcast):
 
-  print("you have reached new_kejo!")
+    # get directories from podcast, process new-style kejo files
+    # files are named with the prefix 00539 followed by a 2 digit
+    # day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
+    # part number, generally 01 - 08
+    # rename the file by the podcast short name, file creation date
+    # and part number
 
-  """
-  last_date = 0
-  part = 1
+    cleaned_files = []
 
-  for file in self.files:
-    # each file in directory:
-    # get the ctime
-    # if ctime is greater than podcast last_run, process this file
-    # parse the filename for day code and part number
-    # sanity check day code and ctime
-    # generate a datestring for file based on ctime
-    # if day code is not the same as the previous day code, increment part
-    # generate a filename from datestring and podcast shortname, datestring, and part number
-    # copy the file into the tmpdir with its new name string
-    tmpath = self.up_dir + '/' + file
-    ctime = os.path.getctime(tmppath)
+    #new_files.sort()
+    files = sorted(files, key=lambda k: k['filename'])
 
-    if ctime > podcast.last_run
-      c_date = date.fromtimestamp(ctime)
-      short_name = podcast.short_name
-      filename_parts = file.split(".")
-      # parse filename
-      prefix = filename_parts[0][0:6]
-      day_code = filename_parts[0][6]
-      part = filename_parts[0][7:9]
-      extension = filename_parts[1].lower
-      # sanity check
-      if ((day_code + 1) != c_date.weekday)
-        print "DIE! Day code does not match date!"
-      else
+    for f in files:
 
-      if c_date == last_date
-        part = part + 1
-      else
-        part = 1
+        #mtime = os.path.getmtime(new_file)
+        mdate = date.fromtimestamp(f['mtime'])
 
-      datetime_string =  c_date.strftime("%Y-%m-%d")
-      part = str(part).zfill(2)
+        path, filename = os.path.split(f['path'])
+        name, extension = os.path.splitext(filename)
 
-      new_name = podcast_shortname + '_' +  datetime_string + '_' + part + '.' + extension
-      shutil.copy2(tmpath, tmpdir + "/" + new_name)
-  """
+        day_code = int(name[5:7])
+
+        part = name[7:9]
+
+        extension = extension.lower()
+
+        # sanity check
+        if ((day_code + 1) != mdate.weekday()):
+            print("WARNING: Day code does not match today!")
+
+        datetime_string =  mdate.strftime("%Y-%m-%d")
+
+        new_name = "{0}_{1}_{2:0>2}{3}".format(podcast.slug, datetime_string,
+                                               part, extension)
+
+        new_path = os.path.join(path, new_name)
+
+        shutil.copy2(f['path'], new_path)
+
+        f['filename'] = new_name
+        f['path'] = new_path
+        f['cleaned'] = True
+        f['part'] = part
+
+        cleaned_files.append(f)
+
+    return cleaned_files

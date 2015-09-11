@@ -1,77 +1,138 @@
-#from podmin.models import Episode
-
 import os
 import shutil
 from datetime import datetime, date, time
+from subprocess import check_call
+import importlib
 import re
-
-from file_cleaners import *
-
+import magic
 
 class FileImporter():
     """
     contains methods for importing files as episodes
     """
-
     def __init__(self, podcast):
         self.new_files = []
-        self.tmp_dir = podcast.tmp_dir
-        self.up_dir = podcast.up_dir
-        self.cleaner = podcast.cleaner
+        self.podcast = podcast
+        self.status = None
 
-    def check(self):
+    def scan(self):
         # return true if audio files exist in up_dir
-        up_files = os.listdir(self.up_dir)
+        up_files = os.listdir(self.podcast.up_dir)
+        tophat = magic.Magic(mime=True)
         if up_files:
             for up_file in up_files:
-                #filepath = up_file
-                # check file type
-                self.new_files.append(up_file)
+                up_file_path = os.path.join(self.podcast.up_dir, up_file)
+                mtime = os.path.getmtime(up_file_path)
+                is_file = os.path.isfile(up_file_path)
+                file_type = tophat.from_file(up_file_path).split('/')[0]
+
+                file_date = datetime.fromtimestamp(mtime)
+                last = self.podcast.last_import
+
+                if last is None or last < file_date:
+                    if is_file and file_type == 'audio':
+                        up_file = {'filename': up_file,
+                                   'type': file_type,
+                                   'path': up_file_path,
+                                   'mtime': mtime,
+                                   'scanned': True,
+                                   'part': None}
+                        self.new_files.append(up_file)
+
             if self.new_files:
+                self.status = 'checked'
                 return True
             else:
                 print("no new files!")
         return False
 
     def fetch(self):
-        new_new_files = []
+        fetched_files = []
         for new_file in self.new_files:
-            source = os.path.join(self.up_dir, new_file)
-            destination = os.path.join(self.tmp_dir, new_file)
+            source = new_file['path']
+            destination = os.path.join(self.podcast.tmp_dir,
+                                       new_file['filename'])
             shutil.copy2(source, destination)
-            new_new_files.append(destination)
-        self.new_files = new_new_files
+            new_file['path'] = destination
+
+            fetched_files.append(new_file)
+        self.new_files = fetched_files
+        self.status = 'fetched'
         return self.new_files
 
     def clean(self):
-        print("cleaning files")
-        # use defined filecleaner, or default, to prepare files
-        # update self.new_files with new filenames
-        # return new files list
+        cleaner_mod = importlib.import_module(
+          "podmin.util.file_cleaners." + self.podcast.cleaner)
 
+        cleaner_func = getattr(cleaner_mod, self.podcast.cleaner)
 
-        cleaner = getattr(file_cleaners, self.cleaner)
+        self.new_files = cleaner_func(self.new_files, self.podcast)
 
-
-
-        print(cleaner)
-
-        cleaner()
-
+        self.status = 'cleaned'
+        return(self.new_files)
 
     def combine(self):
-        # combine multiple files
-        # update self.new_files
-        # return new files list
-        pass
 
-    def episodify(self):
-        # return a list of episodes, one per self.new_files
-        pass
+        if self.status != 'cleaned':
+            print("files must be cleaned!")
+            return False
 
-    def default(self):
-        for file in self.files:
-            up_path = self.up_dir + '/' + file
-            os.rename(up_path, tmp_dir + "/" + file)
+        # do the files conform to the standard filename?
+        pattern = re.compile(r"""
+                             (?P<basename>[a-zA-Z0-9\-]*_
+                              [0-9]{4}-[0-9]{2}-[0-9]{2})_
+                             (?P<part>[0-9]{2})\.(?P<ext>[\w]*)
+                             """, re.X)
 
+        #self.new_files.sort()
+
+        new_files = sorted(self.new_files, key=lambda k: k['filename'])
+        combined_files = []
+        command = ['sox']
+
+        num_files = len(self.new_files) - 1
+
+        for file_num, new_file in enumerate(new_files):
+
+            path, filename = os.path.split(new_file['path'])
+            match = pattern.match(filename)
+
+            if not match:
+                print("Files are not named correctly!")
+                return False
+
+            if file_num == 0:
+                basename = match.group('basename')
+
+            if match.group('basename') != basename or file_num == num_files:
+                # we have a new batch of segments! combine the last batch
+                # and start on the next set
+                new_filename = "{0}_all.{1}".format(basename,
+                                                    match.group('ext'))
+
+                if match.group('basename') == basename:
+                    command.append(new_file['path'])
+
+                command.append(os.path.join(path, new_filename))
+
+                check_call(command)
+
+                basename = match.group('basename')
+
+                combined_file = {'filename': new_filename,
+                                 'type': new_file['type'],
+                                 'path': os.path.join(path, new_filename),
+                                 'mtime': new_files[file_num - 1]['mtime'],
+                                 'scanned': new_file['scanned'],
+                                 'combined': True,
+                                 'part': None}
+
+                combined_files.append(combined_file)
+
+                command = ['sox']
+            else:
+                command.append(new_file['path'])
+
+        self.status = 'combined'
+        return combined_files
 
