@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
+from django.core.files import File
 #from django.core.servers.basehttp import FileWrapper
 
 # podmin app stuff
@@ -15,17 +17,9 @@ from forms import PodcastForm, EpisodeForm
 from datetime import datetime
 import time
 import logging
-# import os
+import os
 
 logger = logging.getLogger(__name__)
-
-def testo(request, slug):
-    podcast = get_object_or_404(Podcast, slug=slug)
-    podcast.publish_from_files()
-    episodes = podcast.episode_set.all()
-
-    return render(request, 'podmin/podcast/podcast.html',
-                  {'podcast': podcast, 'episodes': episodes})
 
 def user_role_check(req, slug):
     user = req.user
@@ -148,7 +142,20 @@ def new_podcast(request):
     if request.method == 'POST':
         form = PodcastForm(request.POST, request.FILES)
         if form.is_valid():
-            podcast = form.save()
+            podcast = form.save(commit=False)
+            try:
+                image_type = request.FILES['image'].content_type
+            except:
+                # no image, use the default
+
+                default_image = os.path.join(settings.STATIC_ROOT,
+                                             "img/default_podcast.png")
+                with open(default_image) as f:
+                    image = File(f)
+                    podcast.image.save("default_podcast.png", image, save=True)
+                pass
+            podcast.save()
+
             return HttpResponseRedirect(reverse(
                 'podcast_show', kwargs={
                     'slug': podcast.slug}))

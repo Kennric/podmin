@@ -18,10 +18,6 @@ urlpatterns += patterns(
 
     url(r'^login/?$', 'login_user', name='login'),
     url(r'^logout/?$', 'logout_user', name='logout'),
-
-    url(r'^testo/(?P<slug>[A-Za-z0-9\-]+)/$',
-        'testo', name='testo'),
-
     url(r'^$', 'index', name='index'),
     url(r'^about/$',
         'podmin_info', name='about'),

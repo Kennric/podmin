@@ -45,11 +45,14 @@
                 {% if field.name == 'image' and field.value %}
                     <img class="thumb" src="{{ episode.medium_image }}">
                 {% endif %}
-                {% if field.name == 'audio' and field.value %}
-                    <em>{{ field.value.name|filename }}</em>
-                {% endif %}
 
                 {{ field }}
+
+                {% if field.name == 'buffer_audio' %}
+                    <em>Current Audio file: {{ episode.audio_filename|filename }}</em>
+                {% endif %}
+
+
             {% endif %}
         </li>
     </ul>
