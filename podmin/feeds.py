@@ -159,7 +159,7 @@ class PodcastFeed(Feed):
 
     def items(self, podcast):
         return podcast.episode_set.filter(
-            pub_date__lte=datetime.datetime.now(), active=True)
+            pub_date__lte=datetime.datetime.now(), active=True).order_by('-pub_date')
 
     def get_object(self, request, *args, **kwargs):
         self.podcast = get_object_or_404(Podcast, slug=kwargs["podcast_slug"])
@@ -179,7 +179,7 @@ class PodcastFeed(Feed):
             pass
 
     def item_pubdate(self, episode):
-        return episode.published
+        return episode.pub_date
 
     def item_updateddate(self, episode):
         return episode.updated

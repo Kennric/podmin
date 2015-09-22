@@ -23,7 +23,6 @@ import os
 from datetime import datetime, timedelta, date
 import glob
 import time
-import shutil
 
 """
 import logging
@@ -32,7 +31,6 @@ import re
 
 # audio tagging/processing stuff
 
-from subprocess import check_output
 """
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
@@ -44,6 +42,7 @@ buffer_storage = FileSystemStorage(location=settings.BUFFER_ROOT)
 
 def get_default_image():
     return os.path.join(settings.STATIC_ROOT, 'img', 'default_podcast.png')
+
 
 def get_image_upload_path(instance, filename):
     if instance.__class__ is Episode:
@@ -127,7 +126,7 @@ class Podcast(models.Model):
 
     # general file manipulation things
     rename_files = models.BooleanField(default=False)
-    tag_audio = models.BooleanField(default=False)
+    tag_audio = models.BooleanField(default=True)
 
     # RSS specific
     organization = models.CharField(max_length=255, default='')
@@ -393,15 +392,13 @@ class Podcast(models.Model):
                 ep.part = new_file['part']
 
             # copy audio to buffer, make file object
-            rel_path = os.path.join(self.slug, "audio", new_file['filename'])
-            print(rel_path)
 
             with open(new_file['path']) as f:
                 new_audio = File(f)
-                ep.buffer_audio.save(new_file['filename'], new_audio, save=True)
+                ep.buffer_audio.save(new_file['filename'],
+                                     new_audio, save=True)
 
             print(ep)
-
 
         self.last_import = datetime.now()
 
@@ -668,38 +665,54 @@ class Episode(models.Model):
 
         return True
 
-    def set_data_from_file(self):
+    def depublish(self):
         """
-        Set the data for this episode based on its standardized filename
-
+        move files from published location back into the buffer
         """
+        if self.audio:
 
-        path = self.podcast.tmp_dir + self.filename
-        base_name = self.filename.split('.')[0]
-        name_parts = base_name.split('_')
-        mtime = datetime.fromtimestamp(os.path.getmtime(path))
-        date_string = name_parts[1] + " " + datetime.strftime(mtime, "%H:%M:%S")
-        self.pub_date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+            audio_source = self.audio.path
+            audio_dest = os.path.join(settings.BUFFER_ROOT,
+                                      self.buffer_audio.name)
 
-        part = None
-        try:
-            part = name_parts[2]
-        except IndexError:
-            pass
+            try:
+                os.rename(audio_source, audio_dest)
+            except:
+                # TODO handle this error
+                pass
 
-        self.part = part
-        self.length = check_output(["soxi", "-d", path]).split('.')[0]
-        self.size = os.path.getsize(path)
-        self.guid = self.filename
-        self.title = self.podcast.title + " " + name_parts[1]
-        self.description = self.podcast.title + " for " + name_parts[1]
+            self.buffer_audio = self.audio
+            self.audio =  None
+
+        if self.buffer_image:
+
+            image_file = os.path.basename(self.image.name)
+
+            image_source = os.path.dirname(self.image.path) + "/"
+            image_name, ext = os.path.splitext(image_file)
+
+            image_dest = os.path.join(settings.MEDIA_ROOT,
+                                      os.path.dirname(self.image.name),
+                                      "")
+
+            # if there is an image in the buffer, copy it at all its
+            # associated resized versions to the storage dir using
+            # glob
+
+            try:
+                image_glob = image_source + image_name + '*' + ext
+                for image in glob.iglob(image_glob):
+                    os.rename(image, image_dest + os.path.basename(image))
+            except:
+                # TODO handle this
+                pass
+
+            self.buffer_image = self.image
+            self.image = None
+
         self.save()
 
-    def save_to_tmp(self, uploaded_file):
-        path = self.podcast.tmp_dir + "/" + uploaded_file.name
-        with open(path, 'wb+') as destination:
-            for chunk in uploaded_file.chunks():
-                destination.write(chunk)
+        return True
 
     def rename_audio(self):
 

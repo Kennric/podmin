@@ -44,3 +44,8 @@ FEED_TYPE_CHOICES = (
     ('atom', 'Atom'),
     ('rss', 'RSS'),
 )
+
+BOOLEAN_CHOICES = (
+    (False, 'No'),
+    (True, 'Yes')
+)

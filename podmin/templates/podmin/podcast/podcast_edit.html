@@ -5,9 +5,6 @@
 
 {% block content %}
 
-{% if form.non_field_errors %}
-    {{ form.non_field_errors }}
-{% endif %}
 
 <div class="row">
   <div class="twelve columns">
@@ -19,49 +16,50 @@
         <form action="{% url 'podcast_new' %}" method="post" enctype="multipart/form-data">
     {% endif %}
 
+    {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+    {% endif %}
+
     {% csrf_token %}
+    {% for fieldset in form.fieldsets %}
+      <fieldset class="{{ fieldset.classes }}" id="{{ fieldset.name }}">
+      {% if fieldset.legend %}
 
-    {% for field in form %}
-    <ul>
-
-        {% if field|is_selectmultiple  %}
-        <li class="field taller">
+        <legend><a href="#" class="toggle" gumby-trigger="#{{ fieldset.name }}">{{ fieldset.legend }}</a></legend>
+      {% endif %}
+      {% if fieldset.description %}
+        <p class="description">{{ fieldset.description }}</p>
+      {% endif %}
+      <ul>
+      {% for field in fieldset %}
+        {% if field.is_hidden %}
+          {{ field }}
         {% else %}
-        <li class="field">
-        {% endif %}
-
-        {% if field.errors %}
-        <li class="danger alert">{{ field.errors }}</li>
-        {% endif %}
-
-        {% if field|is_checkbox  %}
-        <label class="checkbox inline" for="{{ field.name }}">
-            {{ field.label }}{{ field }}
+            <div {{ field.row_attrs }}>
+          <li {{ field.row_attrs }}>
+            <div class="field">
+            <div class="three columns">
+            <span class="error">{{ field.errors }}</span>
+            {{ field.label_tag }}
             <span class="helptext">{{ field.help_text }}</span>
-        </label>
-        {% else %}
-        <label for="{{ field.name }}">
-            {{ field.label }}
-            <br><span class="helptext">{{ field.help_text }}</span>
-        </label>
-        {% if field.name == 'image' %} 
-          {% if field.value %}
-          <img class="thumb" src="{{ podcast.medium_image }}">
-          {% else %}
-          <img class="thumb" src="{% static 'img/podcast_default.png' %}">
-          {% endif %}
-        {% endif %}
+            </div>
+            <div class="nine columns">
+            {{ field }}
+            </div>
+            </div>
 
-        {{ field }}
-
+          </div>
         {% endif %}
-        </li>
-    </ul>
+      {% endfor %}
+      </ul>
+      </fieldset>
     {% endfor %}
+
     <div class="medium info btn">
         <input type="submit" value="Submit" />
     </div>
     </form>
+
   </div>
 </div>
 

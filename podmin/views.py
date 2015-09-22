@@ -85,7 +85,9 @@ def podcast(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
-    episodes = podcast.episode_set.all()
+    episodes = podcast.episode_set.all().order_by('-pub_date')
+
+    #paginator = Paginator(episodes, 30)
 
     return render(request, 'podmin/podcast/podcast.html',
                   {'podcast': podcast, 'episodes': episodes})
@@ -119,6 +121,8 @@ def edit_podcast(request, slug):
 
 
     form = PodcastForm(instance=podcast)
+
+    form.fields['slug'].widget.attrs['readonly'] = True
 
     context = {'form': form,
                'slug': slug,
@@ -203,6 +207,7 @@ def edit_episode(request, eid, slug):
                 episode.image_type = request.FILES['buffer_image'].content_type
             except:
                 pass
+
             episode.save()
 
             if episode.podcast.rename_files:
@@ -223,7 +228,7 @@ def edit_episode(request, eid, slug):
     else:
         form = EpisodeForm(instance=episode)
 
-    #form.fields['filename'].widget.attrs['readonly'] = True
+        form.fields['guid'].widget.attrs['readonly'] = True
 
     return render(request,
                   'podmin/episode/episode_edit.html',
