@@ -10,26 +10,16 @@ implement user registration
 
 rss/itunes link buttons
 
-proper delete confirmation (delets all episodes)
-
-js date picker
-
-rename file
-
-re-integrate beaver show podcast tools
-
-'advanced settings' form
+paginate!
 
 Next
 ----
 
 put refactor on github
 
+proper delete confirmation (delets all episodes)
+
 archive old eps (remove/archive files, mark archived)
-
-paginate!
-
-figure out ownership, user profiles
 
 REST api
 
@@ -37,12 +27,6 @@ Eventually
 ----------
 
 guest pictures/profile
-
-change last_import to datetime field
-
-remove depricated util/
-
-licenses
 
 choose static or dynamic feed
 
@@ -67,8 +51,6 @@ better guid?
 video podcast support
 
 storage to cloud
-
-
 
 twitter, fb etc integration
 
