@@ -10,4 +10,4 @@ mysql-python
 sphinx
 requests
 psycopg2
-python-qmagic
+python-magic
