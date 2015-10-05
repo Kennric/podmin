@@ -1,10 +1,8 @@
-from django.forms import (FileField, BooleanField,
-                          SplitDateTimeField, DateTimeField,
-                          CharField, TextInput, Textarea, EmailInput,
-                          FileInput, ImageField, Select, ChoiceField,
-                          IntegerField, NullBooleanSelect, CheckboxInput,
-                          ModelMultipleChoiceField, SelectMultiple,
-                          RadioSelect, SplitDateTimeWidget)
+from django.forms import (FileField, DateTimeField, CharField, TextInput,
+                          Textarea, EmailInput, FileInput, ImageField, Select,
+                          ChoiceField, IntegerField, NullBooleanSelect,
+                          CheckboxInput, ModelMultipleChoiceField,
+                          SelectMultiple, RadioSelect, SplitDateTimeWidget)
 from form_utils.forms import BetterModelForm
 from form_utils.widgets import ImageWidget
 
@@ -63,6 +61,7 @@ class EpisodeForm(BetterModelForm):
         label='Publish Now',
         widget=Select(attrs={'class': 'input inline'}),
         choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[0][0],
         help_text='Is the episode ready to go live?')
 
     buffer_audio = FileField(
@@ -91,7 +90,6 @@ class EpisodeForm(BetterModelForm):
                                'rows': 3}),
         help_text='Guests appearing in this episode')
 
-    initial = {'active': BOOLEAN_CHOICES[1][0]}
 
     class Meta:
         model = Episode
@@ -101,15 +99,6 @@ class EpisodeForm(BetterModelForm):
 
         exclude = ('podcast', 'size', 'length', 'part', 'mime_type')
 
-        """
-        fieldsets = [
-            ('main',
-                {'fields': ['title', 'subtitle', 'number', 'guid', 'description',
-                  'buffer_image', 'pub_date', 'tags', 'active',
-                  'buffer_audio', 'show_notes', 'credits', 'guests'],
-                 'legend': 'Main'
-                })]
-        """
 
 class PodcastForm(BetterModelForm):
 
@@ -151,7 +140,8 @@ class PodcastForm(BetterModelForm):
     explicit = ChoiceField(
         label='Contains Explicit Material',
         widget=Select(attrs={'class': 'input inline'}),
-        choices=EXPLICIT_CHOICES)
+        choices=EXPLICIT_CHOICES,
+        initial=EXPLICIT_CHOICES[1][0])
 
     tags = CharField(
         label='Tags',
@@ -212,6 +202,7 @@ class PodcastForm(BetterModelForm):
         label='Feed Type',
         widget=Select(attrs={'class': 'input'}),
         choices=FEED_TYPE_CHOICES,
+        initial=FEED_TYPE_CHOICES[1][0],
         help_text='Type of feed to publish.')
 
     organization = CharField(
@@ -253,18 +244,21 @@ class PodcastForm(BetterModelForm):
         label='Block',
         widget=Select(attrs={'class': 'input inline'}),
         choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[0][0],
         help_text='Disable this podcast in iTunes.')
 
     rename_files = ChoiceField(
         label='Rename Files',
         widget=Select(attrs={'class': 'input inline'}),
         choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[0][0],
         help_text='Rename audio files with slug and date.')
 
     tag_audio = ChoiceField(
         label='Tag Audio',
         widget=Select(attrs={'class': 'input inline'}),
         choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[1][0],
         help_text='Tag audio file with podcast/episode details.')
 
     pub_url = CharField(
@@ -303,20 +297,15 @@ class PodcastForm(BetterModelForm):
     combine_segments = ChoiceField(
         label='Combine Segments',
         widget=Select(attrs={'class': 'input inline'}),
-        choices=BOOLEAN_CHOICES)
+        choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[0][0])
 
     publish_segments = ChoiceField(
         label='Publish Segments',
         widget=Select(attrs={'class': 'input inline'}),
-        choices=BOOLEAN_CHOICES)
+        choices=BOOLEAN_CHOICES,
+        initial=BOOLEAN_CHOICES[0][0])
 
-    initial = {'block': BOOLEAN_CHOICES[0][0],
-               'rename_files': BOOLEAN_CHOICES[0][0],
-               'tag_audio': BOOLEAN_CHOICES[1][0],
-               'feed_format': FEED_TYPE_CHOICES[1][0],
-               'combine_segments': BOOLEAN_CHOICES[1][0],
-               'publish_segments': FEED_TYPE_CHOICES[0][0]
-               }
 
     def __init__(self, *args, **kwargs):
         super(PodcastForm, self).__init__(*args, **kwargs)
@@ -342,37 +331,21 @@ class PodcastForm(BetterModelForm):
     class Meta:
         model = Podcast
 
-        fields = ('title', 'slug', 'subtitle', 'description', 'keywords',
-                  'tags', 'author', 'contact', 'image', 'website',
-                  'organization', 'station', 'credits', 'frequency',
-                  'copyright', 'license', 'feed_format', 'language',
-                  'feedburner_url', 'ttl',  'max_age', 'editor_email',
-                  'webmaster_email', 'explicit', 'itunes_categories',
-                  'block', 'rename_files', 'tag_audio', 'up_dir', 'cleaner',
-                  'pub_url', 'storage_url', 'itunes_url', 'rename_files',
-                  'tmp_dir', 'combine_segments', 'publish_segments',)
-
-        exclude = ('owner', 'copyright_url', 'last_import',
-                   'summary', 'updated', 'redirect', 'created', 'updated',
-                   'keywords')
-
         fieldsets = [
             ('main',
                 {'fields': ['title', 'slug', 'subtitle', 'description',
-                            'author', 'contact', 'image','frequency',
-                            'language', 'explicit','itunes_categories',
+                            'author', 'contact', 'image', 'frequency',
+                            'language', 'explicit', 'itunes_categories',
                             'tags', 'copyright', 'license'],
                  'legend': 'Required Settings',
-                 'classes': ['required', 'drawer', 'active']
-                }),
+                 'classes': ['required', 'drawer', 'active']}),
             ('Optional',
                 {'fields': ['editor_email', 'organization', 'website',
-                            'station', 'credits', 'language',
+                            'station', 'credits',
                             'feedburner_url', 'webmaster_email', 'block',
                             'rename_files', 'tag_audio', 'itunes_url'],
                  'legend': 'Optional Settings',
-                 'classes': ['optional', 'collapse', 'drawer']
-                 }),
+                 'classes': ['optional', 'collapse', 'drawer']}),
             ('Advanced',
                 {'fields': ['feed_format', 'ttl', 'max_age', 'pub_url',
                             'storage_url', 'tmp_dir', 'combine_segments',
@@ -380,7 +353,5 @@ class PodcastForm(BetterModelForm):
                  'legend': 'Advanced Settings',
                  'description': """Don't change these unless you know
                                    what you are doing.""",
-                 'classes': ['advanced', 'collapse', 'drawer']
-                 })]
-
-        #row_attrs = {'title': {'class': 'field'}}
+                 'classes': ['advanced', 'collapse', 'drawer']})
+            ]

@@ -6,14 +6,15 @@ TODO
 Now
 ---
 
-implement user registration
-
 rss/itunes link buttons
 
-paginate!
+more logging
+
 
 Next
 ----
+
+implement user registration
 
 put refactor on github
 
@@ -30,7 +31,7 @@ guest pictures/profile
 
 choose static or dynamic feed
 
-feed file verification
+feed file verificationlogging
 
 user profiles
 

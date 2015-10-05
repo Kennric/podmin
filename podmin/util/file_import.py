@@ -1,10 +1,11 @@
 import os
 import shutil
-from datetime import datetime, date, time
+from datetime import datetime
 from subprocess import check_call
 import importlib
 import re
 import magic
+
 
 class FileImporter():
     """
@@ -24,13 +25,13 @@ class FileImporter():
                 up_file_path = os.path.join(self.podcast.up_dir, up_file)
                 mtime = os.path.getmtime(up_file_path)
                 is_file = os.path.isfile(up_file_path)
-                file_type = tophat.from_file(up_file_path).split('/')[0]
+                file_type = tophat.from_file(up_file_path)
 
                 file_date = datetime.fromtimestamp(mtime)
                 last = self.podcast.last_import
 
                 if last is None or last < file_date:
-                    if is_file and file_type == 'audio':
+                    if is_file and file_type.split('/')[0] == 'audio':
                         up_file = {'filename': up_file,
                                    'type': file_type,
                                    'path': up_file_path,
@@ -84,8 +85,6 @@ class FileImporter():
                              (?P<part>[0-9]{2})\.(?P<ext>[\w]*)
                              """, re.X)
 
-        #self.new_files.sort()
-
         new_files = sorted(self.new_files, key=lambda k: k['filename'])
         combined_files = []
         command = ['sox']
@@ -135,4 +134,3 @@ class FileImporter():
 
         self.status = 'combined'
         return combined_files
-

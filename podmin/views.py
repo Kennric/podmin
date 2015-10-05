@@ -8,18 +8,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.core.files import File
 #from django.core.servers.basehttp import FileWrapper
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template import Context
 
 # podmin app stuff
 from models import Podcast, Episode
 from forms import PodcastForm, EpisodeForm
 
 # python stuff
-from datetime import datetime
 import time
 import logging
 import os
 
 logger = logging.getLogger(__name__)
+
 
 def user_role_check(req, slug):
     user = req.user
@@ -85,12 +87,25 @@ def podcast(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
-    episodes = podcast.episode_set.all().order_by('-pub_date')
+    episode_list = podcast.episode_set.all().order_by('-pub_date')
 
-    #paginator = Paginator(episodes, 30)
+    paginator = Paginator(episode_list, 10)
+    page = request.GET.get('page')
+
+    try:
+        episodes = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        episodes = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        episodes = paginator.page(paginator.num_pages)
+
+
 
     return render(request, 'podmin/podcast/podcast.html',
-                  {'podcast': podcast, 'episodes': episodes})
+        {'podcast': podcast, 'episodes': episodes})
+
 
 
 @login_required
@@ -118,7 +133,6 @@ def edit_podcast(request, slug):
             podcast = form.save()
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
-
 
     form = PodcastForm(instance=podcast)
 
@@ -148,7 +162,7 @@ def new_podcast(request):
         if form.is_valid():
             podcast = form.save(commit=False)
             try:
-                image_type = request.FILES['image'].content_type
+                request.FILES['image'].content_type is True
             except:
                 # no image, use the default
 
@@ -210,10 +224,6 @@ def edit_episode(request, eid, slug):
 
             episode.save()
 
-            if episode.podcast.rename_files:
-                episode.rename_audio()
-                episode.rename_image()
-
             episode.process_images()
 
             if episode.podcast.tag_audio:
@@ -245,7 +255,7 @@ def new_episode(request, slug):
     guid = "%s%s" % (slug, time.time())
 
     # get the next episode number for this podcast
-    #episode_number = podcast.episode_set.latest().number + 1
+    # episode_number = podcast.episode_set.latest().number + 1
 
     form = EpisodeForm(initial={'guid': guid})
 
@@ -261,14 +271,7 @@ def new_episode(request, slug):
                 pass
             episode.save()
 
-            if episode.podcast.rename_files:
-                episode.rename_audio()
-                episode.rename_image()
-
-            episode.process_images()
-
-            if episode.podcast.tag_audio:
-                episode.tag()
+            episode.post_process()
 
             episode.podcast.publish()
 

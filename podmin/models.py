@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.urlresolvers import reverse, resolve
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpRequest
-from django.core.files import File
 
 # django contrib stuff
 from autoslug import AutoSlugField
@@ -15,27 +14,18 @@ import podmin
 from util.podcast_audio import PodcastAudio
 from util import image_sizer
 from util.file_import import FileImporter
-
 from constants import *
 
 # python stuff
 import os
+import shutil
 from datetime import datetime, timedelta, date
 import glob
 import time
-
-"""
 import logging
 import re
-"""
 
-# audio tagging/processing stuff
-
-"""
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3
-"""
+logger = logging.getLogger(__name__)
 
 buffer_storage = FileSystemStorage(location=settings.BUFFER_ROOT)
 
@@ -45,6 +35,10 @@ def get_default_image():
 
 
 def get_image_upload_path(instance, filename):
+    # if the podcast has rename_files set, transform the name here
+
+    filename = instance.transform_filename(filename)
+
     if instance.__class__ is Episode:
         return os.path.join(instance.podcast.slug, "img", filename)
 
@@ -53,6 +47,9 @@ def get_image_upload_path(instance, filename):
 
 
 def get_audio_upload_path(instance, filename):
+
+    filename = instance.transform_filename(filename)
+
     if instance.__class__ is Episode:
         return os.path.join(instance.podcast.slug, "audio", filename)
 
@@ -180,6 +177,10 @@ class Podcast(models.Model):
     """
     itunes_url = models.URLField('iTunes Store URL', blank=True)
 
+    file_rename_format = models.CharField('file name pattern', max_length=32,
+        default="{podcast}_{number:0>2}_{date}")
+
+
     """
     This constant defines the groups and permissions that will be created
     for each podcast when it is created
@@ -246,19 +247,39 @@ class Podcast(models.Model):
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
+        image_buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug, "img")
+        audio_buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug, "audio")
 
         """
         make sure pub dirs exist
         """
-        try:
-            os.makedirs(image_pub_dir)
-        except:
-            pass
+        if not os.path.isdir(image_pub_dir):
+            try:
+                os.makedirs(image_pub_dir)
+            except OSError as err:
+                logger.error(err)
+                pass
 
-        try:
-            os.makedirs(audio_pub_dir)
-        except:
-            pass
+        if not os.path.isdir(audio_pub_dir):
+            try:
+                os.makedirs(audio_pub_dir)
+            except OSError as err:
+                logger.error(err)
+                pass
+
+        if not os.path.isdir(image_buffer_dir):
+            try:
+                os.makedirs(image_buffer_dir)
+            except OSError as err:
+                logger.error(err)
+                pass
+
+        if not os.path.isdir(audio_buffer_dir):
+            try:
+                os.makedirs(audio_buffer_dir)
+            except OSError as err:
+                logger.error(err)
+                pass
 
         super(Podcast, self).save(*args, **kwargs)
 
@@ -302,12 +323,14 @@ class Podcast(models.Model):
 
         feed_file = os.path.join(settings.MEDIA_ROOT, self.slug, feed_filename)
 
+        logger.info("Writing {0} feed to {1}".format(self.slug, feed_file))
         try:
             f = open(feed_file, 'w')
             f.write(feed_content)
             f.close
         except IOError as err:
-            return '; '.join(err.messages)
+            logger.error(err)
+
 
         self.published = datetime.now()
 
@@ -331,74 +354,105 @@ class Podcast(models.Model):
         them if found
         """
 
+        logger.info("Updating {0} from files".format(self.slug))
         # if the up_dir is not set, what are we even doing here?
         if not self.up_dir:
-            print("up_dir not set!")
+            logger.error("up_dir for {0} not set!".format(self.slug))
             return False
 
         # if the up_dir isn't a directory, this is going nowhere
         if not os.path.isdir(self.up_dir):
-            print("up_dir isn't a dir!")
+            logger.error("up_dir for {0} not a dir!".format(self.slug))
             return False
 
         try:
             importer = FileImporter(self)
         except:
-            # TODO handle this
-            print("importer failed to init!")
+            logger.error("File importer failed to init!")
+            return False
 
         status = importer.scan()
 
         if not status:
-            # TODO handle this
-            print("no files!")
+            logger.info("No new files for {0}.".format(self.slug))
+            return False
 
         try:
             new_files = importer.fetch()
         except:
-            # TODO handle this
+            logger.error("Couldn't fetch new files for {0}".format(self.slug))
             return False
 
         try:
             new_files = importer.clean()
         except:
-            # TODO handle this
+            logger.error("Couldn't clean new files for {0}".format(self.slug))
             return False
 
         if self.combine_segments:
             try:
                 new_files = importer.combine()
             except:
-                # TODO handle this
-                print("whoops!")
+                logger.error(
+                    "Couldn't combine segments for {0}".format(self.slug))
                 return False
+
+        try:
+            last = Episode.objects.filter(podcast=self).latest()
+            number = last.track_number + 1
+        except:
+            # maybe this is the first?
+            number = 1
 
         # now make episodes
         for new_file in new_files:
-
             filename, ext = os.path.splitext(new_file['filename'])
 
             ep = Episode()
             ep.podcast = self
             ep.pub_date = datetime.fromtimestamp(new_file['mtime'])
             datestring = ep.pub_date.strftime("%Y-%m-%d")
+
             ep.title = "{0} - {1}".format(self.title, datestring)
             ep.description = "{0} for {1}".format(self.title,
                                                   datestring)
+            ep.number = number
+            ep.track_numer = number
+
+            # number += 1
 
             ep.guid = "{0}{1}".format(self.slug, time.time())
 
             if new_file['part']:
                 ep.part = new_file['part']
+            else:
+                number += 1
 
-            # copy audio to buffer, make file object
+            # copy audio to buffer
+            new_filename = ep.transform_filename(new_file['filename'])
 
-            with open(new_file['path']) as f:
-                new_audio = File(f)
-                ep.buffer_audio.save(new_file['filename'],
-                                     new_audio, save=True)
+            destination = os.path.join(settings.BUFFER_ROOT,
+                                       self.slug,
+                                       "audio",
+                                       new_filename)
 
-            print(ep)
+            logger.info("creating new episode for {0}.".format(self.slug))
+
+            ep.size = os.path.getsize(new_file['path'])
+
+            shutil.copy2(new_file['path'], destination)
+
+
+            ep.buffer_audio = os.path.join(self.slug,
+                                           "audio",
+                                           new_filename)
+
+            ep.save()
+
+            logger.info("Episode created for {0}: \n{1}\n{2}".format(
+                self.slug, ep.title, ep.buffer_audio))
+
+            ep.post_process()
 
         self.last_import = datetime.now()
 
@@ -406,7 +460,33 @@ class Podcast(models.Model):
 
         self.publish()
 
-        return "Podcast Published"
+    def transform_filename(self, filename):
+        if not self.podcast.rename_files:
+            return filename
+
+        old, ext = os.path.splitext(filename)
+
+        pattern = re.compile(r"\W", re.X)
+
+        attributes = {'episode': "",
+                      'podcast': self.slug,
+                      'number': "",
+                      'track_number': "",
+                      'guid': "",
+                      'part': "",
+                      'tags': pattern.sub("_",  self.tags or ""),
+                      'org': pattern.sub("_", self.organization or ""),
+                      'author': pattern.sub("_", self.organization or ""),
+                      'date': datetime.strftime(self.published, "%Y%m%d")
+                      }
+
+        new = "{0}{1}".format(
+            self.file_rename_format.format(**attributes), ext)
+
+        logger.info("{0}, episode {1}: saving {2} as {3}".format(
+            self.podcast.slug, self.number, old, new))
+
+        return new
 
 
 class Episode(models.Model):
@@ -556,6 +636,20 @@ class Episode(models.Model):
 
         super(Episode, self).save(*args, **kwargs)
 
+    def post_process(self):
+        """
+        Take care of all those misc processing tasks that require the
+        files to be in the buffer dir but should happen as soon as
+        possible after saving the episode
+        """
+        logger.info("{0}: post-processing episode {1}".format(self.podcast,
+            self.slug))
+
+        self.process_images()
+
+        if self.podcast.tag_audio:
+            self.tag()
+
     def tag(self):
 
         """
@@ -565,8 +659,13 @@ class Episode(models.Model):
         get moved out to the world.
         """
 
+
         if self.buffer_audio:
             tagged = False
+
+            logger.info("{0}: tagging file {1}".format(self.podcast,
+                self.buffer_audio.name))
+
 
             try:
                 audio = PodcastAudio(self.buffer_audio.path)
@@ -574,7 +673,10 @@ class Episode(models.Model):
                 if self.podcast.tag_audio:
                     tagged = audio.tag_audio(self)
 
-            except:
+            except Exception as err:
+                logger.info("{0}: error tagging: {1}".format(self.podcast,
+                    err))
+
                 # TODO handle this error
                 pass
 
@@ -606,8 +708,10 @@ class Episode(models.Model):
         Set the published date, but only if this episode is newly published
         or updated
         """
+
         if self.published and self.updated <= self.published:
             pass
+
         else:
             self.published = datetime.now()
 
@@ -628,10 +732,10 @@ class Episode(models.Model):
             self.mime_type = audio.get_mimetype()[0]
 
             try:
-                os.rename(audio_source, audio_dest)
-            except:
+                shutil.move(audio_source, audio_dest)
+            except IOError as err:
                 # TODO handle this error
-                pass
+                logger.error(err)
 
             self.audio = self.buffer_audio
             self.buffer_audio = None
@@ -654,7 +758,7 @@ class Episode(models.Model):
             try:
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
-                    os.rename(image, image_dest + os.path.basename(image))
+                    shutil.move(image, image_dest + os.path.basename(image))
             except:
                 # TODO handle this
                 pass
@@ -676,13 +780,13 @@ class Episode(models.Model):
                                       self.buffer_audio.name)
 
             try:
-                os.rename(audio_source, audio_dest)
+                shutil.move(audio_source, audio_dest)
             except:
                 # TODO handle this error
                 pass
 
             self.buffer_audio = self.audio
-            self.audio =  None
+            self.audio = None
 
         if self.buffer_image:
 
@@ -702,7 +806,7 @@ class Episode(models.Model):
             try:
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
-                    os.rename(image, image_dest + os.path.basename(image))
+                    shutil.move(image, image_dest + os.path.basename(image))
             except:
                 # TODO handle this
                 pass
@@ -710,76 +814,37 @@ class Episode(models.Model):
             self.buffer_image = self.image
             self.image = None
 
+        self.active = False
+
         self.save()
 
         return True
 
-    def rename_audio(self):
 
-        if not self.buffer_audio:
-            return
+    def transform_filename(self, filename):
+        if not self.podcast.rename_files:
+            return filename
 
-        old_filename = self.buffer_audio.name
-        date_string = datetime.strftime(self.pub_date, "%Y%m%d")
+        old, ext = os.path.splitext(filename)
 
-        ext = os.path.splitext(old_filename)[1]
+        pattern = re.compile(r"\W", re.X)
 
-        rel_path = os.path.dirname(old_filename)
 
-        # construct the new filename
-        # <podcast_slug>_<year>-<month>-<day>.ext
-        # TODO - make the pattern configurable
+        attributes = {'episode': self.slug,
+                      'podcast': self.podcast.slug,
+                      'number': self.number,
+                      'track_number': self.track_number or 0,
+                      'guid': pattern.sub("_", self.guid),
+                      'part': self.part or 0,
+                      'tags': pattern.sub("_",  self.tags or ""),
+                      'org': pattern.sub("_", self.podcast.organization or ""),
+                      'author': pattern.sub("_", self.podcast.author or ""),
+                      'date': datetime.strftime(self.pub_date, "%Y%m%d")}
 
-        new_filename = "{0}_{1}_{2}{3}".format(self.podcast.slug,
-                                               self.number,
-                                               date_string,
-                                               ext)
+        new = "{0}{1}".format(
+            self.podcast.file_rename_format.format(**attributes), ext)
 
-        old_path = self.buffer_audio.path
+        logger.info("{0}, episode {1}: saving {2} as {3}".format(
+            self.podcast.slug, self.number, old, new))
 
-        new_path = os.path.join(settings.BUFFER_ROOT, rel_path, new_filename)
-
-        try:
-            os.rename(old_path, new_path)
-        except IOError as err:
-            return '; '.join(err.messages)
-
-        self.buffer_audio.name = os.path.join(rel_path, new_filename)
-        self.save()
-
-    def rename_image(self):
-        """
-        Note: Do this -before- process_images, otherwise image sizes
-        will not have the right name
-        """
-
-        if not self.buffer_image:
-            return
-
-        old_filename = self.buffer_image.name
-        date_string = datetime.strftime(self.pub_date, "%Y%m%d")
-
-        ext = os.path.splitext(old_filename)[1]
-
-        rel_path = os.path.dirname(old_filename)
-
-        # construct the new filename
-        # <podcast_slug>_<episode number>_<year><month><day>.ext
-        # TODO - make the pattern configurable
-
-        new_filename = "{0}_{1}_{2}{3}".format(self.podcast.slug,
-                                               self.number,
-                                               date_string,
-                                               ext)
-
-        old_path = self.buffer_image.path
-
-        new_path = os.path.join(settings.BUFFER_ROOT, rel_path, new_filename)
-
-        try:
-            os.rename(old_path, new_path)
-        except IOError as err:
-            return '; '.join(err.messages)
-
-        self.buffer_image.name = os.path.join(rel_path, new_filename)
-        self.save()
+        return new
