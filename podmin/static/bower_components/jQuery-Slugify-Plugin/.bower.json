@@ -1,0 +1,31 @@
+{
+  "name": "jQuery-Slugify-Plugin",
+  "homepage": "https://github.com/pmcelhaney/jQuery-Slugify-Plugin",
+  "authors": [
+    "Patrick McElhaney <pmcelhaney@gmail.com>"
+  ],
+  "description": "Creates a URL slug as you type a page title",
+  "main": "jquery.slugify.js",
+  "keywords": [
+    "slug",
+    "jquery"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "8359c79ee3",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "8359c79ee31a2fc0ea26782a7b300056c5d46122"
+  },
+  "_source": "https://github.com/pmcelhaney/jQuery-Slugify-Plugin.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/pmcelhaney/jQuery-Slugify-Plugin.git",
+  "_direct": true
+}
