@@ -461,7 +461,7 @@ class Podcast(models.Model):
         self.publish()
 
     def transform_filename(self, filename):
-        if not self.podcast.rename_files:
+        if not self.rename_files:
             return filename
 
         old, ext = os.path.splitext(filename)
