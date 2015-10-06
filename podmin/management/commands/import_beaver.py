@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            podcast = Podcast.objects.get(slug='joebeavershow')
+            podcast = Podcast.objects.get(slug='joe-beaver-show')
         except Podcast.DoesNotExist:
 
             raise CommandError('Nope!')
