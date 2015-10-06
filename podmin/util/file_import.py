@@ -128,9 +128,23 @@ class FileImporter():
 
                 combined_files.append(combined_file)
 
+                self.new_files.append(combined_file)
                 command = ['sox']
             else:
                 command.append(new_file['path'])
 
+
         self.status = 'combined'
+
         return combined_files
+
+    def cleanup(self):
+
+        deleted_files = []
+        if self.status = 'fetched':
+            for new_file in self.new_files:
+                tmp_file = new_file.path
+                os.remove(tmp_file)
+                deleted_files.append(tmp_file)
+
+        return deleted_files

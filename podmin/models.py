@@ -460,6 +460,11 @@ class Podcast(models.Model):
 
         self.publish()
 
+        deleted_files = importer.cleanup()
+
+        logger.info("{0}: deleted {1}".format(self.slug,
+                                              ', '.join(deleted_files)))
+
     def transform_filename(self, filename):
         if not self.rename_files:
             return filename

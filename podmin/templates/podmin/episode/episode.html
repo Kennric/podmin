@@ -31,6 +31,8 @@
     <div class="three columns">
     {% if episode.image %}
         <img src="{{episode.medium_image}}" alt="podcast image">
+    {% else %}
+        <img src="{{episode.podcast.medium_image}}" alt="podcast image">
     {% endif %}
     </div>
 
