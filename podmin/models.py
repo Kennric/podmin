@@ -483,8 +483,7 @@ class Podcast(models.Model):
         new = "{0}{1}".format(
             self.file_rename_format.format(**attributes), ext)
 
-        logger.info("{0}, episode {1}: saving {2} as {3}".format(
-            self.podcast.slug, self.number, old, new))
+        logger.info("{0}: saving {1} as {2}".format(self.slug, old, new))
 
         return new
 
