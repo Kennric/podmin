@@ -33,7 +33,7 @@ class Command(BaseCommand):
         # 8: 'pub_date', 9: 'size', 10:'length', 11: 'current',
         # 12: 'tags', 13: '_order'
 
-        conn = sqlite3.connect('podcaster_dev.db')
+        conn = sqlite3.connect(options['file'])
         c = conn.cursor()
         c.execute("SELECT * FROM podmin_episode")
 
