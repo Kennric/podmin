@@ -141,7 +141,7 @@ class FileImporter():
     def cleanup(self):
 
         deleted_files = []
-        if self.status = 'fetched':
+        if self.status is 'fetched':
             for new_file in self.new_files:
                 tmp_file = new_file.path
                 os.remove(tmp_file)
