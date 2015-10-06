@@ -477,7 +477,7 @@ class Podcast(models.Model):
                       'tags': pattern.sub("_",  self.tags or ""),
                       'org': pattern.sub("_", self.organization or ""),
                       'author': pattern.sub("_", self.organization or ""),
-                      'date': datetime.strftime(self.published, "%Y%m%d")
+                      'date': time.strftime("%Y%m%d")
                       }
 
         new = "{0}{1}".format(
