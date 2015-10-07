@@ -22,6 +22,7 @@ class EpisodeForm(BetterModelForm):
 
     subtitle = CharField(
         label='Subtitle',
+        required=False,
         widget=TextInput(
             attrs={'class': 'input',
                    'type': 'text',
@@ -29,6 +30,7 @@ class EpisodeForm(BetterModelForm):
 
     number = CharField(
         label='Episode Number',
+        required=False,
         widget=TextInput(attrs={'class': 'input', 'type': 'text'}))
 
     guid = CharField(
@@ -37,15 +39,16 @@ class EpisodeForm(BetterModelForm):
 
     description = CharField(
         label='Episode Description',
+        required=False,
         widget=Textarea(
             attrs={'class': 'input textarea',
                    'type': 'text',
                    'rows': 3}))
 
-    buffer_image = ImageField(
+    buffer_image = FileField(
         label='Episode Image',
         required=False,
-        widget=ImageWidget(attrs={'class': 'input', 'type': 'file'}))
+        widget=FileInput(attrs={'class': 'input', 'type': 'file'}))
 
     pub_date = DateTimeField(
         label='Publication Date',
@@ -71,6 +74,7 @@ class EpisodeForm(BetterModelForm):
 
     show_notes = CharField(
         label='Show Notes',
+        required=False,
         widget=Textarea(attrs={'class': 'input textarea',
                                'type': 'text',
                                'rows': 5}),
@@ -78,6 +82,7 @@ class EpisodeForm(BetterModelForm):
 
     credits = CharField(
         label='Credits',
+        required=False,
         widget=Textarea(attrs={'class': 'input textarea',
                                'type': 'text',
                                'rows': 3}),
@@ -85,6 +90,7 @@ class EpisodeForm(BetterModelForm):
 
     guests = CharField(
         label='Guests',
+        required=False,
         widget=Textarea(attrs={'class': 'input textarea',
                                'type': 'text',
                                'rows': 3}),
@@ -121,6 +127,7 @@ class PodcastForm(BetterModelForm):
 
     subtitle = CharField(
         label='Subtitle',
+        required=False,
         widget=TextInput(
             attrs={'class': 'input',
                    'type': 'text',
@@ -128,6 +135,7 @@ class PodcastForm(BetterModelForm):
 
     description = CharField(
         label='Description',
+        required=False,
         widget=Textarea(attrs={'class': 'input textarea',
                                'type': 'text',
                                'rows': 3}))
@@ -160,18 +168,16 @@ class PodcastForm(BetterModelForm):
 
     author = CharField(
         label='Author Name',
-        required=False,
         widget=TextInput(attrs={'class': 'input', 'type': 'text'}))
 
     contact = CharField(
         label='Author Email',
-        required=False,
         widget=EmailInput(attrs={'class': 'input', 'type': 'email'}))
 
-    image = ImageField(
+    image = FileField(
         label='Podcast Image',
         required=False,
-        widget=ImageWidget(attrs={'class': 'input', 'type': 'file'}),
+        widget=FileInput(attrs={'class': 'input', 'type': 'file'}),
         help_text='Minimum 1400x1400 RGB PNG or JPEG')
 
     website = CharField(
@@ -288,10 +294,12 @@ class PodcastForm(BetterModelForm):
 
     up_dir = CharField(
         label='Upload Directory',
+        required=False,
         widget=TextInput(attrs={'class': 'input'}))
 
     cleaner = CharField(
         label='Cleaner',
+        required=False,
         widget=TextInput(attrs={'class': 'input'}))
 
     combine_segments = ChoiceField(

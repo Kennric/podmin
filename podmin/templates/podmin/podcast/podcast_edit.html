@@ -24,7 +24,6 @@
     {% for fieldset in form.fieldsets %}
       <fieldset class="{{ fieldset.classes }}" id="{{ fieldset.name }}">
       {% if fieldset.legend %}
-
         <legend><a href="#" class="toggle" gumby-trigger="#{{ fieldset.name }}">{{ fieldset.legend }}</a></legend>
       {% endif %}
       {% if fieldset.description %}
@@ -35,7 +34,7 @@
         {% if field.is_hidden %}
           {{ field }}
         {% else %}
-            <div {{ field.row_attrs }}>
+        <div {{ field.row_attrs }}>
           <li {{ field.row_attrs }}>
             <div class="field">
             <div class="three columns">

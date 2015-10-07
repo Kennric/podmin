@@ -67,3 +67,22 @@ fieldset legend {
 .field input[readonly] {
     background-color: #eee;
 }
+
+.large {
+    font-size: $large;
+}
+
+.page-container {
+  border-top: 1px solid $info-color;
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+.player_container {
+  display: inline-block;
+}
+
+.episode-tools {
+  width: 484px;
+  margin: 0 auto;
+}

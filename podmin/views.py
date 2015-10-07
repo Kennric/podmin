@@ -1,15 +1,14 @@
 # django stuff
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.contrib import messages
+#from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.core.files import File
-#from django.core.servers.basehttp import FileWrapper
+from django.core.servers.basehttp import FileWrapper
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import Context
 
 # podmin app stuff
 from models import Podcast, Episode
@@ -299,38 +298,88 @@ def delete_episode(request, eid, slug):
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
 
+@login_required
+def depublish_episode(request, eid, slug):
+
+    user, manager, editor, webmaster = user_role_check(request, slug)
+
+    if not manager and not user.is_superuser:
+        message = "I'm sorry %s, I'm afraid I can't let you depublish episode %s" % (
+            user, eid)
+
+        return render(request, 'podmin/site/denied.html', {'message': message})
+
+    episode = get_object_or_404(Episode, id=eid)
+
+    episode.depublish()
+    episode.podcast.publish_feed()
+
+    return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
+
+
+@login_required
+def publish_episode(request, eid, slug):
+
+    user, manager, editor, webmaster = user_role_check(request, slug)
+
+    if not manager and not user.is_superuser:
+        message = "I'm sorry %s, I'm afraid I can't let you depublish episode %s" % (
+            user, eid)
+
+        return render(request, 'podmin/site/denied.html', {'message': message})
+
+    episode = get_object_or_404(Episode, id=eid)
+
+    episode.publish()
+    episode.podcast.publish_feed()
+
+    return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
+
+
 def podmin_info(request):
 
     return render(request, 'podmin/site/about.html',
                   {'static_dir': '/static/podcast/site'})
 
-"""
 
-def audio_buffer(request, filename):
-
-    #Send a file through Django without loading the whole file into
-    #memory at once. The FileWrapper will turn the file object into an
-    #iterator for chunks of 8KB.
-
-    filename = __file__ # Select your file here.
-    wrapper = FileWrapper(file(filename))
-    response = HttpResponse(wrapper, content_type='text/plain')
-    response['Content-Length'] = os.path.getsize(filename)
-    return response
-
-def image_buffer(request):
+def audio_buffer(request, eid, slug):
 
     #Send a file through Django without loading the whole file into
     #memory at once. The FileWrapper will turn the file object into an
     #iterator for chunks of 8KB.
 
-    filename = __file__ # Select your file here.
-    wrapper = FileWrapper(file(filename))
-    response = HttpResponse(wrapper, content_type='text/plain')
-    response['Content-Length'] = os.path.getsize(filename)
+    episode = get_object_or_404(Episode, id=eid)
+    filepath = episode.buffer_audio.path
+    filename = os.path.basename(episode.buffer_audio.name)
+    content_type = episode.mime_type
+
+    wrapper = FileWrapper(file(filepath))
+
+    response = HttpResponse(wrapper, content_type=content_type)
+    response['Content-Length'] = os.path.getsize(filepath)
+    response['Content-Disposition'] = "attachment; filename={0}".format(filename)
+
     return response
 
-"""
+
+
+def image_buffer(request, eid, slug, size):
+
+    #Send a file through Django without loading the whole file into
+    #memory at once. The FileWrapper will turn the file object into an
+    #iterator for chunks of 8KB.
+
+    episode = get_object_or_404(Episode, id=eid)
+
+    path, filename = os.path.split(episode.buffer_image.path)
+    name, ext = os.path.splitext(filename)
+    image_name = "{0}_{1}{2}".format(name, size, ext)
+    buffer_path = os.path.join(path, image_name)
+
+    wrapper = FileWrapper(file(buffer_path))
+    response = HttpResponse(wrapper, content_type=episode.image_type)
+    response['Content-Length'] = os.path.getsize(buffer_path)
+    return response
 
 
 def login_user(request):

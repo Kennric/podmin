@@ -11,6 +11,18 @@
 
 {% block content %}
 
+<div class="row">
+    <div class="twelve columns">
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+</div>
+
 <!-- Block with the podcast image and description -->
 <div class="row">
   <div class="three columns">
@@ -19,86 +31,69 @@
     {% endif %}
   </div>
   <div class="nine columns">
-    <h3>{{podcast.title}}</h3>
-    <h4>{{podcast.subtitle}}</h4>
-    <p>
-    Itunes Categories:
+    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">
+        {{ podcast.title }}
+        </a>
+    </h2>
+    <h3>{{podcast.subtitle}}</h3>
     {% for category in podcast.itunes_categories.all %}
-      {{ category }} |
+      <span class="small">{{ category }}</span><br>
     {% endfor %}
-    </p>
-    <p>
-    Tags: {{ podcast.tags }}
-    </p>
-    <p>{{podcast.description|safe}}</p>
   </div>
 </div>
 
-
-{% for e in episodes %}
-<div class="row">
-  <div class="two columns">
-
-    {% if e.image %}
-    <img src="{{e.small_image}}" alt="episode image">
+<div class="row page-container">
+    {% if podcast.description %}
+    <div class="row">
+        <div class="twelve columns">
+        <p>{{ podcast.description | linebreaks }}</p>
+        </div>
+    </div>
     {% endif %}
-  </div>
-  <div class="ten columns">
-    <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}">
-      {{ e.title }}
-    </a><br>
-    {{ e.description }}<br>
-    <em>published {{ e.pub_date }}</em>
-    {% if editor or user.is_superuser %}
-      <a href="{% url 'episode_edit' slug=e.podcast.slug eid=e.id %}">Edit</a> |
-      <a href="{% url 'episode_delete' slug=e.podcast.slug eid=e.id %}">Delete</a>
-    {% endif %}
+
+
+  <div class="row">
+    <div class="twelve columns">
+      <h3>Episodes</h3>
+    </div>
   </div>
 
+  {% for e in episodes %}
+  <div class="row">
+    <div class="two columns">
+
+      {% if e.image %}
+      <img src="{{e.small_image}}" alt="episode image">
+      {% endif %}
+    </div>
+    <div class="ten columns">
+      <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}">
+        {{ e.title }}
+      </a><br>
+      {{ e.description }}<br>
+      <em>published {{ e.pub_date }}</em>
+      {% if editor or user.is_superuser %}
+        <a href="{% url 'episode_edit' slug=e.podcast.slug eid=e.id %}">Edit</a> |
+        <a href="{% url 'episode_delete' slug=e.podcast.slug eid=e.id %}">Delete</a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  {% endfor %}
+
+  {% if episodes.paginator.num_pages > 1 %}
+  <div class="row">
+    <div class="centered six columns">
+      {% paginator episodes 8 %}
+    </div>
+  </div>
+  {% endif %}
 </div>
-
-{% endfor %}
-
-{% if episodes.paginator.num_pages > 1 %}
-<div class="row">
-  <div class="centered six columns">
-    {% paginator episodes 8 %}
-  </div>
-</div>
-{% endif %}
 
 {% endblock %}
 
 {% block footscripts %}
 
-<link type="text/css" href="{% static 'bower_components/jplayer/skin/blue.monday/jplayer.blue.monday.css' %}" rel="stylesheet" />
-<script src="{% static 'bower_components/jplayer/dist/jplayer/jquery.jplayer.min.js' %}"></script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    {% for e in episodes %}
-      $("#jquery_jplayer_{{ e.id }}").jPlayer({
-        ready: function () {
-          $(this).jPlayer("setMedia", {
-            title: "{{ e.title }}",
-            mp3: "{{ e.audio_url }}"
-          });
-        },
-        cssSelectorAncestor: "#jp_container_{{ e.id }}",
-        play: function() { // To avoid multiple jPlayers playing together.
-          $(this).jPlayer("pauseOthers");
-        },
-        swfPath: "{% static 'bower_components/jplayer/dist/jplayer/' %}",
-        supplied: "mp3",
-        wmode: "window",
-        globalVolume: true,
-        useStateClassSkin: true,
-        autoBlur: false,
-        smoothPlayBar: true,
-        keyEnabled: true
-      });
-    {% endfor %}
-  });
-</script>
 {% endblock %}
 

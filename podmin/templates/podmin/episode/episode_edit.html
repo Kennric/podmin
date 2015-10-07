@@ -66,43 +66,6 @@
       </fieldset>
     {% endfor %}
 
-<!--
-    {% csrf_token %}
-
-    {% for field in form %}
-    <ul>
-        <li class="field">
-            {% if field.errors %}
-                <span class="danger alert">{{ field.errors }}</span>
-            {% endif %}
-
-            {% if field|is_checkbox  %}
-                <label class="checkbox inline" for="{{ field.name }}">
-                    {{ field.label }}{{ field }}
-                    <span class="helptext">{{ field.help_text }}</span>
-                </label>
-            {% else %}
-                <label for="{{ field.name }}">
-                    {{ field.label }}
-                    <br><span class="helptext">{{ field.help_text }}</span>
-                </label>
-                {% if field.name == 'image' and field.value %}
-                    <img class="thumb" src="{{ episode.medium_image }}">
-                {% endif %}
-
-                {{ field }}
-
-                {% if field.name == 'buffer_audio' %}
-                    <em>Current Audio file: {{ episode.audio_filename|filename }}</em>
-                {% endif %}
-
-
-            {% endif %}
-        </li>
-    </ul>
-    {% endfor %}
-    -->
-
     <div class="medium info btn">
         <input type="submit" value="Submit" />
     </div>

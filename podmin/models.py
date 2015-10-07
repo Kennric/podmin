@@ -117,9 +117,10 @@ class Podcast(models.Model):
     last_import = models.DateTimeField('last import', blank=True, null=True)
     combine_segments = models.BooleanField(default=False)
     publish_segments = models.BooleanField(default=False)
-    up_dir = models.CharField('path to the upload location', max_length=255)
+    up_dir = models.CharField('path to the upload location', max_length=255,
+                              blank=True, null=True)
     cleaner = models.CharField('file cleaner function name',
-                               max_length=255, default='default')
+                               max_length=255, blank=True, null=True)
 
     # general file manipulation things
     rename_files = models.BooleanField(default=False)
@@ -769,6 +770,8 @@ class Episode(models.Model):
 
             self.image = self.buffer_image
             self.buffer_image = None
+
+        self.active = True
         self.save()
 
         return True
@@ -781,25 +784,25 @@ class Episode(models.Model):
 
             audio_source = self.audio.path
             audio_dest = os.path.join(settings.BUFFER_ROOT,
-                                      self.buffer_audio.name)
+                                      self.audio.name)
 
             try:
                 shutil.move(audio_source, audio_dest)
-            except:
+            except IOError as err:
                 # TODO handle this error
-                pass
+                logger.error(err)
 
             self.buffer_audio = self.audio
             self.audio = None
 
-        if self.buffer_image:
+        if self.image:
 
             image_file = os.path.basename(self.image.name)
 
             image_source = os.path.dirname(self.image.path) + "/"
             image_name, ext = os.path.splitext(image_file)
 
-            image_dest = os.path.join(settings.MEDIA_ROOT,
+            image_dest = os.path.join(settings.BUFFER_ROOT,
                                       os.path.dirname(self.image.name),
                                       "")
 

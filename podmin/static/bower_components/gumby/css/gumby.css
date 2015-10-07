@@ -1729,3 +1729,11 @@ fieldset.drawer.active { padding: 1.5625em; max-height: none; }
 fieldset legend { font-size: 26px; }
 
 .field input[readonly] { background-color: #eee; }
+
+.large { font-size: 26px; }
+
+.page-container { border-top: 1px solid #4a4d50; padding-top: 24px; margin-top: 24px; }
+
+.player_container { display: inline-block; }
+
+.episode-tools { width: 484px; margin: 0 auto; }
