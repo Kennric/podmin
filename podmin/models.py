@@ -235,6 +235,11 @@ class Podcast(models.Model):
         rss_file = file + "_large" + ext
         return os.path.join(self.storage_url, "img", rss_file)
 
+    @property
+    def feed_url(self):
+        filename = "{0}.xml".format(self.feed_format)
+        return "{0}/{1}".format(self.pub_url, filename)
+
     def save(self, *args, **kwargs):
         """
         set these urls to local media urls if not specified.
