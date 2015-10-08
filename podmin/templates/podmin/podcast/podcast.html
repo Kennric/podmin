@@ -77,15 +77,18 @@
       <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}">
         <h4>{{ e.title }}</h4>
       </a>
-      {{ e.subtitle }}<br>
 
-      {% if e.active %}
-      <span class="primary label">Published</span>
-      {% else %}
-      <span class="primary label">Inactive</span>
+      {% if e.subtitle %}
+      {{ e.subtitle }}<br>
       {% endif %}
+
       <span class="small">{{ e.pub_date }}</span><br>
       {% if editor or user.is_superuser %}
+          {% if e.active %}
+          <span class="secondary label">Published</span>
+          {% else %}
+          <span class="info label">Inactive</span>
+          {% endif %}
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.active %}
           <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
