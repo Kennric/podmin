@@ -3,7 +3,7 @@
 {% block externals %}
 
 <script src="{% static 'bower_components/mediaelement/build/mediaelement-and-player.min.js' %}"></script>
-<link rel="stylesheet" href="{% static 'bower_components/mediaelement/build/mediaelementplayer.css' %}" />
+<link rel="stylesheet" href="{% static 'css/mediaelementplayer.css' %}" />
 
 {% endblock %}
 
@@ -82,7 +82,8 @@
 
             </div>
 
-            <a href="{{ episode.audio_url }}" target=new title="Download">
+            <a href="{{ episode.audio_url }}" target=new class="ttip"
+                data-tooltip="Download {{ episode.audio_filename }}">
                 <span class="large">
                <i class="icon-download"></i>
                </span>

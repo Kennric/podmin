@@ -75,13 +75,25 @@
     </div>
     <div class="ten columns">
       <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}">
-        {{ e.title }}
-      </a><br>
-      {{ e.description }}<br>
-      <em>published {{ e.pub_date }}</em>
+        <h4>{{ e.title }}</h4>
+      </a>
+      {{ e.subtitle }}<br>
+
+      {% if e.active %}
+      <span class="primary label">Published</span>
+      {% else %}
+      <span class="primary label">Inactive</span>
+      {% endif %}
+      <span class="small">{{ e.pub_date }}</span><br>
       {% if editor or user.is_superuser %}
-        <a href="{% url 'episode_edit' slug=e.podcast.slug eid=e.id %}">Edit</a> |
-        <a href="{% url 'episode_delete' slug=e.podcast.slug eid=e.id %}">Delete</a>
+          <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
+          {% if not e.active %}
+          <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
+          {% endif %}
+          {% if e.active %}
+          <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
+          {% endif %}
+          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>
       {% endif %}
     </div>
   </div>
