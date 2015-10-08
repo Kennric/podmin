@@ -76,6 +76,8 @@
                 <audio src="{{ episode.audio_url }}" class="mejs-player"></audio>
                 {% else %}
                 <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-player" type={{ episode.mime_type }}></audio>
+
+
                 {% endif %}
 
             </div>

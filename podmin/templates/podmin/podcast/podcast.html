@@ -61,10 +61,17 @@
   {% for e in episodes %}
   <div class="row">
     <div class="two columns">
+    {% if e.image or e.buffer_image %}
+        {% if e.image %}
+            <img src="{{e.small_image}}" alt="podcast image">
+        {% else %}
+            <img src="{% url 'image_buffer' slug=podcast.slug eid=e.id size='small' %}" alt="podcast image">
+        {% endif %}
 
-      {% if e.image %}
-      <img src="{{e.small_image}}" alt="episode image">
-      {% endif %}
+    {% else %}
+        <img src="{{podcast.small_image}}" alt="podcast image">
+    {% endif %}
+
     </div>
     <div class="ten columns">
       <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}">
@@ -77,7 +84,6 @@
         <a href="{% url 'episode_delete' slug=e.podcast.slug eid=e.id %}">Delete</a>
       {% endif %}
     </div>
-
   </div>
 
   {% endfor %}
