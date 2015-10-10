@@ -44,6 +44,9 @@
             </div>
             <div class="nine columns">
             {{ field }}
+            {% if field.name == 'image' and podcast.small_image %}
+                <img class="thumb" src="{{ podcast.small_image }}">
+            {% endif %}
             </div>
             </div>
 

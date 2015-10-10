@@ -37,11 +37,21 @@
         </a>
     </h2>
     <h3>{{podcast.subtitle}}</h3>
+
+    {% if editor or user.is_superuser %}
+      <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
+      <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
+    {% endif %}
+    <br>
+
+    <!--
     {% for category in podcast.itunes_categories.all %}
       <span class="small">{{ category }}</span><br>
     {% endfor %}
+    -->
+
     <div class="podcast-icons-box">
-    <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Podcast Homepage">
+    <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Homepage">
       <span class="large">
         <i class="icon-globe"></i>
       </span>

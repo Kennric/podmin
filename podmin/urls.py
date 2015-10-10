@@ -15,7 +15,7 @@ urlpatterns += patterns(
 
     url(r'^login/?$', 'login_user', name='login'),
     url(r'^logout/?$', 'logout_user', name='logout'),
-    url(r'^$', 'index', name='index'),
+    url(r'^$', 'podcasts', name='index'),
     url(r'^about/$',
         'podmin_info', name='about'),
     url(r'^home/$',
