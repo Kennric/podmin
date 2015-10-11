@@ -1,19 +1,27 @@
 {% extends "podmin/site/base.html" %}
+{% load static from staticfiles %}
+{% block externals %}{% endblock %}
 
+{% block title %}Podcasts{% endblock %}
+{% block episode.podcast_subtitle %}{{ episode.podcast.subtitle }}{% endblock %}
 {% block content %}
 
-<div class="twelve columns">
+<h2>Podcasts</h2>
 
-    <h3>Podcasts:</h3>
-
-    <ul>
+<div class="row page-container">
     {% for podcast in podcasts %}
-    <li>
-    <a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a>
-    </li>
-    {% endfor %}
-    </ul>
 
+    <div class="three columns">
+    {% if podcast.image %}
+        <img src="{{podcast.small_image}}" alt="podcast image">
+    {% endif %}
+    </div>
+
+    <div class="nine columns">
+    <h3><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h3>
+    <h4>{{ podcast.subtitle}}</h4>
+    {{ podcast.description }}
+    </div>
 </div>
 
 {% endblock %}
