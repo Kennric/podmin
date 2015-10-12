@@ -302,6 +302,7 @@ class Podcast(models.Model):
         expired_date = date.today() - timedelta(days=self.max_age)
 
         episodes = self.episode_set.filter(pub_date__gte=expired_date,
+                                           pub_date__lte=date.today(),
                                            active=True)
 
         for episode in episodes:
@@ -481,7 +482,7 @@ class Podcast(models.Model):
 
         attributes = {'episode': "",
                       'podcast': self.slug,
-                      'number': "",
+                      'number': "cover",
                       'track_number': "",
                       'guid': "",
                       'part': "",
