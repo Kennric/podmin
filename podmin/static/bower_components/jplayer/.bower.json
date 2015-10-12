@@ -47,6 +47,6 @@
     "commit": "e8de491b19ffd7e957005c9f25155da44802f56c"
   },
   "_source": "git://github.com/happyworm/jPlayer.git",
-  "_target": "=2.9.0",
+  "_target": "2.9.0",
   "_originalSource": "jplayer"
 }
