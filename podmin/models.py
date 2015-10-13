@@ -291,8 +291,8 @@ class Podcast(models.Model):
 
     def publish(self):
         self.publish_episodes()
-        self.publish_feed()
         self.expire_episodes()
+        self.publish_feed()
 
         return True
 
@@ -351,9 +351,10 @@ class Podcast(models.Model):
         """
         expired_date = datetime.now() - timedelta(days=self.max_age)
 
-        self.episode_set.filter(pub_date__lte=expired_date,
-                                active=True).update(active=False,
-                                                    published=None)
+        episodes = self.episode_set.filter(pub_date__lte=expired_date,
+                                           active=True)
+        for episode in episodes:
+            episode.depublish()
 
     def publish_from_files(self):
         """
@@ -714,6 +715,11 @@ class Episode(models.Model):
         return True
 
     def publish(self):
+        """
+        move files from the buffer location back into production, make this
+        episode available for inclusion in the podcast feed
+        """
+
 
         """
         Set the published date, but only if this episode is newly published
@@ -721,14 +727,15 @@ class Episode(models.Model):
         """
 
         if self.published and self.updated <= self.published:
+            # This episode is already published, and hasn't been updated since
             pass
-
         else:
             self.published = datetime.now()
 
         """
-        if pub_date is in the future, this is a forced publish, we need to
-        set the pub_date to now to maintain rss validity
+        We assume that if you call this method, you want to publish now, 
+        not matter what. If pub_date is in the future, we need to
+        set the pub_date to now to maintain rss validity.
         """
 
         if self.pub_date > datetime.now():
@@ -785,6 +792,9 @@ class Episode(models.Model):
             self.image = self.buffer_image
             self.buffer_image = None
 
+        """
+        By definition a published episode is active, so make sure it is.
+        """
         self.active = True
         self.save()
 
@@ -792,7 +802,8 @@ class Episode(models.Model):
 
     def depublish(self):
         """
-        move files from published location back into the buffer
+        move files from published location back into the buffer, make this
+        episode unavailabe for inclusion in the podcast feed
         """
         if self.audio:
 
@@ -838,8 +849,6 @@ class Episode(models.Model):
         self.active = False
 
         self.published = None
-
-        self.podcast.publish_feed()
 
         self.save()
 
