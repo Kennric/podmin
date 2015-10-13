@@ -75,11 +75,12 @@ def podcast(request, slug):
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
-    if not manager and not user.is_superuser:
-        episode_list = podcast.episode_set.filter(
-            active=True).filter(published__isnull=False).order_by('-pub_date')
-    else:
+    if manager or editor or user.is_superuser:
         episode_list = podcast.episode_set.all().order_by('-pub_date')
+    else:
+        episode_list = Episode.objects.filter(
+            podcast__slug=slug,
+            active=True).exclude(published__isnull=True).order_by('-pub_date')
 
     paginator = Paginator(episode_list, 10)
     page = request.GET.get('page')
