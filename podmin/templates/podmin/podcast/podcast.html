@@ -108,7 +108,7 @@
 
       <span class="small">{{ e.pub_date }}</span><br>
       {% if editor or user.is_superuser %}
-          {% if e.active %}
+          {% if e.published %}
           <span class="secondary label">Published</span>
           {% else %}
           <span class="info label">Inactive</span>

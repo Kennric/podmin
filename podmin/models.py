@@ -727,6 +727,14 @@ class Episode(models.Model):
             self.published = datetime.now()
 
         """
+        if pub_date is in the future, this is a forced publish, we need to
+        set the pub_date to now to maintain rss validity
+        """
+
+        if self.pub_date > datetime.now():
+            self.pub_date = datetime.now()
+
+        """
         Move the files.
         We're only working with buffered files here, if the buffer
         fields are empty, we have nothing to do
