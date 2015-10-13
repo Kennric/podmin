@@ -86,7 +86,12 @@ def podcast(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
-    episode_list = podcast.episode_set.all().order_by('-pub_date')
+
+    if not manager and not user.is_superuser:
+        episode_list = podcast.episodes.filter(
+            active=True).order_by('-pub_date')
+    else:
+        episode_list = podcast.episode_set.all().order_by('-pub_date')
 
     paginator = Paginator(episode_list, 10)
     page = request.GET.get('page')
@@ -100,11 +105,8 @@ def podcast(request, slug):
         # If page is out of range (e.g. 9999), deliver last page of results.
         episodes = paginator.page(paginator.num_pages)
 
-
-
     return render(request, 'podmin/podcast/podcast.html',
-        {'podcast': podcast, 'episodes': episodes})
-
+                  {'podcast': podcast, 'episodes': episodes})
 
 
 @login_required

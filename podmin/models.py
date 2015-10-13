@@ -299,10 +299,10 @@ class Podcast(models.Model):
     def publish_episodes(self):
 
         # publish episodes that are ripe
-        expired_date = date.today() - timedelta(days=self.max_age)
+        expired_date = datetime.now() - timedelta(days=self.max_age)
 
         episodes = self.episode_set.filter(pub_date__gte=expired_date,
-                                           pub_date__lte=date.today(),
+                                           pub_date__lte=datetime.now(),
                                            active=True)
 
         for episode in episodes:
@@ -349,7 +349,7 @@ class Podcast(models.Model):
         plus the given delta is less than today's date
 
         """
-        expired_date = date.today() - timedelta(days=self.max_age)
+        expired_date = datetime.now() - timedelta(days=self.max_age)
 
         self.episode_set.filter(pub_date__lte=expired_date,
                                 active=True).update(active=False,
