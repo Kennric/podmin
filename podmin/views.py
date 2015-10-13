@@ -77,7 +77,7 @@ def podcast(request, slug):
 
     if not manager and not user.is_superuser:
         episode_list = podcast.episode_set.filter(
-            active=True, published__isnull=False).order_by('-pub_date')
+            active=True).filter(published__isnull=False).order_by('-pub_date')
     else:
         episode_list = podcast.episode_set.all().order_by('-pub_date')
 
