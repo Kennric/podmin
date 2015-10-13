@@ -71,24 +71,12 @@ def home(request):
 
 
 def podcast(request, slug):
-    """
-    view podcast
-    if admin/owner add:
-      at top, general stats/graphs
-      action links (delete, edit, promote) per episode
-      and add episode link at top
-    otherwise, podcast homepage - get template name from podcast slug
-    see all the episodes
-    play button
-    subscribe links
-    share links
-    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
     if not manager and not user.is_superuser:
-        episode_list = podcast.episodes.filter(
+        episode_list = podcast.episode_set.filter(
             active=True).order_by('-pub_date')
     else:
         episode_list = podcast.episode_set.all().order_by('-pub_date')
@@ -111,14 +99,6 @@ def podcast(request, slug):
 
 @login_required
 def edit_podcast(request, slug):
-    """
-    edit podcast
-    user-editable options for a specific podcast
-    make sure user is superadmin or podcast owner
-    advanced options - directory to upload to for
-    auto-processing
-
-    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not manager and not user.is_superuser:
@@ -362,7 +342,6 @@ def audio_buffer(request, eid, slug):
     response['Content-Disposition'] = "attachment; filename={0}".format(filename)
 
     return response
-
 
 
 def image_buffer(request, eid, slug, size):

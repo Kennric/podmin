@@ -829,6 +829,8 @@ class Episode(models.Model):
 
         self.active = False
 
+        self.published = None
+
         self.podcast.publish_feed()
 
         self.save()

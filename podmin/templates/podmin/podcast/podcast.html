@@ -114,10 +114,10 @@
           <span class="info label">Inactive</span>
           {% endif %}
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
-          {% if not e.active %}
+          {% if not e.published %}
           <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
           {% endif %}
-          {% if e.active %}
+          {% if e.published %}
           <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>

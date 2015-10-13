@@ -51,10 +51,10 @@
         <br>
         {% if editor or user.is_superuser %}
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
-          {% if not episode.active %}
+          {% if not episode.published %}
           <a href="{% url 'episode_publish' slug=episode.podcast.slug eid=episode.id %}">Publish</a> |
           {% endif %}
-          {% if episode.active %}
+          {% if episode.published %}
           <a href="{% url 'episode_depublish' slug=episode.podcast.slug eid=episode.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=episode.podcast.slug eid=episode.id %}">Remove</a>
