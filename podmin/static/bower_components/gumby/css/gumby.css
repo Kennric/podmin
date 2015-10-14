@@ -1738,6 +1738,6 @@ fieldset legend { font-size: 26px; }
 
 .episode-tools { width: 484px; margin: 0 auto; }
 
-.redshift { border: 1px solid #551111; background-color: #ffaaaa; }
+.redshift { border: 1px solid #551111; background-color: #ffe2e2; }
 
-.blueshift { border: 2px solid #111155; background-color: #aaaaff; }
+.blueshift { border: 2px solid #111155; background-color: #e2e2ff; }
