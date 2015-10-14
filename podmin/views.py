@@ -203,7 +203,10 @@ def edit_episode(request, eid, slug):
                 episode.image_type = request.FILES['buffer_image'].content_type
             except:
                 pass
-
+            try:
+                episode.mime_type = request.FILES['buffer_audio'].content_type
+            except:
+                pass
             episode.save()
 
             episode.process_images()
@@ -251,6 +254,11 @@ def new_episode(request, slug):
                 episode.image_type = request.FILES['buffer_image'].content_type
             except:
                 pass
+            try:
+                episode.mime_type = request.FILES['buffer_audio'].content_type
+            except:
+                pass
+
             episode.save()
 
             episode.post_process()
