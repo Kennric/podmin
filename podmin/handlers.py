@@ -79,15 +79,18 @@ def podcast_post_delete(sender, **kwargs):
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
-    media_path = path.join(
+    pub_image_path = path.join(
         settings.MEDIA_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
-    buffer_path = path.join(
+    buffer_image_path = path.join(
         settings.BUFFER_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
-    image_name, ext = path.splitext(path.basename(
+    buffer_image_name, ext = path.splitext(path.basename(
+        kwargs['instance'].buffer_image.name))
+
+    pub_image_name, ext = path.splitext(path.basename(
         kwargs['instance'].buffer_image.name))
 
     try:
@@ -103,7 +106,7 @@ def episode_post_delete(sender, **kwargs):
         pass
 
     try:
-        image_glob = buffer_path + image_name + '*' + ext
+        image_glob = buffer_image_path + buffer_image_name + '*' + ext
         for image in glob.iglob(image_glob):
             remove(image)
     except:
@@ -111,7 +114,7 @@ def episode_post_delete(sender, **kwargs):
         pass
 
     try:
-        image_glob = media_path + image_name + '*' + ext
+        image_glob = pub_image_path + pub_image_name + '*' + ext
         for image in glob.iglob(image_glob):
             remove(image)
     except:
