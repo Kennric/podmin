@@ -25,15 +25,16 @@
     {% endif %}
   </div>
   <div class="nine columns">
-    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
-    <h3>{{podcast.subtitle}}</h3>
-
-    {% if editor or user.is_superuser %}
+      {% if editor or user.is_superuser %}
     <div class="podcast-controls">
       <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
       <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
       </div>
     {% endif %}
+    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
+    <h3>{{podcast.subtitle}}</h3>
+
+
 
 
     <!--
