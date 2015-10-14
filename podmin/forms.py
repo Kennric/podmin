@@ -61,7 +61,7 @@ class EpisodeForm(BetterModelForm):
         widget=TextInput(attrs={'class': 'input', 'type': 'text'}))
 
     active = ChoiceField(
-        label='Publish Now',
+        label='Ready to Publish?',
         widget=Select(attrs={'class': 'input inline'}),
         choices=BOOLEAN_CHOICES,
         initial=BOOLEAN_CHOICES[0][0],
