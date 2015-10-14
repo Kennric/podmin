@@ -75,13 +75,16 @@ def podcast_post_delete(sender, **kwargs):
         # TODO handle this
         print(err)
 
+
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
-    media_path = path.join(settings.MEDIA_ROOT,
+    media_path = path.join(
+        settings.MEDIA_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
-    buffer_path = path.join(settings.BUFFER_ROOT,
+    buffer_path = path.join(
+        settings.BUFFER_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
     image_name, ext = path.splitext(path.basename(
