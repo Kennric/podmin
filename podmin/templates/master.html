@@ -36,7 +36,7 @@
                 {% if user.is_authenticated %}
                   <li><a href="/logout">Logout</a></li>
                 {% else %}
-                  <li><a href="/login">Log In</a></li>
+                  <li><a href="/login?next={{request.path}}">Log In</a></li>
                 {% endif %}
               </ul>
             </div>

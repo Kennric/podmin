@@ -410,7 +410,7 @@ def login_user(request):
         state = "Logged out successfully!"
 
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('/'))
+        return HttpResponseRedirect(reverse(next))
 
     return render(request, 'auth.html', {
         'state': state, 'username': username, 'next': next, 'title': 'Log In'})
