@@ -10,16 +10,20 @@ rss/itunes link buttons
 
 more logging
 
+footer
+
+better login
+
+proper delete confirmation (delets all episodes)
+
+archive old eps (remove/archive files, mark archived)
+
 Next
 ----
 
 implement user registration
 
 put refactor on github
-
-proper delete confirmation (delets all episodes)
-
-archive old eps (remove/archive files, mark archived)
 
 REST api
 
@@ -30,7 +34,7 @@ guest pictures/profile
 
 choose static or dynamic feed
 
-feed file verificationlogging
+feed file verification
 
 user profiles
 
