@@ -9,9 +9,10 @@ from django.conf import settings
 from models import Podcast, Episode
 from util import image_sizer
 
-# util stuff
+# python stuff
 from shutil import rmtree
-from os import path
+from os import path, remove
+import glob
 
 # signal catcher, post save for podcast, create groups with
 # permissions as defined in GROUP_PERMS
@@ -67,25 +68,54 @@ def podcast_post_delete(sender, **kwargs):
         rmtree(media_dir)
     except IOError as err:
         # TODO handle this
-        pass
+        print(err)
     try:
         rmtree(buffer_dir)
     except IOError as err:
         # TODO handle this
-        pass
+        print(err)
 
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
-    pass
-    """
-    TODO: delete crap
-    if path.isfile(media_dir):
-        rmtree(media_dir)
+    media_path = path.join(settings.MEDIA_ROOT,
+        kwargs['instance'].podcast.slug)
 
-    if path.isdir(buffer_dir):
-        rmtree(buffer_dir)
-    """
+    buffer_path = path.join(settings.BUFFER_ROOT,
+        kwargs['instance'].podcast.slug)
+
+    image_name, ext = path.splitext(path.basename(
+        kwargs['instance'].buffer_image.name))
+
+    try:
+        remove(kwargs['instance'].buffer_audio.path)
+    except:
+        # TODO handle this
+        pass
+
+    try:
+        remove(kwargs['instance'].audio.path)
+    except:
+        # TODO handle this
+        pass
+
+    try:
+        image_glob = buffer_path + image_name + '*' + ext
+        for image in glob.iglob(image_glob):
+            remove(image)
+    except:
+        # TODO handle this
+        pass
+
+    try:
+        image_glob = media_path + image_name + '*' + ext
+        for image in glob.iglob(image_glob):
+            remove(image)
+    except:
+        # TODO handle this
+        pass
+
 
 post_save.connect(podcast_post_save, sender=Podcast)
 post_delete.connect(podcast_post_delete, sender=Podcast)
+post_delete.connect(episode_post_delete, sender=Episode)
