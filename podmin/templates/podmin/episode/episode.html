@@ -48,8 +48,9 @@
         <h4>{{ episode.subtitle }}</h4>
         {% endif %}
         <span class="small">{{ episode.pub_date}}</span>
-        <br>
+
         {% if editor or user.is_superuser %}
+        <div class="control-links">
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
           {% if not episode.published %}
           <a href="{% url 'episode_publish' slug=episode.podcast.slug eid=episode.id %}">Publish</a> |
@@ -58,6 +59,7 @@
           <a href="{% url 'episode_depublish' slug=episode.podcast.slug eid=episode.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=episode.podcast.slug eid=episode.id %}">Remove</a>
+          </div>
         {% endif %}
         </center>
         </div>

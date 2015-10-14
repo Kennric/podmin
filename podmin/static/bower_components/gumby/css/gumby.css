@@ -1738,8 +1738,8 @@ fieldset legend { font-size: 26px; }
 
 .episode-tools { width: 484px; margin: 0 auto; }
 
-.redshift { background-color: #ffeeee; }
+.redshift { background-color: #fff5f5; }
 
-.blueshift { background-color: #eeeeff; }
+.blueshift { background-color: #f5f5ff; }
 
-.podcast-controls { float: right; }
+.control-links { float: right; }

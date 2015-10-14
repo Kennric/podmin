@@ -26,7 +26,7 @@
   </div>
   <div class="nine columns">
       {% if editor or user.is_superuser %}
-    <div class="podcast-controls">
+    <div class="control-links">
       <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
       <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
       </div>
