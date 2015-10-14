@@ -34,9 +34,7 @@ def user_role_check(req, slug):
 
 def index(request):
     """
-    front page view: display news, new episodes, featured
-    episodes, contact links, etc
-    login link
+    front page view
     """
 
     podcasts = Podcast.objects.all()
@@ -47,8 +45,6 @@ def index(request):
 def podcasts(request):
     """
     all podcasts
-    list of all podcasts, brief description, feed links
-    brief stats
 
     """
 
@@ -132,12 +128,6 @@ def edit_podcast(request, slug):
 
 @login_required
 def new_podcast(request):
-    """
-    new podcast
-    make a new one
-
-    """
-
     form = PodcastForm()
     if request.method == 'POST':
         form = PodcastForm(request.POST, request.FILES)
@@ -173,7 +163,13 @@ def delete_podcast(request, slug):
         return render(request, 'podmin/site/denied.html', {'message': message})
 
     podcast = get_object_or_404(Podcast, slug=slug)
-    podcast.delete()
+    if request.method == 'POST':
+        if request.POST.get('confirmed', False)
+            podcast.delete()
+        else:
+            return render(request, 'podmin/podcast/delete.html',
+                          {'podcast': podcast})
+
     return HttpResponseRedirect(reverse('index'))
 
 
