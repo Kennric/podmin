@@ -167,7 +167,7 @@ def delete_podcast(request, slug):
         if request.POST.get('confirmed', False):
             podcast.delete()
         else:
-            return render(request, 'podmin/podcast/delete.html',
+            return render(request, 'podmin/podcast/podcast_delete.html',
                           {'podcast': podcast})
 
     return HttpResponseRedirect(reverse('index'))
