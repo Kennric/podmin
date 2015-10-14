@@ -1736,7 +1736,7 @@ fieldset legend { font-size: 26px; }
 
 .player_container { display: inline-block; }
 
-.episode-tools { width: 484px; margin: 0 auto; }
+.episode-tools { width: 484px; vertical-align: 2px; }
 
 .redshift { background-color: #fff5f5; }
 
