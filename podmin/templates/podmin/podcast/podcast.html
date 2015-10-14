@@ -41,9 +41,14 @@
     <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Homepage">
       <span class="large"><i class="icon-globe"></i></span>
     </a>
-    <a href="{{ podcast.feed_url }}" target=new class="ttip" data-tooltip="Subscribe">
+    <a href="{{ podcast.feed_url }}" target=new class="ttip" data-tooltip="Subscribe RSS">
       <span class="large"><i class="icon-rss"></i></span>
     </a>
+    {% if podcast.itunes_url %}
+    <a href="{{ podcast.itunes_url }}" target=new class="ttip" data-tooltip="iTunes">
+      <span class="large"><i class="icon-note-beamed"></i></span>
+    </a>
+    {% endif %}
     </div>
   </div>
 </div>
