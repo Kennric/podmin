@@ -276,14 +276,21 @@ def delete_episode(request, eid, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not manager and not user.is_superuser:
-        message = "I'm sorry %s, I'm afraid I can't let you delete episode %s" % (
+        message = "I'm sorry {0}, I'm afraid I can't let you delete episode {1}".format(
             user, eid)
 
         return render(request, 'podmin/site/denied.html', {'message': message})
 
     episode = get_object_or_404(Episode, id=eid)
-    episode.delete()
-    return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
+
+    if request.method == 'POST':
+        if request.POST.get('confirmed', False):
+            episode.delete()
+            return HttpResponseRedirect(reverse('podcast_show',
+                                                kwargs={'slug': slug}))
+
+    return render(request, 'podmin/episode/episode_delete.html',
+                          {'episode': episode   })
 
 
 @login_required
