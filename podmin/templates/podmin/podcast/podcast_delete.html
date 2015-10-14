@@ -18,9 +18,9 @@
     <h3 class=danger>All associated audio and image files will be permanently deleted</h3>
     <h4>This cannot be undone</h4>
     <form method="post" action="{% url 'podcast_delete' slug=podcast.slug %}">
-    <input type="hidden" value="confirmed">
+    <input type="hidden" name="confirmed" value="true">
     {% csrf_token %}
-    <input class="large danger btn" type="submit" value="Yes" />
+    <input class="large warning btn" type="submit" value="DELETE">
     </form>
     </center>
     </div>

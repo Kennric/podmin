@@ -166,6 +166,7 @@ def delete_podcast(request, slug):
 
     if request.method == 'POST':
         if request.POST.get('confirmed', False):
+
             podcast.delete()
             return HttpResponseRedirect(reverse('index'))
 
