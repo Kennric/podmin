@@ -164,7 +164,7 @@ def delete_podcast(request, slug):
 
     podcast = get_object_or_404(Podcast, slug=slug)
     if request.method == 'POST':
-        if request.POST.get('confirmed', False)
+        if request.POST.get('confirmed', False):
             podcast.delete()
         else:
             return render(request, 'podmin/podcast/delete.html',
