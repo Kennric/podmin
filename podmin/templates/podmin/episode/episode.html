@@ -42,13 +42,6 @@
 
     <div class="nine columns" id="episode-head">
         <div id="episode-info">
-        <center>
-        <h3>{{ episode.title }}</h3>
-        {% if episode.subtitle %}
-        <h4>{{ episode.subtitle }}</h4>
-        {% endif %}
-        <span class="small">{{ episode.pub_date}}</span>
-
         {% if editor or user.is_superuser %}
         <div class="control-links">
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
@@ -59,36 +52,35 @@
           <a href="{% url 'episode_depublish' slug=episode.podcast.slug eid=episode.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=episode.podcast.slug eid=episode.id %}">Remove</a>
-          </div>
+        </div>
         {% endif %}
-        </center>
+        <h3>{{ episode.title }}</h3>
+        {% if episode.subtitle %}
+        <h4>{{ episode.subtitle }}</h4>
+        {% endif %}
+        <span class="small">{{ episode.pub_date}}</span>
         </div>
         <br>
 
         <div class="episode-tools">
-            <a href="#" title="Info" class="ttip"
-                data-tooltip='{{episode.length}} {{episode.size}} bytes {{episode.mime_type}}'>
-                <span class="large">
-                    <i class="icon-info-circled"></i>
-                </span>
-            </a>
-
             <div class="player_container">
                 {% if episode.audio %}
                 <audio src="{{ episode.audio_url }}" class="mejs-player"></audio>
                 {% else %}
                 <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-player" type="{{ episode.mime_type }}"></audio>
-
-
                 {% endif %}
-
             </div>
-
             <a href="{{ episode.audio_url }}" target=new class="ttip"
                 data-tooltip="Download {{ episode.audio_filename }}">
                 <span class="large">
                <i class="icon-download"></i>
                </span>
+            </a>
+            <a href="#" title="Info" class="ttip"
+                data-tooltip='{{episode.length}} {{episode.size}} bytes {{episode.mime_type}}'>
+                <span class="large">
+                    <i class="icon-info-circled"></i>
+                </span>
             </a>
         </div>
     </div>
