@@ -27,11 +27,15 @@
   <div class="nine columns">
     <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
     <h3>{{podcast.subtitle}}</h3>
+
     {% if editor or user.is_superuser %}
+    <div class="podcast-controls">
       <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
       <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
+      </div>
     {% endif %}
-    <br>
+
+
     <!--
     {% for category in podcast.itunes_categories.all %}
       <span class="small">{{ category }}</span><br>
@@ -105,8 +109,8 @@
       {% endif %}
     </div>
   </div>
-  
-  
+
+
   {% endfor %}
   {% if episodes.paginator.num_pages > 1 %}
   <div class="row">
