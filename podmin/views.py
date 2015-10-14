@@ -163,14 +163,14 @@ def delete_podcast(request, slug):
         return render(request, 'podmin/site/denied.html', {'message': message})
 
     podcast = get_object_or_404(Podcast, slug=slug)
+
     if request.method == 'POST':
         if request.POST.get('confirmed', False):
             podcast.delete()
-        else:
-            return render(request, 'podmin/podcast/podcast_delete.html',
-                          {'podcast': podcast})
+            return HttpResponseRedirect(reverse('index'))
 
-    return HttpResponseRedirect(reverse('index'))
+    return render(request, 'podmin/podcast/podcast_delete.html',
+                          {'podcast': podcast})
 
 
 def episode(request, eid, slug):
