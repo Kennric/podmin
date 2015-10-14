@@ -733,7 +733,7 @@ class Episode(models.Model):
             self.published = datetime.now()
 
         """
-        We assume that if you call this method, you want to publish now, 
+        We assume that if you call this method, you want to publish now,
         not matter what. If pub_date is in the future, we need to
         set the pub_date to now to maintain rss validity.
         """

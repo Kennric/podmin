@@ -7,7 +7,7 @@ from django.conf import settings
 
 # podmin app stuff
 from models import Podcast, Episode
-from util import podcast_audio, image_sizer
+from util import image_sizer
 
 # util stuff
 from shutil import rmtree
@@ -57,23 +57,22 @@ def podcast_post_delete(sender, **kwargs):
             content_type=content_type)
         p.delete()
 
-    """ Danger! don't delete things we didn't create!
+    # Danger! don't delete things we didn't create!
 
-    media_dir = kwargs['instance'].storage_dir
-    buffer_dir = kwargs['instance'].buffer_dir
-    pub_dir = kwargs['instance'].pub_dir
+    media_dir = path.join(settings.MEDIA_ROOT, kwargs['instance'].slug)
 
-    if path.isdir(media_dir):
+    buffer_dir = path.join(settings.BUFFER_ROOT, kwargs['instance'].slug)
+
+    try:
         rmtree(media_dir)
-
-    if path.isdir(buffer_dir):
+    except IOError as err:
+        # TODO handle this
+        pass
+    try:
         rmtree(buffer_dir)
-
-    if path.isdir(pub_dir):
-        rmtree(pub_dir)
-
-    """
-
+    except IOError as err:
+        # TODO handle this
+        pass
 
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
