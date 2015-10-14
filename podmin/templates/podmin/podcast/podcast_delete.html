@@ -16,10 +16,11 @@
     <center>
     <h2>Delete {{ podcast.title }}?</h2>
     <h3 class=danger>All associated audio and image files will be permanently deleted</h3>
-    <h4>This cannon be undone</h4>
+    <h4>This cannot be undone</h4>
     <form method="post" action="{% url 'podcast_delete' slug=podcast.slug %}">
     <input type="hidden" value="confirmed">
-    <input class="danger btn" type="submit" value="Yes" />
+    {% csrf_token %}
+    <input class="large danger btn" type="submit" value="Yes" />
     </form>
     </center>
     </div>
