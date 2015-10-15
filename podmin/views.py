@@ -91,7 +91,8 @@ def podcast(request, slug):
         episodes = paginator.page(paginator.num_pages)
 
     return render(request, 'podmin/podcast/podcast.html',
-                  {'podcast': podcast, 'episodes': episodes})
+                  {'podcast': podcast, 'episodes': episodes,
+                  'editor': editor})
 
 
 @login_required
