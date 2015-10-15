@@ -6,31 +6,39 @@ TODO
 Now
 ---
 
-rss/itunes link buttons
-
 more logging
 
 footer
 
-better login
-
-proper delete confirmation (delets all episodes)
+better login template
 
 archive old eps (remove/archive files, mark archived)
 
-proper perm checking
+more sophisticated perm checking
+
+pep8, docstrings
+
 
 Next
 ----
+
+mobile layout
+
+edit for podcast metadata (editor access to description)
+
+edit for episode metadata (editor access to show notes)
+
+wysiwyg editor for show notes (links, bullets, h4, em, p)
 
 implement user registration
 
 put refactor on github
 
-REST api
 
 Eventually
 ----------
+
+REST api
 
 guest pictures/profile
 
@@ -45,8 +53,6 @@ docs
 help text/popups/form help
 
 feedburner, itunes, etc support
-
-pep8, docstrings
 
 tests
 
