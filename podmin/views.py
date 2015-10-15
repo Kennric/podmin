@@ -208,7 +208,7 @@ def edit_episode(request, eid, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
-        if not manager or editor:
+        if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you edit episode
                          {1}""".format(user, eid)
 
@@ -260,7 +260,7 @@ def new_episode(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
-        if not manager or editor:
+        if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you create an
                          episode for {1}""".format(user, slug)
 
@@ -307,7 +307,7 @@ def delete_episode(request, eid, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
     if not user.is_superuser:
-        if not manager or editor:
+        if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you delete
                          episode {1}""".format(user, eid)
 
@@ -332,7 +332,7 @@ def depublish_episode(request, eid, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
-        if not manager or editor:
+        if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you depublish
                          episode {1}""".format(user, eid)
 
@@ -353,7 +353,7 @@ def publish_episode(request, eid, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
-        if not manager or editor:
+        if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you publish
                          episode {1}""".format(user, eid)
 
