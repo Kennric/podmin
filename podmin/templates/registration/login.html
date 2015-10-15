@@ -10,9 +10,33 @@
             {% endif %}
 
             <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
-            {% csrf_token %}
-            {{ form.username.label_tag }} {{ form.username }}<br>
-            {{ form.password.label_tag }} {{ form.password }}
+              {% csrf_token %}
+          <ul>
+            <div  class="required">
+              <li  class="required">
+                <div class="field">
+                  <div class="three columns">
+                    <label for="id_username">Username:</label>
+                  </div>
+                  <div class="nine columns">
+                    <input type="text" class="input" name="username" /> 
+                  </div>
+                </div>
+              </li>
+            </div>
+
+            <div  class="required">
+              <li  class="required">
+                <div class="field">
+                  <div class="three columns">
+                    <label for="id_username">Password</label>
+                  </div>
+                  <div class="nine columns">
+                    <input type="text" class="input" name="password" /> 
+                  </div>
+                </div>
+              </li>
+            </div>
             <input type="submit" value="login" />
             <input type="hidden" name="next" value="{{ next }}" />
             </form>

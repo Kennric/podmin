@@ -14,8 +14,6 @@ better login template
 
 archive old eps (remove/archive files, mark archived)
 
-more sophisticated perm checking
-
 pep8, docstrings
 
 
