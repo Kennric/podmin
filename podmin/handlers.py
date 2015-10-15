@@ -14,6 +14,7 @@ from shutil import rmtree
 from os import path, remove
 import glob
 
+
 # signal catcher, post save for podcast, create groups with
 # permissions as defined in GROUP_PERMS
 @receiver(post_save, sender=Podcast)
@@ -39,6 +40,7 @@ def podcast_post_save(sender, **kwargs):
     # now resize the podcast cover art for web, itunes and rss
     if path.isfile(kwargs['instance'].image.path):
         image_sizer.make_image_sizes(kwargs['instance'].image.path)
+
 
 # signal catcher, post delete for podcast:
 # delete all the associated groups and perms
@@ -87,17 +89,11 @@ def episode_post_delete(sender, **kwargs):
         settings.BUFFER_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
-    print(buffer_image_path)
-
-
     buffer_image_name, ext = path.splitext(path.basename(
         kwargs['instance'].buffer_image.name))
 
     pub_image_name, ext = path.splitext(path.basename(
         kwargs['instance'].image.name))
-
-    print(buffer_image_name)
-
 
     try:
         remove(kwargs['instance'].buffer_audio.path)
@@ -114,17 +110,15 @@ def episode_post_delete(sender, **kwargs):
     try:
         image_glob = "{0}/{1}*{2}".format(buffer_image_path,
                                           buffer_image_name, ext)
-
         for image in glob.iglob(image_glob):
-            print(image)
             remove(image)
-
     except:
         # TODO handle this
         pass
 
     try:
-        image_glob = pub_image_path + pub_image_name + '*' + ext
+        image_glob = "{0}/{1}*{2}".format(pub_image_path,
+                                          pub_image_name, ext)
         for image in glob.iglob(image_glob):
             remove(image)
     except:

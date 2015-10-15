@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.files import File
 from django.core.servers.basehttp import FileWrapper
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template import RequestContext
 
 # podmin app stuff
 from models import Podcast, Episode
@@ -47,9 +48,11 @@ def podcasts(request):
 
     """
 
+    request_context = RequestContext(request)
+    request_context.push({"my_name": "Adrian"})
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/site/podcasts.html', context)
+    return render(request, 'podmin/site/podcasts.html', context, request_context)
 
 
 def home(request):
