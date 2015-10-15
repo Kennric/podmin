@@ -1752,4 +1752,6 @@ fieldset legend { font-size: 26px; }
 
 .navbar ul { float: right; }
 
+.dropdown { right: 0px; }
+
 .dropdown ul { float: left; }
