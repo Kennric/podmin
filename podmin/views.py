@@ -31,7 +31,6 @@ def user_role_check(req, slug):
 
     return (user, manager, editor, webmaster)
 
-
 def index(request):
     """
     front page view
@@ -53,6 +52,7 @@ def podcasts(request):
     return render(request, 'podmin/site/podcasts.html', context)
 
 
+
 def home(request):
     """
     my podcasts
@@ -62,8 +62,15 @@ def home(request):
       action links - edit, promote, etc
     redirect here from login view
     """
+    slug_list = []
+    for group in request.user.groups:
+        slug_list.append(group.name.split('_')[0])
 
-    pass
+    slugs = set(slug_list)
+
+    podcasts = Podcast.objects.filter(slug__in=slugs)
+
+    return render(request, 'podmin/site/index.html', {'podcasts': podcasts})
 
 
 def podcast(request, slug):
@@ -92,7 +99,7 @@ def podcast(request, slug):
 
     return render(request, 'podmin/podcast/podcast.html',
                   {'podcast': podcast, 'episodes': episodes,
-                  'editor': editor})
+                   'manager': manager, 'editor': editor, 'webmaster': webmaster})
 
 
 @login_required
@@ -179,9 +186,13 @@ def episode(request, eid, slug):
     """
     view episode
     """
+    user, manager, editor, webmaster = user_role_check(request, slug)
+
     episode = get_object_or_404(Episode, pk=eid)
 
-    return render(request, 'podmin/episode/episode.html', {'episode': episode})
+    return render(request, 'podmin/episode/episode.html',
+                  {'episode': episode, 'manager': manager, 'editor': editor,
+                  'webmaster': webmaster})
 
 
 @login_required
