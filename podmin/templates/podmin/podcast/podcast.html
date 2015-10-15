@@ -18,13 +18,13 @@
     </div>
 </div>
 <!-- Block with the podcast image and description -->
-<div class="row">
+<div class="row top-box">
   <div class="three columns">
     {% if podcast.image %}
     <img src="{{podcast.medium_image}}" alt="podcast image">
     {% endif %}
   </div>
-  <div class="nine columns top-box">
+  <div class="nine columns">
       {% if editor or user.is_superuser %}
     <div class="control-links">
       <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
