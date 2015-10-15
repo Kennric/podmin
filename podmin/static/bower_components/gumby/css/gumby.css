@@ -1751,3 +1751,5 @@ fieldset legend { font-size: 26px; }
 #title-row { border-bottom: 1px solid #4a4d50; }
 
 .navbar ul { float: right; }
+
+.dropdown ul { float: left; }
