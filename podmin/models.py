@@ -288,10 +288,6 @@ class Podcast(models.Model):
                 pass
 
         super(Podcast, self).save(*args, **kwargs)
-        
-        # we've saved the podcast, possibly inccluding changes that
-        # should be reflected in the theme, so let's publish
-        self.publish()
 
     def publish(self):
         self.publish_episodes()

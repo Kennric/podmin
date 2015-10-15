@@ -41,7 +41,6 @@ def podcast_post_save(sender, **kwargs):
     if path.isfile(kwargs['instance'].image.path):
         image_sizer.make_image_sizes(kwargs['instance'].image.path)
 
-
 # signal catcher, post delete for podcast:
 # delete all the associated groups and perms
 @receiver(post_delete, sender=Podcast)

@@ -107,8 +107,8 @@ def edit_podcast(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not manager and not user.is_superuser:
-        message = "I'm sorry %s, I'm afraid I can't let you edit %s" % (user,
-                                                                        slug)
+        message = """I'm sorry {0}, I'm afraid I can't let you 
+                     edit {1}""".format(user, slug)
 
         return render(request, 'podmin/site/denied.html', {'message': message})
 
@@ -117,6 +117,7 @@ def edit_podcast(request, slug):
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
             podcast = form.save()
+            podcast.publish()
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
 
