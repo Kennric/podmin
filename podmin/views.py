@@ -1,7 +1,7 @@
 # django stuff
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
-#from django.contrib import messages
+# from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -32,11 +32,11 @@ def user_role_check(req, slug):
 
     return (user, manager, editor, webmaster)
 
+
 def index(request):
     """
     front page view
     """
-
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
     return render(request, 'podmin/site/index.html', context)
@@ -47,15 +47,10 @@ def podcasts(request):
     all podcasts
 
     """
+    podcasts = Podcast.objects.all()
 
     request_context = RequestContext(request)
-
-    podcasts = Podcast.objects.all()
-    request_context.push({"my_name": "Adrian", 'podcasts': podcasts})
-
-    context = {'podcasts': podcasts}
-
-    print(request_context)
+    request_context.push({'podcasts': podcasts})
 
     return render(request, 'podmin/site/podcasts.html', request_context)
 
@@ -69,7 +64,10 @@ def home(request):
 
     podcasts = Podcast.objects.filter(slug__in=slugs)
 
-    return render(request, 'podmin/site/podcasts.html', {'podcasts': podcasts})
+    request_context = RequestContext(request)
+    request_context.push({'podcasts': podcasts})
+
+    return render(request, 'podmin/site/podcasts.html', request_context)
 
 
 def podcast(request, slug):
@@ -96,9 +94,10 @@ def podcast(request, slug):
         # If page is out of range (e.g. 9999), deliver last page of results.
         episodes = paginator.page(paginator.num_pages)
 
-    return render(request, 'podmin/podcast/podcast.html',
-                  {'podcast': podcast, 'episodes': episodes,
-                   'manager': manager, 'editor': editor, 'webmaster': webmaster})
+    request_context = RequestContext(request)
+    request_context.push({'podcast': podcast, 'episodes': episodes})
+
+    return render(request, 'podmin/podcast/podcast.html', request_context)
 
 
 @login_required
@@ -125,9 +124,6 @@ def edit_podcast(request, slug):
 
     context = {'form': form,
                'slug': slug,
-               'manager': manager,
-               'editor': editor,
-               'webmaster': webmaster,
                'podcast': podcast}
 
     return render(request, 'podmin/podcast/podcast_edit.html', context)
@@ -135,6 +131,12 @@ def edit_podcast(request, slug):
 
 @login_required
 def new_podcast(request):
+    if not request.user.is_superuser:
+        message = """I'm sorry {0} I'm afraid I can't let you create a
+                     podcast.""".format(request.user)
+
+        return render(request, 'podmin/site/denied.html', {'message': message})
+
     form = PodcastForm()
     if request.method == 'POST':
         form = PodcastForm(request.POST, request.FILES)
@@ -151,6 +153,7 @@ def new_podcast(request):
                     image = File(f)
                     podcast.image.save("default_podcast.png", image, save=True)
                 pass
+
             podcast.save()
 
             return HttpResponseRedirect(reverse(
@@ -178,7 +181,7 @@ def delete_podcast(request, slug):
             return HttpResponseRedirect(reverse('index'))
 
     return render(request, 'podmin/podcast/podcast_delete.html',
-                          {'podcast': podcast})
+                  {'podcast': podcast})
 
 
 def episode(request, eid, slug):
@@ -189,15 +192,25 @@ def episode(request, eid, slug):
 
     episode = get_object_or_404(Episode, pk=eid)
 
-    return render(request, 'podmin/episode/episode.html',
-                  {'episode': episode, 'manager': manager, 'editor': editor,
-                  'webmaster': webmaster})
+    request_context = RequestContext(request)
+    request_context.push({'episode': episode, 'manager': manager,
+                          'editor': editor, 'webmaster': webmaster})
+
+    return render(request, 'podmin/episode/episode.html', request_context)
 
 
 @login_required
 def edit_episode(request, eid, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
+
+    if not user.is_superuser:
+        if not manager or editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you edit episode
+                         {1}""".format(user, eid)
+
+            return render(request,
+                          'podmin/site/denied.html', {'message': message})
 
     episode = Episode.objects.get(pk=eid)
 
@@ -243,12 +256,17 @@ def new_episode(request, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
 
+    if not user.is_superuser:
+        if not manager or editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you create an
+                         episode for {1}""".format(user, slug)
+
+            return render(request,
+                          'podmin/site/denied.html', {'message': message})
+
     podcast = get_object_or_404(Podcast, slug=slug)
 
     guid = "%s%s" % (slug, time.time())
-
-    # get the next episode number for this podcast
-    # episode_number = podcast.episode_set.latest().number + 1
 
     form = EpisodeForm(initial={'guid': guid})
 
@@ -285,12 +303,13 @@ def new_episode(request, slug):
 def delete_episode(request, eid, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
+    if not user.is_superuser:
+        if not manager or editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you delete
+                         episode {1}""".format(user, eid)
 
-    if not manager and not user.is_superuser:
-        message = "I'm sorry {0}, I'm afraid I can't let you delete episode {1}".format(
-            user, eid)
-
-        return render(request, 'podmin/site/denied.html', {'message': message})
+            return render(request, 'podmin/site/denied.html',
+                          {'message': message})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -301,7 +320,7 @@ def delete_episode(request, eid, slug):
                                                 kwargs={'slug': slug}))
 
     return render(request, 'podmin/episode/episode_delete.html',
-                          {'episode': episode   })
+                  {'episode': episode})
 
 
 @login_required
@@ -309,11 +328,13 @@ def depublish_episode(request, eid, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
 
-    if not manager and not user.is_superuser:
-        message = "I'm sorry %s, I'm afraid I can't let you depublish episode %s" % (
-            user, eid)
+    if not user.is_superuser:
+        if not manager or editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you depublish
+                         episode {1}""".format(user, eid)
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+            return render(request, 'podmin/site/denied.html',
+                          {'message': message})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -328,11 +349,13 @@ def publish_episode(request, eid, slug):
 
     user, manager, editor, webmaster = user_role_check(request, slug)
 
-    if not manager and not user.is_superuser:
-        message = "I'm sorry %s, I'm afraid I can't let you depublish episode %s" % (
-            user, eid)
+    if not user.is_superuser:
+        if not manager or editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you publish
+                         episode {1}""".format(user, eid)
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+            return render(request, 'podmin/site/denied.html',
+                          {'message': message})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -343,16 +366,18 @@ def publish_episode(request, eid, slug):
 
 
 def podmin_info(request):
-
-    return render(request, 'podmin/site/about.html',
-                  {'static_dir': '/static/podcast/site'})
+    request_context = RequestContext(request)
+    request_context.push({'static_dir': '/static/podcast/site'})
+    return render(request, 'podmin/site/about.html', request_context)
 
 
 def audio_buffer(request, eid, slug):
 
-    #Send a file through Django without loading the whole file into
-    #memory at once. The FileWrapper will turn the file object into an
-    #iterator for chunks of 8KB.
+    """
+    Send a file through Django without loading the whole file into
+    memory at once. The FileWrapper will turn the file object into an
+    iterator for chunks of 8KB.
+    """
 
     episode = get_object_or_404(Episode, id=eid)
     filepath = episode.buffer_audio.path
@@ -363,17 +388,18 @@ def audio_buffer(request, eid, slug):
 
     response = HttpResponse(wrapper, content_type=content_type)
     response['Content-Length'] = os.path.getsize(filepath)
-    response['Content-Disposition'] = "attachment; filename={0}".format(filename)
+    response['Content-Disposition'] = "attachment; filename={0}".format(
+        filename)
 
     return response
 
 
 def image_buffer(request, eid, slug, size):
-
-    #Send a file through Django without loading the whole file into
-    #memory at once. The FileWrapper will turn the file object into an
-    #iterator for chunks of 8KB.
-
+    """
+    Send a file through Django without loading the whole file into
+    memory at once. The FileWrapper will turn the file object into an
+    iterator for chunks of 8KB.
+    """
     episode = get_object_or_404(Episode, id=eid)
 
     path, filename = os.path.split(episode.buffer_image.path)
