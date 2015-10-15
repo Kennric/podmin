@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row top-box">
     <div class="three columns">
     {% if episode.image or episode.buffer_image %}
         {% if episode.image %}
@@ -41,7 +41,7 @@
     </div>
 
     <div class="nine columns" id="episode-head">
-        <div id="top-box">
+        <div>
         {% if editor or user.is_superuser %}
         <div class="control-links">
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
