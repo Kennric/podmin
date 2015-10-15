@@ -49,8 +49,10 @@ def podcasts(request):
     """
 
     request_context = RequestContext(request)
-    request_context.push({"my_name": "Adrian", 'podcasts': podcasts})
+
     podcasts = Podcast.objects.all()
+    request_context.push({"my_name": "Adrian", 'podcasts': podcasts})
+
     context = {'podcasts': podcasts}
 
     print(request_context)
