@@ -70,7 +70,7 @@ fieldset legend {
 
 .large {
     font-size: $large;
-    vertical-align: 2px;
+    vertical-align: 3px;
 }
 
 .page-container {
@@ -85,6 +85,8 @@ fieldset legend {
 
 .episode-tools {
   width: 484px;
+  position: fixed;
+  bottom: 0;
 }
 
 .redshift {
@@ -97,4 +99,13 @@ fieldset legend {
 
 .control-links {
   float: right;
+}
+
+.top-box {
+  position: relative;
+}
+
+.bottom-sticky {
+  position: fixed;
+  bottom: 0;
 }

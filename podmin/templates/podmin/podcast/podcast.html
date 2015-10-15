@@ -24,7 +24,7 @@
     <img src="{{podcast.medium_image}}" alt="podcast image">
     {% endif %}
   </div>
-  <div class="nine columns">
+  <div class="nine columns top-box">
       {% if editor or user.is_superuser %}
     <div class="control-links">
       <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
@@ -33,16 +33,7 @@
     {% endif %}
     <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
     <h3>{{podcast.subtitle}}</h3>
-
-
-
-
-    <!--
-    {% for category in podcast.itunes_categories.all %}
-      <span class="small">{{ category }}</span><br>
-    {% endfor %}
-    -->
-    <div class="podcast-icons-box">
+    <div id="toolbox" class="bottom-sticky">
     <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Homepage">
       <span class="large"><i class="icon-globe"></i></span>
     </a>
