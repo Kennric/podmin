@@ -95,7 +95,9 @@ def podcast(request, slug):
         episodes = paginator.page(paginator.num_pages)
 
     request_context = RequestContext(request)
-    request_context.push({'podcast': podcast, 'episodes': episodes})
+    request_context.push({'podcast': podcast, 'episodes': episodes, 
+                          'manager': manager, 'editor': editor,
+                          'webmaster': webmaster})
 
     return render(request, 'podmin/podcast/podcast.html', request_context)
 

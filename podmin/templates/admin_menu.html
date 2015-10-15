@@ -8,12 +8,12 @@
       <li><a href="/new">Add Podcast</a></li>
       {% endif %}
       {% if podcast %}
-        {% if editor or user.is_superuser %}
+        {% if manager or user.is_superuser %}
         <li><a href="/{{ podcast.slug }}/edit">Edit Podcast</a></li>
         {% endif %}
       {% endif %}
       {% if podcast %}
-        {% if editor or user.is_superuser %}
+        {% if editor or manager or user.is_superuser %}
         <li><a href="/{{ podcast.slug }}/new">Add Episode</a></li>
         {% endif %}
       {% endif %}
