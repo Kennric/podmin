@@ -52,16 +52,7 @@ def podcasts(request):
     return render(request, 'podmin/site/podcasts.html', context)
 
 
-
 def home(request):
-    """
-    my podcasts
-    display all the podcasts owned by the current logged in
-    user (or all for admin)
-    if owner/admin
-      action links - edit, promote, etc
-    redirect here from login view
-    """
     slug_list = []
     for group in request.user.groups.all():
         slug_list.append(group.name.split('_')[0])
@@ -70,7 +61,7 @@ def home(request):
 
     podcasts = Podcast.objects.filter(slug__in=slugs)
 
-    return render(request, 'podmin/site/index.html', {'podcasts': podcasts})
+    return render(request, 'podmin/site/podcasts.html', {'podcasts': podcasts})
 
 
 def podcast(request, slug):
