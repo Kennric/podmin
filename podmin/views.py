@@ -456,7 +456,7 @@ def login_user(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse(next))
 
-    return render(request, 'auth.html', {
+    return render(request, 'registration/login.html', {
         'state': state, 'username': username, 'next': next, 'title': 'Log In'})
 
 

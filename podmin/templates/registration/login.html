@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "podmin/base.html" %}
 
 {% block content %}
 
@@ -9,7 +9,7 @@
             <p>Your username and password didn't match. Please try again.</p>
             {% endif %}
 
-            <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+            <form method="post" action="{% url 'login' %}">
               {% csrf_token %}
           <ul>
             <div  class="required">
@@ -32,13 +32,13 @@
                     <label for="id_username">Password</label>
                   </div>
                   <div class="nine columns">
-                    <input type="text" class="input" name="password" /> 
+                    <input type="password" class="input" name="password" /> 
                   </div>
                 </div>
               </li>
             </div>
             <input type="submit" value="login" />
-            <input type="hidden" name="next" value="{{ next }}" />
+            <input type="hidden" name="next" value="{{ next|default:'/home' }}" />
             </form>
         </center>
     </div>
