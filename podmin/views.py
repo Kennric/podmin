@@ -63,7 +63,7 @@ def home(request):
     redirect here from login view
     """
     slug_list = []
-    for group in request.user.groups:
+    for group in request.user.groups.all():
         slug_list.append(group.name.split('_')[0])
 
     slugs = set(slug_list)
