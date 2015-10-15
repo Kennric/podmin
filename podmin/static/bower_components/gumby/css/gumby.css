@@ -1741,7 +1741,7 @@ fieldset legend { font-size: 26px; }
 
 .control-links { float: right; }
 
-.top-box { position: relative; min-height: 228; }
+.top-box { position: relative; min-height: 228px; }
 
 .bottom-sticky { position: absolute; bottom: 0; }
 
