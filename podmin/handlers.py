@@ -112,7 +112,9 @@ def episode_post_delete(sender, **kwargs):
         pass
 
     try:
-        image_glob = buffer_image_path + buffer_image_name + '*' + ext
+        image_glob = "{0}/{1}*{2}".format(buffer_image_path,
+                                          buffer_image_name, ext)
+
         for image in glob.iglob(image_glob):
             print(image)
             remove(image)
