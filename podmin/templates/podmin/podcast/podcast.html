@@ -84,12 +84,8 @@
     {% endif %}
     </div>
     <div class="ten columns">
-      <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}"><h4>{{ e.title }}</h4></a>
-      {% if e.subtitle %}
-      {{ e.subtitle }}<br>
-      {% endif %}
-      <span class="small">{{ e.pub_date }}</span><br>
-      {% if editor or user.is_superuser %}
+      <div class="control-links">
+        {% if editor or user.is_superuser %}
           {% if e.published %}
           <span class="secondary label">Published</span>
           {% else %}
@@ -97,7 +93,14 @@
           {% if not e.active %}
           <span class="danger label">Inactive</span>
           {% endif %}
-          {% endif %}
+        {% endif %}
+      </div>
+      <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}"><h4>{{ e.title }}</h4></a>
+      {% if e.subtitle %}
+      {{ e.subtitle }}<br>
+      {% endif %}
+      <span class="small">{{ e.pub_date }}</span><br>
+
 
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.published %}

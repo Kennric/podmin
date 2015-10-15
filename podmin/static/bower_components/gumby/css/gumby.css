@@ -1738,9 +1738,9 @@ fieldset legend { font-size: 26px; }
 
 .episode-tools { width: 484px; position: fixed; bottom: 0; }
 
-.redshift { background-color: #fff5f5; }
+.redshift { background-color: #ffdddd; }
 
-.blueshift { background-color: #f5f5ff; }
+.blueshift { background-color: #ddddff; }
 
 .control-links { float: right; }
 
