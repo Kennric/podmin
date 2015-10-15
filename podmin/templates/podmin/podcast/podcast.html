@@ -84,8 +84,8 @@
     {% endif %}
     </div>
     <div class="ten columns">
+      <div class="control-links">
       {% if editor or user.is_superuser %}
-        <div class="control-links">
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.published %}
           <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
@@ -94,8 +94,8 @@
           <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>
-        </div>
       {% endif %}
+      </div>
 
       <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}"><h4>{{ e.title }}</h4></a>
       {% if e.subtitle %}
@@ -104,16 +104,15 @@
       <span class="small">{{ e.pub_date }}</span><br>
 
       {% if editor or user.is_superuser %}
-          {% if e.published %}
+        {% if e.published %}
           <span class="secondary label">Published</span>
-          {% else %}
+        {% else %}
           <span class="primary label">Not Published</span>
           {% if not e.active %}
           <span class="danger label">Inactive</span>
           {% endif %}
+        {% endif %}
       {% endif %}
-
-
 
     </div>
   </div>
