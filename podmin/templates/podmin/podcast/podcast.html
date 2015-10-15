@@ -93,8 +93,12 @@
           {% if e.published %}
           <span class="secondary label">Published</span>
           {% else %}
-          <span class="info label">Inactive</span>
+          <span class="primary label">Not Published</span>
+          {% if not e.active %}
+          <span class="important label">Inactive</span>
           {% endif %}
+          {% endif %}
+
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.published %}
           <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
