@@ -1746,4 +1746,4 @@ fieldset legend { font-size: 26px; }
 
 .top-box { position: relative; }
 
-.bottom-sticky { position: fixed; bottom: 0; }
+.bottom-sticky { position: absolute; bottom: 0; }

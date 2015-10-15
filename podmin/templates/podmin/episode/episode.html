@@ -41,7 +41,7 @@
     </div>
 
     <div class="nine columns" id="episode-head">
-        <div id="episode-info">
+        <div id="top-box">
         {% if editor or user.is_superuser %}
         <div class="control-links">
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
