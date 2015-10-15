@@ -1750,4 +1750,4 @@ fieldset legend { font-size: 26px; }
 
 #title-row { border-bottom: 1px solid #4a4d50; }
 
-.right { float: right; }
+.navbar ul { float: right; }
