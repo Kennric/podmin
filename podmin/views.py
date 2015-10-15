@@ -49,10 +49,13 @@ def podcasts(request):
     """
 
     request_context = RequestContext(request)
-    request_context.push({"my_name": "Adrian"})
+    request_context.push({"my_name": "Adrian", 'podcasts': podcasts})
     podcasts = Podcast.objects.all()
     context = {'podcasts': podcasts}
-    return render(request, 'podmin/site/podcasts.html', context, request_context)
+
+    print(request_context)
+
+    return render(request, 'podmin/site/podcasts.html', request_context)
 
 
 def home(request):
