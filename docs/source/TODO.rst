@@ -18,6 +18,8 @@ proper delete confirmation (delets all episodes)
 
 archive old eps (remove/archive files, mark archived)
 
+proper perm checking
+
 Next
 ----
 

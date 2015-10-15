@@ -87,11 +87,17 @@ def episode_post_delete(sender, **kwargs):
         settings.BUFFER_ROOT,
         kwargs['instance'].podcast.slug, "img")
 
+    print(buffer_image_path)
+
+
     buffer_image_name, ext = path.splitext(path.basename(
         kwargs['instance'].buffer_image.name))
 
     pub_image_name, ext = path.splitext(path.basename(
-        kwargs['instance'].buffer_image.name))
+        kwargs['instance'].image.name))
+
+    print(buffer_image_name)
+
 
     try:
         remove(kwargs['instance'].buffer_audio.path)
@@ -108,7 +114,9 @@ def episode_post_delete(sender, **kwargs):
     try:
         image_glob = buffer_image_path + buffer_image_name + '*' + ext
         for image in glob.iglob(image_glob):
+            print(image)
             remove(image)
+
     except:
         # TODO handle this
         pass
