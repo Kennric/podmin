@@ -10,8 +10,6 @@ more logging
 
 footer
 
-better login template
-
 archive old eps (remove/archive files, mark archived)
 
 pep8, docstrings
@@ -55,8 +53,6 @@ feedburner, itunes, etc support
 tests
 
 memcache?
-
-better guid?
 
 video podcast support
 
