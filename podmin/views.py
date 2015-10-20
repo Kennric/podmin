@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 def user_role_check(req, slug):
+    """
+    Check what roles the user has relative to a particular podcast
+    """
     user = req.user
 
     manager = user.groups.filter(name="%s_managers" % slug).exists()
@@ -56,6 +59,9 @@ def podcasts(request):
 
 
 def home(request):
+    """
+    List podcasts for which the user has some role
+    """
     slug_list = []
     for group in request.user.groups.all():
         slug_list.append(group.name.split('_')[0])
@@ -71,6 +77,9 @@ def home(request):
 
 
 def podcast(request, slug):
+    """
+    Main page for a specific podcast
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     podcast = get_object_or_404(Podcast, slug=slug)
@@ -104,6 +113,9 @@ def podcast(request, slug):
 
 @login_required
 def edit_podcast(request, slug):
+    """
+    Edit a specific podcast
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not manager and not user.is_superuser:
@@ -125,15 +137,16 @@ def edit_podcast(request, slug):
 
     form.fields['slug'].widget.attrs['readonly'] = True
 
-    context = {'form': form,
-               'slug': slug,
-               'podcast': podcast}
+    context = {'form': form, 'slug': slug, 'podcast': podcast}
 
     return render(request, 'podmin/podcast/podcast_edit.html', context)
 
 
 @login_required
 def new_podcast(request):
+    """
+    Create a new podcast
+    """
     if not request.user.is_superuser:
         message = """I'm sorry {0} I'm afraid I can't let you create a
                      podcast.""".format(request.user)
@@ -169,10 +182,14 @@ def new_podcast(request):
 
 @login_required
 def delete_podcast(request, slug):
+    """
+    Delete a podcast. The post-delete handler will delete all the associated 
+    files.
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
     if not manager and not user.is_superuser:
-        message = "I'm sorry %s, I'm afraid I can't let you delete %s" % (user,
-                                                                          slug)
+        message = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
+            user, slug)
         return render(request, 'podmin/site/denied.html', {'message': message})
 
     podcast = get_object_or_404(Podcast, slug=slug)
@@ -189,7 +206,7 @@ def delete_podcast(request, slug):
 
 def episode(request, eid, slug):
     """
-    view episode
+    View a specific episode
     """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
@@ -204,7 +221,9 @@ def episode(request, eid, slug):
 
 @login_required
 def edit_episode(request, eid, slug):
-
+    """
+    Edit an episode
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
@@ -256,6 +275,9 @@ def edit_episode(request, eid, slug):
 
 @login_required
 def new_episode(request, slug):
+    """
+    Create a new episode
+    """
 
     user, manager, editor, webmaster = user_role_check(request, slug)
 
@@ -304,8 +326,11 @@ def new_episode(request, slug):
 
 @login_required
 def delete_episode(request, eid, slug):
-
+    """
+    Delete an episode
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
+    # TODO: use if True in () here instead
     if not user.is_superuser:
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you delete
@@ -328,7 +353,10 @@ def delete_episode(request, eid, slug):
 
 @login_required
 def depublish_episode(request, eid, slug):
-
+    """
+    Move an episodes files back into the buffer, and take the episode
+    out of the feed
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
@@ -349,7 +377,10 @@ def depublish_episode(request, eid, slug):
 
 @login_required
 def publish_episode(request, eid, slug):
-
+    """
+    Move an existing episode's files from the buffer back into production
+    and add the episode back to the feed
+    """
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not user.is_superuser:
@@ -375,7 +406,6 @@ def podmin_info(request):
 
 
 def audio_buffer(request, eid, slug):
-
     """
     Send a file through Django without loading the whole file into
     memory at once. The FileWrapper will turn the file object into an
@@ -418,16 +448,8 @@ def image_buffer(request, eid, slug, size):
 
 def login_user(request):
     """
-    */login*
-
-    This view will display a login page if GET'd, or attempt login if POST'd.
-    If the GET parameter logout is set, it will change the message on the page
-    to indicate a successful logout.
-
-    If a user is already logged in and tries to access this page, they will be
-    redirected to /entry.
+    Log a user in, or display the login form 
     """
-
     state = "Please log in."
     username = password = ''
     if request.POST:
@@ -461,5 +483,8 @@ def login_user(request):
 
 
 def logout_user(request):
+    """
+    Log a user out
+    """
     logout(request)
     return HttpResponseRedirect('{}?logout=true'.format(reverse('login')))

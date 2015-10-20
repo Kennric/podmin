@@ -246,10 +246,10 @@ class Podcast(models.Model):
         """
 
         if not self.pub_url:
-            self.pub_url = "%s%s" % (settings.MEDIA_URL, self.slug)
+            self.pub_url = "{0}{1}".format((settings.MEDIA_URL, self.slug))
 
         if not self.storage_url:
-            self.storage_url = "%s%s" % (settings.MEDIA_URL, self.slug)
+            self.storage_url = "{0}{1}".format((settings.MEDIA_URL, self.slug))
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
@@ -259,32 +259,33 @@ class Podcast(models.Model):
         """
         make sure pub dirs exist
         """
+        error_msg = "{0}: Directory creation error: {1}"
         if not os.path.isdir(image_pub_dir):
             try:
                 os.makedirs(image_pub_dir)
             except OSError as err:
-                logger.error(err)
+                logger.error(error_msg.format(self.slug, err))
                 pass
 
         if not os.path.isdir(audio_pub_dir):
             try:
                 os.makedirs(audio_pub_dir)
             except OSError as err:
-                logger.error(err)
+                logger.error(error_msg.format(self.slug, err))
                 pass
 
         if not os.path.isdir(image_buffer_dir):
             try:
                 os.makedirs(image_buffer_dir)
             except OSError as err:
-                logger.error(err)
+                logger.error(error_msg.format(self.slug, err))
                 pass
 
         if not os.path.isdir(audio_buffer_dir):
             try:
                 os.makedirs(audio_buffer_dir)
             except OSError as err:
-                logger.error(err)
+                logger.error(error_msg.format(self.slug, err))
                 pass
 
         super(Podcast, self).save(*args, **kwargs)
@@ -330,13 +331,13 @@ class Podcast(models.Model):
 
         feed_file = os.path.join(settings.MEDIA_ROOT, self.slug, feed_filename)
 
-        logger.info("Writing {0} feed to {1}".format(self.slug, feed_file))
+        logger.info("{0}: writing feed to {1}".format(self.slug, feed_file))
         try:
             f = open(feed_file, 'w')
             f.write(feed_content)
             f.close
         except IOError as err:
-            logger.error(err)
+            logger.error("{0}: feed writing error: {1}".format)self.slug, err))
 
 
         self.published = datetime.now()
@@ -354,6 +355,7 @@ class Podcast(models.Model):
         episodes = self.episode_set.filter(pub_date__lte=expired_date,
                                            active=True)
         for episode in episodes:
+            logger.info("{0}: expiring episodes".format(self.slug))
             episode.depublish()
 
     def publish_from_files(self):
@@ -362,39 +364,41 @@ class Podcast(models.Model):
         them if found
         """
 
-        logger.info("Updating {0} from files".format(self.slug))
+        logger.info("{0}: updating from files".format(self.slug))
         # if the up_dir is not set, what are we even doing here?
         if not self.up_dir:
-            logger.error("up_dir for {0} not set!".format(self.slug))
+            logger.error("{0}: failed: up_dir not set".format(self.slug))
             return False
 
         # if the up_dir isn't a directory, this is going nowhere
         if not os.path.isdir(self.up_dir):
-            logger.error("up_dir for {0} not a dir!".format(self.slug))
+            logger.error("{0}: failed: up_dir not a dir".format(self.slug))
             return False
 
         try:
             importer = FileImporter(self)
         except:
-            logger.error("File importer failed to init!")
+            logger.error("{0}: importer failed to init".format(self.slug))
             return False
 
         status = importer.scan()
 
         if not status:
-            logger.info("No new files for {0}.".format(self.slug))
+            logger.info("{0}: no new files".format(self.slug))
             return False
 
         try:
             new_files = importer.fetch()
         except:
-            logger.error("Couldn't fetch new files for {0}".format(self.slug))
+            logger.error(
+                    "{0}: failed: couldn't fetch new files".format(self.slug))
             return False
 
         try:
             new_files = importer.clean()
         except:
-            logger.error("Couldn't clean new files for {0}".format(self.slug))
+            logger.error(
+                    "{0}: failed: couldn't clean new files".format(self.slug))
             return False
 
         if self.combine_segments:
@@ -402,7 +406,7 @@ class Podcast(models.Model):
                 new_files = importer.combine()
             except:
                 logger.error(
-                    "Couldn't combine segments for {0}".format(self.slug))
+                    "{0}: failed: couldn't combine segments".format(self.slug))
                 return False
 
         try:
@@ -444,7 +448,7 @@ class Podcast(models.Model):
                                        "audio",
                                        new_filename)
 
-            logger.info("creating new episode for {0}.".format(self.slug))
+            logger.info("{0}: creating new episode".format(self.slug))
 
             ep.size = os.path.getsize(new_file['path'])
 
@@ -457,7 +461,7 @@ class Podcast(models.Model):
 
             ep.save()
 
-            logger.info("Episode created for {0}: \n{1}\n{2}".format(
+            logger.info("{0}: Episode created: \n{1}\n{2}".format(
                 self.slug, ep.title, ep.buffer_audio))
 
             ep.post_process()
@@ -654,8 +658,9 @@ class Episode(models.Model):
         files to be in the buffer dir but should happen as soon as
         possible after saving the episode
         """
-        logger.info("{0}: post-processing episode {1}".format(self.podcast,
-            self.slug))
+        logger.info(
+            "{0}: post-processing episode {1}".format(self.podcast.slug
+                self.slug))
 
         self.process_images()
 
@@ -670,8 +675,6 @@ class Episode(models.Model):
         should happen here, before the episode is published and the files
         get moved out to the world.
         """
-
-
         if self.buffer_audio:
             tagged = False
 
@@ -681,28 +684,25 @@ class Episode(models.Model):
 
             try:
                 audio = PodcastAudio(self.buffer_audio.path)
-
                 if self.podcast.tag_audio:
                     tagged = audio.tag_audio(self)
 
             except Exception as err:
                 logger.info("{0}: error tagging: {1}".format(self.podcast,
                     err))
-
-                # TODO handle this error
-                pass
+                return False
 
         # no new audio, but is there a new image?
         if self.buffer_image:
-
             # do we need to tag it, or did we get it already?
             if not tagged:
                 try:
                     audio = PodcastAudio(self.audio.path)
                     audio.tag_audio(self)
-                except:
-                    pass
-
+                except Exception as err:
+                    logger.info("{0}: error tagging: {1}".format(self.podcast,
+                        err))
+                    return False
         return True
 
     def process_images(self):
@@ -719,12 +719,8 @@ class Episode(models.Model):
         move files from the buffer location back into production, make this
         episode available for inclusion in the podcast feed
         """
-
-
-        """
-        Set the published date, but only if this episode is newly published
-        or updated
-        """
+        logger.info(
+            "{0}: publishing episode {1}".format(self.podcast.slug, self.slug))
 
         if self.published and self.updated <= self.published:
             # This episode is already published, and hasn't been updated since
@@ -737,7 +733,6 @@ class Episode(models.Model):
         not matter what. If pub_date is in the future, we need to
         set the pub_date to now to maintain rss validity.
         """
-
         if self.pub_date > datetime.now():
             self.pub_date = datetime.now()
 
@@ -746,9 +741,7 @@ class Episode(models.Model):
         We're only working with buffered files here, if the buffer
         fields are empty, we have nothing to do
         """
-
         if self.buffer_audio:
-
             audio_source = self.buffer_audio.path
             audio_dest = os.path.join(settings.MEDIA_ROOT,
                                       self.buffer_audio.name)
@@ -760,8 +753,9 @@ class Episode(models.Model):
             try:
                 shutil.move(audio_source, audio_dest)
             except IOError as err:
-                # TODO handle this error
-                logger.error(err)
+                logger.error("{0}: publish failed for {1}: {2}".format(
+                    self.podcast.slug, self.slug, err))
+                return False
 
             self.audio = self.buffer_audio
             self.buffer_audio = None
@@ -786,8 +780,9 @@ class Episode(models.Model):
                 for image in glob.iglob(image_glob):
                     shutil.move(image, image_dest + os.path.basename(image))
             except:
-                # TODO handle this
-                pass
+                logger.error("{0}: publish failed for {1}: {2}".format(
+                    self.podcast.slug, self.slug, err))
+                return False
 
             self.image = self.buffer_image
             self.buffer_image = None
@@ -805,8 +800,10 @@ class Episode(models.Model):
         move files from published location back into the buffer, make this
         episode unavailabe for inclusion in the podcast feed
         """
-        if self.audio:
+        logger.info("{0}: depublishing episode {1}".format(
+            self.podcast.slug, self.slug))
 
+        if self.audio:
             audio_source = self.audio.path
             audio_dest = os.path.join(settings.BUFFER_ROOT,
                                       self.audio.name)
@@ -814,8 +811,9 @@ class Episode(models.Model):
             try:
                 shutil.move(audio_source, audio_dest)
             except IOError as err:
-                # TODO handle this error
-                logger.error(err)
+                logger.error("{0}: depublish failed for {1}: {2}".format(
+                    self.podcast.slug, self.slug, err))
+                return False
 
             self.buffer_audio = self.audio
             self.audio = None
@@ -831,17 +829,17 @@ class Episode(models.Model):
                                       os.path.dirname(self.image.name),
                                       "")
 
-            # if there is an image in the buffer, copy it at all its
-            # associated resized versions to the storage dir using
+            # if there is an image in production, copy it and all its
+            # associated resized versions back to the buffer dir using
             # glob
-
             try:
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
                     shutil.move(image, image_dest + os.path.basename(image))
             except:
-                # TODO handle this
-                pass
+                logger.error("{0}: depublish failed for {1}: {2}".format(
+                    self.podcast.slug, self.slug, err))
+                return False
 
             self.buffer_image = self.image
             self.image = None
@@ -853,7 +851,6 @@ class Episode(models.Model):
         self.save()
 
         return True
-
 
     def transform_filename(self, filename):
         if not self.podcast.rename_files:
@@ -878,7 +875,7 @@ class Episode(models.Model):
         new = "{0}{1}".format(
             self.podcast.file_rename_format.format(**attributes), ext)
 
-        logger.info("{0}, episode {1}: saving {2} as {3}".format(
+        logger.info("{0}: episode {1}: saving {2} as {3}".format(
             self.podcast.slug, self.number, old, new))
 
         return new
