@@ -337,7 +337,7 @@ class Podcast(models.Model):
             f.write(feed_content)
             f.close
         except IOError as err:
-            logger.error("{0}: feed writing error: {1}".format)self.slug, err))
+            logger.error("{0}: feed writing error: {1}".format(self.slug, err))
 
 
         self.published = datetime.now()
