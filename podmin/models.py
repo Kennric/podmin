@@ -659,7 +659,7 @@ class Episode(models.Model):
         possible after saving the episode
         """
         logger.info(
-            "{0}: post-processing episode {1}".format(self.podcast.slug
+            "{0}: post-processing episode {1}".format(self.podcast.slug,
                 self.slug))
 
         self.process_images()
