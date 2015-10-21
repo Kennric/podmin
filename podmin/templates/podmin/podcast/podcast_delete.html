@@ -1,0 +1,33 @@
+{% extends "podmin/site/base.html" %}
+{% load static from staticfiles %}
+{% block externals %}
+
+<script src="{% static 'bower_components/mediaelement/build/mediaelement-and-player.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/mediaelementplayer.css' %}" />
+
+{% endblock %}
+
+{% block title %}{{ podcast.title }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="twelve columns">
+    <center>
+    <h2>Delete {{ podcast.title }}?</h2>
+    <h3 class=danger>All associated audio and image files will be permanently deleted</h3>
+    <h4>This cannot be undone</h4>
+    <form method="post" action="{% url 'podcast_delete' slug=podcast.slug %}">
+    <input type="hidden" name="confirmed" value="true">
+    {% csrf_token %}
+    <input class="large warning btn" type="submit" value="DELETE">
+    </form>
+    </center>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footscripts %}
+
+{% endblock %}

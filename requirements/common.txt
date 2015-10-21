@@ -1,0 +1,12 @@
+Django
+Pillow
+PyRSS2Gen
+django-autoslug
+django-form-utils
+feedparser
+mutagen
+mysql-python
+sphinx
+requests
+psycopg2
+python-magic

@@ -1,0 +1,85 @@
+{% extends "podmin/admin_base.html" %}
+
+{% load podmin_tags %}
+
+{% block content %}
+
+{% if form.non_field_errors %}
+    {{ form.non_field_errors }}
+{% endif %}
+
+<div class="row">
+    <div class="twelve columns">
+    {% if episode %}
+        <h2>Edit {{episode.podcast.title}} episode {{episode.id}}</h2>
+        {% if episode.published %}
+            This episode was published on {{episode.published|date}} at {{episode.published|time}}
+        {% else %}
+            This episode is not published.
+        {% endif %}
+        <form action="/{{episode.podcast.slug}}/{{episode.id}}/edit/" method="post" enctype="multipart/form-data">
+    {% else %}
+        <h2>New episode for {{podcast.title}}</h2>
+        <form action="/{{podcast.slug}}/new/" method="post" enctype="multipart/form-data">
+    {% endif %}
+
+    {% csrf_token %}
+    {% for fieldset in form.fieldsets %}
+      <fieldset class="{{ fieldset.classes }}" id="{{ fieldset.name }}">
+      {% if fieldset.legend %}
+
+        <legend><a href="#" class="toggle" gumby-trigger="#{{ fieldset.name }}">{{ fieldset.legend }}</a></legend>
+      {% endif %}
+      {% if fieldset.description %}
+        <p class="description">{{ fieldset.description }}</p>
+      {% endif %}
+      <ul>
+      {% for field in fieldset %}
+        {% if field.is_hidden %}
+          {{ field }}
+        {% else %}
+            <div {{ field.row_attrs }}>
+          <li {{ field.row_attrs }}>
+            <div class="field">
+            <div class="three columns">
+            {{ field.errors }}
+            {{ field.label_tag }}
+            <span class="helptext">{{ field.help_text }}</span>
+            </div>
+            <div class="nine columns">
+            {{ field }}
+            {% if field.name == 'buffer_image' and episode.small_image %}
+                <img class="thumb" src="{{ episode.small_image }}">
+            {% endif %}
+            {% if field.name == 'buffer_audio' %}
+                <span class="helptext">
+                <em>Current Audio file: {{ episode.audio_filename|filename }}</em>
+                </span>
+            {% endif %}
+            </div>
+            </div>
+
+          </div>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      </fieldset>
+    {% endfor %}
+
+    <div class="medium info btn">
+        <input type="submit" value="Submit" />
+    </div>
+    </form>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footscripts %}
+<script type='text/javascript'>
+  jQuery('#id_pub_date').datetimepicker({
+      format:'Y-m-d H:i:s'
+      });
+</script>
+{% endblock %}

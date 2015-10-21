@@ -1,0 +1,72 @@
+{% extends "podmin/admin_base.html" %}
+
+{% load static from staticfiles %}
+{% load podmin_tags %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="twelve columns">
+    {% if slug %}
+        <h2>Edit {{podcast.title}}</h2>
+        <form action="{% url 'podcast_edit' slug=slug %}" method="post" enctype="multipart/form-data">
+    {% else %}
+        <h2>New podcast</h2>
+        <form action="{% url 'podcast_new' %}" method="post" enctype="multipart/form-data">
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        {{ form.non_field_errors }}
+    {% endif %}
+
+    {% csrf_token %}
+    {% for fieldset in form.fieldsets %}
+      <fieldset class="{{ fieldset.classes }}" id="{{ fieldset.name }}">
+      {% if fieldset.legend %}
+        <legend><a href="#" class="toggle" gumby-trigger="#{{ fieldset.name }}">{{ fieldset.legend }}</a></legend>
+      {% endif %}
+      {% if fieldset.description %}
+        <p class="description">{{ fieldset.description }}</p>
+      {% endif %}
+      <ul>
+      {% for field in fieldset %}
+        {% if field.is_hidden %}
+          {{ field }}
+        {% else %}
+        <div {{ field.row_attrs }}>
+          <li {{ field.row_attrs }}>
+            <div class="field">
+            <div class="three columns">
+            <span class="error">{{ field.errors }}</span>
+            {{ field.label_tag }}
+            <span class="helptext">{{ field.help_text }}</span>
+            </div>
+            <div class="nine columns">
+            {{ field }}
+            {% if field.name == 'image' and podcast.small_image %}
+                <img class="thumb" src="{{ podcast.small_image }}">
+            {% endif %}
+            </div>
+            </div>
+
+          </div>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      </fieldset>
+    {% endfor %}
+
+    <div class="medium info btn">
+        <input type="submit" value="Submit" />
+    </div>
+    </form>
+
+  </div>
+</div>
+
+<script type="text/javascript" charset="utf-8" >
+$('.slug').slugify('#id_title');
+</script>
+
+{% endblock %}

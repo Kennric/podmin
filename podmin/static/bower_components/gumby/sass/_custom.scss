@@ -1,0 +1,116 @@
+// Your custom SCSS should be written here...
+
+input, .input {
+  @each $width in $field-sizes {
+    &.#{nth($width, 1)} {
+      @include input-size(#{nth($width, 1)});
+      margin:0;
+      &:last-child {
+        margin-left: 0;
+      }
+      &:first-child {
+        margin-right: 3.94%;
+        margin-left: 0;
+      }
+      &:first-child:last-child {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.field .taller {
+    height: 160px;
+}
+
+.field label {
+  margin-bottom: 0px;
+}
+
+span.helptext {
+    font-size: $small;
+    font-style: $font-style-italic;
+    color: $info-color;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+fieldset.drawer {
+    background-color: $global-bg-color;
+    box-shadow: 0 0 0;
+    padding-top: 12px;
+    padding-bottom: 0px;
+    line-height: 1em;
+}
+
+fieldset.drawer.active {
+    padding: 1.5625em;
+    max-height: none;
+}
+
+.field img {
+  margin: 10px;
+}
+
+fieldset legend {
+  font-size: $large;
+}
+
+//.field input:-moz-read-only { /* For Firefox */
+//    background-color: $horizontal-rule-color;
+//}
+
+//.field input:read-only {
+//    background-color: $horizontal-rule-color;
+//}
+
+.field input[readonly] {
+    background-color: #eee;
+}
+
+.large {
+    font-size: $large;
+    vertical-align: 3px;
+}
+
+.page-container {
+  border-top: 1px solid $info-color;
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+.player_container {
+  display: inline-block;
+}
+
+.episode-tools {
+  width: 484px;
+  position: fixed;
+  bottom: 0;
+}
+
+.redshift {
+  background-color: #ffeeee;
+}
+
+.blueshift {
+  background-color: #eeeeff;
+}
+
+.control-links {
+  float: right;
+}
+
+.top-box {
+  position: relative;
+  min-height: 228px;
+}
+
+.bottom-sticky {
+  position: absolute;
+  bottom: 0;
+}
+
+#title-row {
+  border-bottom: 1px solid $info-color;
+}

@@ -1,0 +1,133 @@
+{% extends "podmin/site/base.html" %}
+{% load static from staticfiles %}
+{% load paginator %}
+{% block externals %}
+{% endblock %}
+{% block title %}{{ podcast.title }}{% endblock %}
+{% block podcast_subtitle %}{{ podcast.subtitle }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="twelve columns">
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    </div>
+</div>
+<!-- Block with the podcast image and description -->
+<div class="row top-box">
+  <div class="three columns">
+    {% if podcast.image %}
+    <img src="{{podcast.medium_image}}" alt="podcast image">
+    {% endif %}
+  </div>
+  <div class="nine columns">
+      {% if editor or user.is_superuser %}
+    <div class="control-links">
+      <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
+      <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
+      </div>
+    {% endif %}
+    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
+    <h3>{{podcast.subtitle}}</h3>
+    <div id="toolbox" class="bottom-sticky">
+    <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Homepage">
+      <span class="large"><i class="icon-globe"></i></span>
+    </a>
+    <a href="{{ podcast.feed_url }}" target=new class="ttip" data-tooltip="Subscribe RSS">
+      <span class="large"><i class="icon-rss"></i></span>
+    </a>
+    {% if podcast.itunes_url %}
+    <a href="{{ podcast.itunes_url }}" target=new class="ttip" data-tooltip="iTunes">
+      <span class="large"><i class="icon-note-beamed"></i></span>
+    </a>
+    {% endif %}
+    </div>
+  </div>
+</div>
+<div class="row page-container">
+    {% if podcast.description %}
+    <div class="row">
+        <div class="twelve columns">
+        <p>{{ podcast.description | linebreaks }}</p>
+        </div>
+    </div>
+    {% endif %}
+  <div class="row">
+    <div class="twelve columns">
+      <h3>Episodes</h3>
+    </div>
+  </div>
+  {% for e in episodes %}
+
+  {% if e.active and not e.published %}
+  <div class="row blueshift">
+  {% endif %}
+  {% if e.published %}
+  <div class="row">
+  {% endif %}
+  {% if not e.active %}
+  <div class="row redshift">
+  {% endif %}
+    <div class="two columns">
+    {% if e.image or e.buffer_image %}
+        {% if e.image %}
+            <img src="{{e.small_image}}" alt="podcast image">
+        {% else %}
+            <img src="{% url 'image_buffer' slug=podcast.slug eid=e.id size='small' %}" alt="podcast image">
+        {% endif %}
+    {% else %}
+        <img src="{{podcast.small_image}}" alt="podcast image">
+    {% endif %}
+    </div>
+    <div class="ten columns">
+      <div class="control-links">
+      {% if editor or user.is_superuser %}
+          <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
+          {% if not e.published %}
+          <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
+          {% endif %}
+          {% if e.published %}
+          <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
+          {% endif %}
+          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>
+      {% endif %}
+      </div>
+
+      <a href="{% url 'episode_show' slug=e.podcast.slug eid=e.id %}"><h4>{{ e.title }}</h4></a>
+      {% if e.subtitle %}
+      {{ e.subtitle }}<br>
+      {% endif %}
+      <span class="small">{{ e.pub_date }}</span><br>
+
+      {% if editor or user.is_superuser %}
+        {% if e.published %}
+          <span class="secondary label">Published</span>
+        {% else %}
+          <span class="primary label">Not Published</span>
+          {% if not e.active %}
+          <span class="danger label">Inactive</span>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+
+    </div>
+  </div>
+
+
+  {% endfor %}
+  {% if episodes.paginator.num_pages > 1 %}
+  <div class="row">
+    <div class="centered six columns">
+      {% paginator episodes 8 %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block footscripts %}
+{% endblock %}
+

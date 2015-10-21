@@ -1,0 +1,61 @@
+<!--
+<div class="pagination">
+    <span class="step-links">
+
+        {% if page.has_previous %}
+            <a href="?page={{ page.previous_page_number }}"><i class="icon-left-bold"></i></a>
+        {% endif %}
+
+
+
+        [ <a href="?page=1">1</a> <a href="?page={{ page.previous_page_number }}">{{ page.previous_page_number }}</a>
+
+
+
+        <span class="current">
+            {{ page.number }}
+        </span>
+
+
+        <a href="?page={{ page.next_page_number }}">{{ page.next_page_number }}</a>
+
+        <a href="?page={{ page.paginator.num_pages }}">{{ page.paginator.num_pages }}</a> ]
+
+
+        {% if page.has_next %}
+            <a href="?page={{ page.next_page_number }}"><i class="icon-right-bold"></i> </a>
+        {% endif %}
+    </span>
+</div>
+-->
+
+<div class="pager">
+   {% if has_previous %}
+      <span class="page">
+      <a href="?page={{ previous }}"><i class="icon-left-bold"></i></a>
+      </span>
+   {% endif %}
+
+   {% if show_first %}
+      <span class="page"><a href="?page=1">1</a></span>
+      <span class="ellipsis">...</span>
+   {% endif %}
+
+   {% for linkpage in page_numbers %}
+      {% ifequal linkpage page %}
+         <span class="current">{{ page }}</span>
+      {% else %}
+         <span class="page"><a href="?page={{ linkpage }}"
+               >{{ linkpage }}</a></span>
+      {% endifequal %}
+
+   {% endfor %}
+   {% if show_last %}
+      <span class="ellipsis">...</span>
+      <span class="page"><a href="?page={{ pages }}">{{ pages }}</a></span>
+   {% endif %}
+
+   {% if has_next %}
+      <span class="page"><a href="?page={{ next }}"><i class="icon-right-bold"></i></a></span>
+   {% endif %}
+</div>
