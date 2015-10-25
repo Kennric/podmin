@@ -19,7 +19,7 @@ from constants import *
 # python stuff
 import os
 import shutil
-from datetime import datetime, timedelta, date
+from datetime import timedelta
 import glob
 import time
 import logging
@@ -178,9 +178,10 @@ class Podcast(models.Model):
     """
     itunes_url = models.URLField('iTunes Store URL', blank=True)
 
-    file_rename_format = models.CharField('file name pattern', max_length=32,
+    file_rename_format = models.CharField(
+        'file name pattern',
+        max_length=32,
         default="{podcast}_{number:0>2}_{date}")
-
 
     """
     This constant defines the groups and permissions that will be created
@@ -189,7 +190,6 @@ class Podcast(models.Model):
     edit: add and edit episodes
     web: edit show notes, episode picture, etc
     """
-
     GROUP_PERMS = {'managers': 'manage', 'editors': 'edit',
                    'webmasters': 'web', 'all': 'view'}
 
@@ -254,7 +254,8 @@ class Podcast(models.Model):
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
         image_buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug, "img")
-        audio_buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug, "audio")
+        audio_buffer_dir = os.path.join(
+            settings.BUFFER_ROOT, self.slug, "audio")
 
         """
         make sure pub dirs exist
@@ -339,21 +340,19 @@ class Podcast(models.Model):
         except IOError as err:
             logger.error("{0}: feed writing error: {1}".format(self.slug, err))
 
-
         self.published = datetime.now()
 
         self.save()
 
     def expire_episodes(self):
         """
-        Expire old episodes by setting active = False where the pubDate
-        plus the given delta is less than today's date
+        Expire old episodes where the pubDate < today - max age
 
         """
         expired_date = datetime.now() - timedelta(days=self.max_age)
 
-        episodes = self.episode_set.filter(pub_date__lte=expired_date,
-                                           active=True)
+        episodes = self.episode_set.filter(pub_date__lte=expired_date)
+
         for episode in episodes:
             logger.info("{0}: expiring episodes".format(self.slug))
             episode.depublish()
@@ -454,10 +453,7 @@ class Podcast(models.Model):
 
             shutil.copy2(new_file['path'], destination)
 
-
-            ep.buffer_audio = os.path.join(self.slug,
-                                           "audio",
-                                           new_filename)
+            ep.buffer_audio = os.path.join(self.slug, "audio", new_filename)
 
             ep.save()
 
@@ -660,7 +656,7 @@ class Episode(models.Model):
         """
         logger.info(
             "{0}: post-processing episode {1}".format(self.podcast.slug,
-                self.slug))
+                                                      self.slug))
 
         self.process_images()
 
@@ -679,8 +675,7 @@ class Episode(models.Model):
             tagged = False
 
             logger.info("{0}: tagging file {1}".format(self.podcast,
-                self.buffer_audio.name))
-
+                                                       self.buffer_audio.name))
 
             try:
                 audio = PodcastAudio(self.buffer_audio.path)
@@ -688,8 +683,8 @@ class Episode(models.Model):
                     tagged = audio.tag_audio(self)
 
             except Exception as err:
-                logger.info("{0}: error tagging: {1}".format(self.podcast,
-                    err))
+                logger.info(
+                    "{0}: error tagging: {1}".format(self.podcast, err))
                 return False
 
         # no new audio, but is there a new image?
@@ -700,8 +695,8 @@ class Episode(models.Model):
                     audio = PodcastAudio(self.audio.path)
                     audio.tag_audio(self)
                 except Exception as err:
-                    logger.info("{0}: error tagging: {1}".format(self.podcast,
-                        err))
+                    logger.info(
+                        "{0}: error tagging: {1}".format(self.podcast, err))
                     return False
         return True
 
@@ -859,7 +854,6 @@ class Episode(models.Model):
         old, ext = os.path.splitext(filename)
 
         pattern = re.compile(r"\W", re.X)
-
 
         attributes = {'episode': self.slug,
                       'podcast': self.podcast.slug,

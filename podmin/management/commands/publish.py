@@ -11,7 +11,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('slug', type=str, default=None)
 
-
     def handle(self, *args, **options):
 
         if options['slug'] == 'all':
