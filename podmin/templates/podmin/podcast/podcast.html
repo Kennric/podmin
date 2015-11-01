@@ -93,7 +93,8 @@
           {% if e.published %}
           <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
           {% endif %}
-          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>
+          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a> |
+          <a href="{% url 'episode_mothball' slug=podcast.slug eid=e.id %}">Mothball</a>
       {% endif %}
       </div>
 
