@@ -69,9 +69,13 @@
   {% if e.published %}
   <div class="row">
   {% endif %}
-  {% if not e.active %}
+  {% if not e.active and not e.mothballed%}
   <div class="row redshift">
   {% endif %}
+  {% if e.mothballed%}
+  <div class="row greyshift">
+  {% endif %}
+
     <div class="two columns">
     {% if e.image or e.buffer_image %}
         {% if e.image %}
@@ -89,12 +93,15 @@
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.published %}
           <a href="{% url 'episode_publish' slug=podcast.slug eid=e.id %}">Publish</a> |
+          {% if not e.published and not e.active %}
+          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a> |
+          <a href="{% url 'episode_mothball' slug=podcast.slug eid=e.id %}">Mothball</a> |
+          {% endif %}
           {% endif %}
           {% if e.published %}
           <a href="{% url 'episode_depublish' slug=podcast.slug eid=e.id %}">Depublish</a> |
           {% endif %}
-          <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a> |
-          <a href="{% url 'episode_mothball' slug=podcast.slug eid=e.id %}">Mothball</a>
+
       {% endif %}
       </div>
 
@@ -111,6 +118,9 @@
           <span class="primary label">Not Published</span>
           {% if not e.active %}
           <span class="danger label">Inactive</span>
+          {% endif %}
+          {% if e.mothballed %}
+          <span class="info label">Mothballed</span>
           {% endif %}
         {% endif %}
       {% endif %}
