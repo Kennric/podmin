@@ -70,7 +70,7 @@ def podcast_post_delete(sender, **kwargs):
     buffer_dir = path.join(settings.BUFFER_ROOT, kwargs['instance'].slug)
 
     error_msg = "{0}: Directory creation error: {1}"
-    
+
     try:
         rmtree(media_dir)
     except IOError as err:
@@ -86,51 +86,57 @@ def podcast_post_delete(sender, **kwargs):
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
-    pub_image_path = path.join(
-        settings.MEDIA_ROOT,
-        kwargs['instance'].podcast.slug, "img")
 
-    buffer_image_path = path.join(
-        settings.BUFFER_ROOT,
-        kwargs['instance'].podcast.slug, "img")
+    if not kwargs['instance'].mothballed:
+        pub_image_path = path.join(
+            settings.MEDIA_ROOT,
+            kwargs['instance'].podcast.slug, "img")
 
-    buffer_image_name, ext = path.splitext(path.basename(
-        kwargs['instance'].buffer_image.name))
+        buffer_image_path = path.join(
+            settings.BUFFER_ROOT,
+            kwargs['instance'].podcast.slug, "img")
 
-    pub_image_name, ext = path.splitext(path.basename(
-        kwargs['instance'].image.name))
+        buffer_image_name, ext = path.splitext(path.basename(
+            kwargs['instance'].buffer_image.name))
 
-    error_msg = "{0}: File removal error: {1}"
-    
-    try:
-        remove(kwargs['instance'].buffer_audio.path)
-    except OSError as err:
-        logger.error(error_msg.format(kwargs['instance'].podcast.slug, err))
-        return False
+        pub_image_name, ext = path.splitext(path.basename(
+            kwargs['instance'].image.name))
 
-    try:
-        remove(kwargs['instance'].audio.path)
-    except OSError as err:
-        logger.error(error_msg.format(kwargs['instance'].podcast.slug, err))
-        return False
+        error_msg = "{0}: File removal error: {1}"
 
-    try:
-        image_glob = "{0}/{1}*{2}".format(buffer_image_path,
-                                          buffer_image_name, ext)
-        for image in glob.iglob(image_glob):
-            remove(image)
-    except OSError as err:
-        logger.error(error_msg.format(kwargs['instance'].podcast.slug, err))
-        return False
+        try:
+            remove(kwargs['instance'].buffer_audio.path)
+        except OSError as err:
+            logger.error(error_msg.format(kwargs['instance'].podcast.slug,
+                                          err))
+            return False
 
-    try:
-        image_glob = "{0}/{1}*{2}".format(pub_image_path,
-                                          pub_image_name, ext)
-        for image in glob.iglob(image_glob):
-            remove(image)
-    except:
-        logger.error(error_msg.format(kwargs['instance'].podcast.slug, err))
-        return False
+        try:
+            remove(kwargs['instance'].audio.path)
+        except OSError as err:
+            logger.error(error_msg.format(kwargs['instance'].podcast.slug,
+                                          err))
+            return False
+
+        try:
+            image_glob = "{0}/{1}*{2}".format(buffer_image_path,
+                                              buffer_image_name, ext)
+            for image in glob.iglob(image_glob):
+                remove(image)
+        except OSError as err:
+            logger.error(error_msg.format(kwargs['instance'].podcast.slug,
+                                          err))
+            return False
+
+        try:
+            image_glob = "{0}/{1}*{2}".format(pub_image_path,
+                                              pub_image_name, ext)
+            for image in glob.iglob(image_glob):
+                remove(image)
+        except:
+            logger.error(error_msg.format(kwargs['instance'].podcast.slug,
+                                          err))
+            return False
 
 
 post_save.connect(podcast_post_save, sender=Podcast)
