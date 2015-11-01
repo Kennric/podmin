@@ -417,6 +417,12 @@ def mothball_episode(request, eid, slug):
 
     episode = get_object_or_404(Episode, id=eid)
 
+    if episode.active or episode.published:
+        message = """I'm sorry {0}, before you can mothball an episode, it must
+                     be inactive and not published.""".format(user)
+
+        return render(request, 'podmin/site/denied.html', {'message': message})
+
     episode.mothball()
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
