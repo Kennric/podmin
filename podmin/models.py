@@ -951,10 +951,10 @@ class Episode(models.Model):
             return False
 
         # make sure the podcast mothball archive exists
-        if not os.path.isdir(settings.ARCHIVE_DIR):
+        if not os.path.isdir(settings.ARCHIVE_ROOT):
             self.podcast.make_mothball()
 
-        episode_dir = os.path.join(settings.ARCHIVE_DIR, self.podcast.slug,
+        episode_dir = os.path.join(settings.ARCHIVE_ROOT, self.podcast.slug,
                                    "episodes")
 
         episode_filename = "{0}_{1}.json".format(
