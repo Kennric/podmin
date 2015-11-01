@@ -402,8 +402,8 @@ def publish_episode(request, eid, slug):
 @login_required
 def mothball_episode(request, eid, slug):
     """
-    Move an existing episode's files from the buffer back into production
-    and add the episode back to the feed
+    Move an existing episode's files from the buffer into the archive and
+    save its serialized episode object
     """
     user, manager, editor, webmaster = user_role_check(request, slug)
 

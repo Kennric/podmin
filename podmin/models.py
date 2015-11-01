@@ -539,12 +539,11 @@ class Podcast(models.Model):
                 logger.error(error_msg.format(self.slug, err))
             pass
 
-
         # serialize podcast
         podcast_filename = "{0}_{1}.json".format(
             self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
 
-        podcast_file = os.path.join(episode_dir, episode_filename)
+        podcast_file = os.path.join(episode_dir, podcast_filename)
 
         # serialize current data
         podcast = serializers.serialize('json', self)
