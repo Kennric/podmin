@@ -541,7 +541,7 @@ class Podcast(models.Model):
 
         # serialize podcast
         podcast_filename = "{0}_{1}.json".format(
-            self.slug, datetime.strftime(self.pub_date, "%Y%m%d"))
+            self.slug, datetime.strftime(datetime.now, "%Y%m%d"))
 
         podcast_file = os.path.join(mothball_dir, podcast_filename)
 
