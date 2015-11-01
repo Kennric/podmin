@@ -543,7 +543,7 @@ class Podcast(models.Model):
         podcast = serializers.serialize('json', [self])
 
         # save serialized data to mothball_dir
-        with open(podcast_file) as f:
+        with open(podcast_file, 'w+') as f:
             f.write(podcast)
 
         # move files from buffer to mothball_dir
@@ -966,7 +966,7 @@ class Episode(models.Model):
         episode = serializers.serialize('json', [self])
 
         # save serialized data to mothball_dir
-        with open(episode_file) as f:
+        with open(episode_file, 'w+') as f:
             f.write(episode)
 
         # move files from buffer to mothball_dir
