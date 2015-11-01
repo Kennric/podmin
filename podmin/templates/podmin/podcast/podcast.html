@@ -120,7 +120,7 @@
       <span class="small">{{ e.pub_date }}</span><br>
 
       {% if editor or user.is_superuser %}
-
+      {% if not e.mothballed %}
         {% if e.published %}
           <span class="secondary label">Published</span>
         {% else %}
@@ -128,10 +128,10 @@
           {% if not e.active %}
           <span class="danger label">Inactive</span>
           {% endif %}
-          {% if e.mothballed %}
-          <span class="info label">Mothballed</span>
-          {% endif %}
         {% endif %}
+      {% else  %}
+          <span class="info label">Mothballed</span>
+      {% endif %}
       {% endif %}
 
     </div>

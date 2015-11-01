@@ -44,6 +44,7 @@
         <div>
         {% if editor or user.is_superuser %}
         <div class="control-links">
+          {% if not episode.mothballed %}
           <a href="{% url 'episode_edit' slug=episode.podcast.slug eid=episode.id %}">Edit</a> |
           {% if not episode.published %}
           <a href="{% url 'episode_publish' slug=episode.podcast.slug eid=episode.id %}">Publish</a> |
@@ -52,6 +53,7 @@
           <a href="{% url 'episode_depublish' slug=episode.podcast.slug eid=episode.id %}">Depublish</a> |
           {% endif %}
           <a href="{% url 'episode_delete' slug=episode.podcast.slug eid=episode.id %}">Remove</a>
+          {% endif %}
         </div>
         {% endif %}
         <h3>{{ episode.title }}</h3>
@@ -62,6 +64,7 @@
         </div>
         <br>
 
+        {% if not episode.mothballed %}
         <div id="toolbox" class="bottom-sticky">
             <div class="player_container">
                 {% if episode.audio %}
@@ -83,6 +86,9 @@
                 </span>
             </a>
         </div>
+        {% else %}
+        This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
+        {% endif %}
     </div>
 </div>
 
