@@ -1012,3 +1012,4 @@ class Episode(models.Model):
         self.image = None
         self.buffer_audio = None
         self.audio = None
+        self.save()
