@@ -953,13 +953,10 @@ class Episode(models.Model):
 
         # make sure episode is unpublished and inactive
         if self.active or self.published:
-
             return False
 
-        # make sure the podcast mothball archive exists
-        if not os.path.isdir(os.path.join(settings.ARCHIVE_ROOT,
-                                          self.podcast.slug)):
-            self.podcast.make_mothball()
+        # make sure a new copy of the podcast mothball archive exists
+        self.podcast.make_mothball()
 
         episode_dir = os.path.join(settings.ARCHIVE_ROOT, self.podcast.slug,
                                    "episodes")
