@@ -114,7 +114,7 @@ class Podcast(models.Model):
     tmp_dir = models.CharField('path to temporary processing location',
                                max_length=255, default="/tmp")
     mothball_dir = models.CharField('path to archive location',
-                                    max_length=255, default=""
+                                    max_length=255, default="")
 
     # things related to importing from the filesystem
     last_import = models.DateTimeField('last import', blank=True, null=True)
@@ -545,7 +545,7 @@ class Podcast(models.Model):
             self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
 
         podcast_file = os.path.join(episode_dir, episode_filename)
-                                    
+
         # serialize current data
         podcast = serializers.serialize('json', self)
 
@@ -572,7 +572,7 @@ class Podcast(models.Model):
                     self.slug, err))
                 return False
 
-        
+
 class Episode(models.Model):
 
     """
@@ -964,7 +964,7 @@ class Episode(models.Model):
                 self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
 
         episode_file = os.path.join(episode_dir, episode_filename)
-                                    
+
         # serialize current data
         episode = serializers.serialize('json', self)
 
@@ -1005,7 +1005,7 @@ class Episode(models.Model):
         # set mothballed property to current datetime
 
         self.mothballed = datetime.now()
-        
+
         # set file fields to null
         self.buffer_image = None
         self.image = None
