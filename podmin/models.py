@@ -505,7 +505,7 @@ class Podcast(models.Model):
 
         return new
 
-    def make_mothball:
+    def make_mothball(self):
         mothball_dir = os.path.join(settings.ARCHIVE_ROOT, self.slug)
         mothball_img = os.path.join(settings.ARCHIVE_ROOT, self.slug, 'img')
         mothball_audio = os.path.join(settings.ARCHIVE_ROOT, self.slug, 'audio')
