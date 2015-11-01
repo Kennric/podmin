@@ -66,13 +66,16 @@
   {% if e.active and not e.published %}
   <div class="row blueshift">
   {% endif %}
+
   {% if e.published %}
   <div class="row">
   {% endif %}
-  {% if not e.active and not e.mothballed%}
+
+  {% if not e.active and not e.mothballed %}
   <div class="row redshift">
   {% endif %}
-  {% if e.mothballed%}
+
+  {% if e.mothballed %}
   <div class="row greyshift">
   {% endif %}
 
