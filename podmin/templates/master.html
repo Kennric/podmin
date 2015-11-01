@@ -17,7 +17,7 @@
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     </head>
     <body>
-    <div class='wrapper'>
+    <div id='main-wrapper'>
         <div class="navcontain">
             <div class="navbar metro" gumby-fixed="top">
               <!-- Toggle for mobile navigation, targeting the <ul> -->
@@ -45,6 +45,9 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         {% block content %}{% endblock %}
+        <div class="bottom-sticky" id="footer">
+        <h3>Some Footer Text</h3>
+        </div>
     </div>
     <script gumby-debug gumby-touch="{% static 'bower_components/gumby/js/libs' %}" src="{% static 'bower_components/gumby/js/libs/gumby.min.js' %}"></script>
     {% block footscripts %}{% endblock %}
