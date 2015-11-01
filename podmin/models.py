@@ -502,6 +502,8 @@ class Podcast(models.Model):
         return new
 
     def make_mothball(self):
+        logger.info("{0}: making mothball dirs".format(self.slug))
+
         mothball_dir = os.path.join(settings.ARCHIVE_ROOT, self.slug)
         mothball_img = os.path.join(settings.ARCHIVE_ROOT, self.slug, 'img')
         mothball_audio = os.path.join(settings.ARCHIVE_ROOT, self.slug,
@@ -510,24 +512,28 @@ class Podcast(models.Model):
                                          'episodes')
 
         if not os.path.isdir(mothball_dir):
+            logger.info("{0}: making {1}".format(self.slug, mothball_dir))
             try:
                 os.makedirs(mothball_dir)
             except OSError as err:
                 logger.error(error_msg.format(self.slug, err))
 
         if not os.path.isdir(mothball_img):
+            logger.info("{0}: making {1}".format(self.slug, mothball_img))
             try:
                 os.makedirs(mothball_img)
             except OSError as err:
                 logger.error(error_msg.format(self.slug, err))
 
         if not os.path.isdir(mothball_audio):
+            logger.info("{0}: making {1}".format(self.slug, mothball_audio))
             try:
                 os.makedirs(mothball_audio)
             except OSError as err:
                 logger.error(error_msg.format(self.slug, err))
 
         if not os.path.isdir(mothball_episodes):
+            logger.info("{0}: making {1}".format(self.slug, mothball_episodes))
             try:
                 os.makedirs(mothball_episodes)
             except OSError as err:
@@ -951,7 +957,8 @@ class Episode(models.Model):
             return False
 
         # make sure the podcast mothball archive exists
-        if not os.path.isdir(settings.ARCHIVE_ROOT):
+        if not os.path.isdir(os.path.join(settings.ARCHIVE_ROOT,
+                                          self.podcast.slug)):
             self.podcast.make_mothball()
 
         episode_dir = os.path.join(settings.ARCHIVE_ROOT, self.podcast.slug,
