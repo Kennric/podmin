@@ -1752,6 +1752,6 @@ fieldset legend { font-size: 26px; }
 
 #title-row { border-bottom: 1px solid #4a4d50; }
 
-#main-wrapper { min-height: 900px; position: relative; margin-bottom: 150px; }
+#main-wrapper { min-height: 900px; position: relative; padding-bottom: 150px; }
 
 #footer { border-top: 1px solid #555555; width: 100%; }
