@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.urlresolvers import reverse, resolve
 from django.core.files.storage import FileSystemStorage
+from django.core import serializers
 from django.http import HttpRequest
 
 # django contrib stuff
@@ -258,7 +259,7 @@ class Podcast(models.Model):
             settings.BUFFER_ROOT, self.slug, "audio")
 
         """
-        make sure pub dirs exist
+        make sure dirs exist
         """
         error_msg = "{0}: Directory creation error: {1}"
         if not os.path.isdir(image_pub_dir):
@@ -500,6 +501,76 @@ class Podcast(models.Model):
 
         return new
 
+    def make_mothball(self):
+        logger.info("{0}: making mothball dirs".format(self.slug))
+
+        mothball_dir = os.path.join(settings.ARCHIVE_ROOT, self.slug)
+        mothball_img = os.path.join(settings.ARCHIVE_ROOT, self.slug, 'img')
+        mothball_audio = os.path.join(settings.ARCHIVE_ROOT, self.slug,
+                                      'audio')
+        mothball_episodes = os.path.join(settings.ARCHIVE_ROOT, self.slug,
+                                         'episodes')
+
+        if not os.path.isdir(mothball_dir):
+            logger.info("{0}: making {1}".format(self.slug, mothball_dir))
+            try:
+                os.makedirs(mothball_dir)
+            except OSError as err:
+                logger.error(error_msg.format(self.slug, err))
+
+        if not os.path.isdir(mothball_img):
+            logger.info("{0}: making {1}".format(self.slug, mothball_img))
+            try:
+                os.makedirs(mothball_img)
+            except OSError as err:
+                logger.error(error_msg.format(self.slug, err))
+
+        if not os.path.isdir(mothball_audio):
+            logger.info("{0}: making {1}".format(self.slug, mothball_audio))
+            try:
+                os.makedirs(mothball_audio)
+            except OSError as err:
+                logger.error(error_msg.format(self.slug, err))
+
+        if not os.path.isdir(mothball_episodes):
+            logger.info("{0}: making {1}".format(self.slug, mothball_episodes))
+            try:
+                os.makedirs(mothball_episodes)
+            except OSError as err:
+                logger.error(error_msg.format(self.slug, err))
+
+        # serialize podcast
+        podcast_filename = "{0}_{1}.json".format(
+            self.slug, datetime.strftime(datetime.now(), "%Y%m%d"))
+
+        podcast_file = os.path.join(mothball_dir, podcast_filename)
+
+        # serialize current data
+        podcast = serializers.serialize('json', [self])
+
+        # save serialized data to mothball_dir
+        with open(podcast_file, 'w+') as f:
+            f.write(podcast)
+
+        # move files from buffer to mothball_dir
+        if self.image:
+            image_file = os.path.basename(self.image.name)
+
+            image_source = os.path.dirname(self.image.path) + "/"
+            image_name, ext = os.path.splitext(image_file)
+
+            image_dest = os.path.join(settings.ARCHIVE_ROOT,
+                                      os.path.dirname(self.image.name),
+                                      "")
+            try:
+                image_glob = image_source + image_name + '*' + ext
+                for image in glob.iglob(image_glob):
+                    shutil.copy2(image, image_dest + os.path.basename(image))
+            except:
+                logger.error("{0}: mothball failed: {2}".format(
+                    self.slug, err))
+                return False
+
 
 class Episode(models.Model):
 
@@ -512,6 +583,7 @@ class Episode(models.Model):
     created = models.DateTimeField('created', auto_now_add=True)
     updated = models.DateTimeField('updated', auto_now=True)
     published = models.DateTimeField('date published', null=True)
+    mothballed = models.DateTimeField('date mothballed', null=True)
 
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
@@ -873,3 +945,71 @@ class Episode(models.Model):
             self.podcast.slug, self.number, old, new))
 
         return new
+
+    def mothball(self):
+
+        logger.info("{0}: mothballing episode {1}".format(
+            self.podcast.slug, self.slug))
+
+        # make sure episode is unpublished and inactive
+        if self.active or self.published:
+            return False
+
+        # make sure a new copy of the podcast mothball archive exists
+        self.podcast.make_mothball()
+
+        episode_dir = os.path.join(settings.ARCHIVE_ROOT, self.podcast.slug,
+                                   "episodes")
+
+        episode_filename = "{0}_{1}.json".format(
+                self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
+
+        episode_file = os.path.join(episode_dir, episode_filename)
+
+        # serialize current data
+        episode = serializers.serialize('json', [self])
+
+        # save serialized data to mothball_dir
+        with open(episode_file, 'w+') as f:
+            f.write(episode)
+
+        # move files from buffer to mothball_dir
+        audio_source = self.buffer_audio.path
+        audio_dest = os.path.join(settings.ARCHIVE_ROOT,
+                                  self.buffer_audio.name)
+
+        try:
+            shutil.move(audio_source, audio_dest)
+        except IOError as err:
+            logger.error("{0}: mothball failed for {1}: {2}".format(
+                self.podcast.slug, self.slug, err))
+            return False
+
+        if self.buffer_image:
+            image_file = os.path.basename(self.buffer_image.name)
+
+            image_source = os.path.dirname(self.buffer_image.path) + "/"
+            image_name, ext = os.path.splitext(image_file)
+
+            image_dest = os.path.join(settings.ARCHIVE_ROOT,
+                                      os.path.dirname(self.buffer_image.name),
+                                      "")
+            try:
+                image_glob = image_source + image_name + '*' + ext
+                for image in glob.iglob(image_glob):
+                    shutil.move(image, image_dest + os.path.basename(image))
+            except:
+                logger.error("{0}: mothball failed for {1}: {2}".format(
+                    self.podcast.slug, self.slug, err))
+                return False
+
+        # set mothballed property to current datetime
+
+        self.mothballed = datetime.now()
+
+        # set file fields to null
+        self.buffer_image = None
+        self.image = None
+        self.buffer_audio = None
+        self.audio = None
+        self.save()

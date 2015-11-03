@@ -143,7 +143,8 @@ STATIC_ROOT = os.getenv('PODMIN_STATIC_ROOT',
 
 STATIC_URL = os.getenv('PODMIN_STATIC_URL', '/static/')
 
-BUFFER_ROOT = os.getenv('PODMIN_BUFFER_ROOT', '/buffer/')
+BUFFER_ROOT = os.getenv('PODMIN_BUFFER_ROOT', MEDIA_ROOT + '/buffer/')
+ARCHIVE_ROOT = os.getenv('PODMIN_ARCHIVE_ROOT', MEDIA_ROOT + '/archive/')
 
 SECRET_KEY = os.getenv('PODMIN_SECRET_KEY', '8d2c94e759dc865d5234e0e70e0f5530')
 

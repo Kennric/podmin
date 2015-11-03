@@ -42,9 +42,10 @@ urlpatterns += patterns(
         'depublish_episode', name='episode_depublish'),
     url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/publish/$',
         'publish_episode', name='episode_publish'),
+    url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/mothball/$',
+        'mothball_episode', name='episode_mothball'),
     url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/audio_buffer/$',
-    'audio_buffer', name='audio_buffer'),
+        'audio_buffer', name='audio_buffer'),
     url(r'^(?P<slug>[A-Za-z0-9\-]+)/(?P<eid>\d+)/image_buffer/(?P<size>[A-Za-z0-9\-]+)$',
-    'image_buffer', name='image_buffer'),
-
+        'image_buffer', name='image_buffer'),
 )

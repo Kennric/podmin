@@ -104,7 +104,7 @@ def podcast(request, slug):
         episodes = paginator.page(paginator.num_pages)
 
     request_context = RequestContext(request)
-    request_context.push({'podcast': podcast, 'episodes': episodes, 
+    request_context.push({'podcast': podcast, 'episodes': episodes,
                           'manager': manager, 'editor': editor,
                           'webmaster': webmaster})
 
@@ -119,7 +119,7 @@ def edit_podcast(request, slug):
     user, manager, editor, webmaster = user_role_check(request, slug)
 
     if not manager and not user.is_superuser:
-        message = """I'm sorry {0}, I'm afraid I can't let you 
+        message = """I'm sorry {0}, I'm afraid I can't let you
                      edit {1}""".format(user, slug)
 
         return render(request, 'podmin/site/denied.html', {'message': message})
@@ -183,7 +183,7 @@ def new_podcast(request):
 @login_required
 def delete_podcast(request, slug):
     """
-    Delete a podcast. The post-delete handler will delete all the associated 
+    Delete a podcast. The post-delete handler will delete all the associated
     files.
     """
     user, manager, editor, webmaster = user_role_check(request, slug)
@@ -399,6 +399,35 @@ def publish_episode(request, eid, slug):
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
 
+@login_required
+def mothball_episode(request, eid, slug):
+    """
+    Move an existing episode's files from the buffer into the archive and
+    save its serialized episode object
+    """
+    user, manager, editor, webmaster = user_role_check(request, slug)
+
+    if not user.is_superuser:
+        if not manager and not editor:
+            message = """I'm sorry {0}, I'm afraid I can't let you mothball
+                         episode {1}""".format(user, eid)
+
+            return render(request, 'podmin/site/denied.html',
+                          {'message': message})
+
+    episode = get_object_or_404(Episode, id=eid)
+
+    if episode.active or episode.published:
+        message = """I'm sorry {0}, before you can mothball an episode, it must
+                     be inactive and not published.""".format(user)
+
+        return render(request, 'podmin/site/denied.html', {'message': message})
+
+    episode.mothball()
+
+    return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
+
+
 def podmin_info(request):
     request_context = RequestContext(request)
     request_context.push({'static_dir': '/static/podcast/site'})
@@ -448,7 +477,7 @@ def image_buffer(request, eid, slug, size):
 
 def login_user(request):
     """
-    Log a user in, or display the login form 
+    Log a user in, or display the login form
     """
     state = "Please log in."
     username = password = ''
