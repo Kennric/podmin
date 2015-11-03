@@ -1,7 +1,7 @@
 # django stuff
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
-# from django.contrib import messages
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -41,8 +41,10 @@ def index(request):
     front page view
     """
     podcasts = Podcast.objects.all()
-    context = {'podcasts': podcasts}
-    return render(request, 'podmin/site/index.html', context)
+    request_context = RequestContext(request)
+    request_context.push({'podcasts': podcasts})
+
+    return render(request, 'podmin/site/index.html', request_context)
 
 
 def podcasts(request):
@@ -51,7 +53,6 @@ def podcasts(request):
 
     """
     podcasts = Podcast.objects.all()
-
     request_context = RequestContext(request)
     request_context.push({'podcasts': podcasts})
 
@@ -67,7 +68,6 @@ def home(request):
         slug_list.append(group.name.split('_')[0])
 
     slugs = set(slug_list)
-
     podcasts = Podcast.objects.filter(slug__in=slugs)
 
     request_context = RequestContext(request)
@@ -128,6 +128,7 @@ def edit_podcast(request, slug):
     if request.method == 'POST':
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
+            messages.success(request, '{0} updated.'.format(podcast.title))
             podcast = form.save()
             podcast.publish()
             return HttpResponseRedirect(reverse('podcast_show',

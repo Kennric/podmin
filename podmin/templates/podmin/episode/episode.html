@@ -13,13 +13,6 @@
 
 <div id="title-row" class="row">
     <div class="twelve columns">
-    {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
         <h2><a href="{% url 'podcast_show' slug=episode.podcast.slug %}">
             {{ episode.podcast.title }}
             </a>

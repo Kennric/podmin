@@ -6,17 +6,7 @@
 {% block title %}{{ podcast.title }}{% endblock %}
 {% block podcast_subtitle %}{{ podcast.subtitle }}{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="twelve columns">
-    {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    </div>
-</div>
+
 <!-- Block with the podcast image and description -->
 <div class="row top-box">
   <div class="three columns">
