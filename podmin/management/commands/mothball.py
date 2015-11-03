@@ -17,8 +17,8 @@ class Command(BaseCommand):
         logger.info("Mothballing {0}".format(podcast.slug))
 
         expired_date = datetime.now() - timedelta(days=podcast.max_age)
-        episodes = self.episode_set.filter(pub_date__lte=expired_date,
-                                           active=False)
+        episodes = podcast.episode_set.filter(pub_date__lte=expired_date,
+                                              active=False, mothballed=None)
         for episode in episodes:
             try:
                 episode.mothball()
