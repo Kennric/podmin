@@ -121,8 +121,12 @@ def edit_podcast(request, slug):
     if not manager and not user.is_superuser:
         message = """I'm sorry {0}, I'm afraid I can't let you
                      edit {1}""".format(user, slug)
+        messages.error(request, 'Nope!')
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+        return HttpResponseRedirect(reverse(request.GET['redirect'],
+                                            kwargs={'slug': slug}))
+
+        #return render(request, 'podmin/site/denied.html', {'message': message})
 
     podcast = Podcast.objects.get(slug=slug)
     if request.method == 'POST':
