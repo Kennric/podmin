@@ -31,6 +31,17 @@
     {% else %}
         <img src="{{episode.podcast.medium_image}}" alt="podcast image">
     {% endif %}
+    {% if not episode.mothballed %}
+    <div class="player_container">
+        {% if episode.audio %}
+        <audio src="{{ episode.audio_url }}" class="mejs-kennric" controls="controls"></audio>
+        {% else %}
+        <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}" controls="controls"></audio>
+        {% endif %}
+    </div>
+    {% else %}
+    This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
+    {% endif %}
 
     <a href="{{ episode.audio_url }}" target=new class="ttip"
         data-tooltip="Download {{ episode.audio_filename }}">
@@ -44,6 +55,8 @@
             <i class="icon-info-circled"></i>
         </span>
     </a>
+
+
     </div>
 
     <div class="nine columns" id="episode-head">
@@ -69,21 +82,6 @@
         <span class="small">{{ episode.pub_date}}</span>
         </div>
         <br>
-
-        {% if not episode.mothballed %}
-        <div id="toolbox" class="bottom-sticky">
-            <div class="player_container">
-                {% if episode.audio %}
-                <audio src="{{ episode.audio_url }}" class="mejs-kennric" controls="controls"></audio>
-                {% else %}
-                <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}" controls="controls"></audio>
-                {% endif %}
-            </div>
-
-        </div>
-        {% else %}
-        This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
-        {% endif %}
     </div>
 </div>
 
