@@ -74,9 +74,9 @@
         <div id="toolbox" class="bottom-sticky">
             <div class="player_container">
                 {% if episode.audio %}
-                <audio src="{{ episode.audio_url }}" class="mejs-kennric"></audio>
+                <audio src="{{ episode.audio_url }}" class="mejs-kennric" controls="controls"></audio>
                 {% else %}
-                <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}"></audio>
+                <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}" controls="controls"></audio>
                 {% endif %}
             </div>
 
