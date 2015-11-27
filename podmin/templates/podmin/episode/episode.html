@@ -3,7 +3,7 @@
 {% block externals %}
 
 <script src="{% static 'bower_components/mediaelement/build/mediaelement-and-player.min.js' %}"></script>
-<link rel="stylesheet" href="{% static 'css/mediaelementplayer.css' %}" />
+<link rel="stylesheet" href="{% static 'css/mejs_kennric.css' %}" />
 
 {% endblock %}
 
@@ -31,6 +31,19 @@
     {% else %}
         <img src="{{episode.podcast.medium_image}}" alt="podcast image">
     {% endif %}
+
+    <a href="{{ episode.audio_url }}" target=new class="ttip"
+        data-tooltip="Download {{ episode.audio_filename }}">
+        <span class="large">
+       <i class="icon-download"></i>
+       </span>
+    </a>
+    <a href="#" title="Info" class="ttip"
+        data-tooltip='{{episode.length}} {{episode.size}} bytes {{episode.mime_type}}'>
+        <span class="large">
+            <i class="icon-info-circled"></i>
+        </span>
+    </a>
     </div>
 
     <div class="nine columns" id="episode-head">
@@ -61,23 +74,12 @@
         <div id="toolbox" class="bottom-sticky">
             <div class="player_container">
                 {% if episode.audio %}
-                <audio src="{{ episode.audio_url }}" class="mejs-player"></audio>
+                <audio src="{{ episode.audio_url }}" class="mejs-kennric"></audio>
                 {% else %}
-                <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-player" type="{{ episode.mime_type }}"></audio>
+                <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}"></audio>
                 {% endif %}
             </div>
-            <a href="{{ episode.audio_url }}" target=new class="ttip"
-                data-tooltip="Download {{ episode.audio_filename }}">
-                <span class="large">
-               <i class="icon-download"></i>
-               </span>
-            </a>
-            <a href="#" title="Info" class="ttip"
-                data-tooltip='{{episode.length}} {{episode.size}} bytes {{episode.mime_type}}'>
-                <span class="large">
-                    <i class="icon-info-circled"></i>
-                </span>
-            </a>
+
         </div>
         {% else %}
         This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
@@ -127,5 +129,8 @@
 {% endblock %}
 
 {% block footscripts %}
+<script>
+    $('audio,video').mediaelementplayer({features: ['playpause','progress','duration'], audioWidth: 50, audioHeight: 60});
+</script>
 
 {% endblock %}
