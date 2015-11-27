@@ -1738,6 +1738,8 @@ fieldset legend { font-size: 26px; }
 
 .page-container { border-top: 1px solid #4a4d50; padding-top: 24px; margin-top: 24px; }
 
+.page-container .episode-row { border-top: 1px solid #4a4d50; padding-top: 10px; }
+
 .player_container { display: inline-block; }
 
 .episode-tools { width: 484px; position: fixed; bottom: 0; }
@@ -1759,3 +1761,5 @@ fieldset legend { font-size: 26px; }
 #main-wrapper { min-height: 95%; position: relative; padding-bottom: 150px; }
 
 #footer { border-top: 1px solid #555555; width: 100%; }
+
+@media only screen and (max-width: 320px) { background: red; }

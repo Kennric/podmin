@@ -7,11 +7,8 @@ Now
 ---
 
 more logging
-
 footer
-
 archive old eps (remove/archive files, mark archived)
-
 pep8, docstrings
 
 

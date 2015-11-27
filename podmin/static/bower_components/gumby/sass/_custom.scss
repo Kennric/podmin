@@ -87,6 +87,11 @@ fieldset legend {
   margin-top: 24px;
 }
 
+.page-container .episode-row {
+  border-top: 1px solid $info-color;
+  padding-top: 10px;
+}
+
 .player_container {
   display: inline-block;
 }
@@ -136,4 +141,8 @@ fieldset legend {
 #footer {
   border-top: 1px solid #555555;
   width: 100%;
+}
+
+@include respond(portrait-phones) {
+    background: red;
 }

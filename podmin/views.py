@@ -86,7 +86,7 @@ def podcast(request, slug):
 
     if manager or editor or user.is_superuser:
         episode_list = podcast.episode_set.all().order_by('-pub_date')
-    else:
+    else:¿
         episode_list = Episode.objects.filter(
             podcast__slug=slug,
             active=True).exclude(published__isnull=True).order_by('-pub_date')
@@ -123,10 +123,7 @@ def edit_podcast(request, slug):
                      edit {1}""".format(user, slug)
         messages.error(request, 'Nope!')
 
-        return HttpResponseRedirect(reverse(request.GET['redirect'],
-                                            kwargs={'slug': slug}))
-
-        #return render(request, 'podmin/site/denied.html', {'message': message})
+        return render(request, 'podmin/site/denied.html', {'message': message})
 
     podcast = Podcast.objects.get(slug=slug)
     if request.method == 'POST':

@@ -13,17 +13,8 @@
     {% if podcast.image %}
     <img src="{{podcast.medium_image}}" alt="podcast image">
     {% endif %}
-  </div>
-  <div class="nine columns">
-      {% if editor or user.is_superuser %}
-    <div class="control-links">
-      <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
-      <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
-      </div>
-    {% endif %}
-    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
-    <h3>{{podcast.subtitle}}</h3>
-    <div id="toolbox" class="bottom-sticky">
+
+    <div id="toolbox">
     <a href="{{ podcast.website }}" target=new class="ttip" data-tooltip="Homepage">
       <span class="large"><i class="icon-globe"></i></span>
     </a>
@@ -36,6 +27,18 @@
     </a>
     {% endif %}
     </div>
+
+  </div>
+  <div class="nine columns">
+      {% if editor or user.is_superuser %}
+    <div class="control-links">
+      <a href="{% url 'podcast_edit' slug=podcast.slug %}">Edit</a> |
+      <a href="{% url 'podcast_delete' slug=podcast.slug %}">Remove</a>
+      </div>
+    {% endif %}
+    <h2><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h2>
+    <h3>{{podcast.subtitle}}</h3>
+
   </div>
 </div>
 <div class="row page-container">
@@ -54,7 +57,7 @@
   {% for e in episodes %}
 
   {% if e.active and not e.published %}
-  <div class="row blueshift">
+  <div class="row episode-row blueshift">
   {% endif %}
 
   {% if e.published %}
@@ -62,11 +65,11 @@
   {% endif %}
 
   {% if not e.active and not e.mothballed %}
-  <div class="row redshift">
+  <div class="row episode-row redshift">
   {% endif %}
 
   {% if e.mothballed %}
-  <div class="row greyshift">
+  <div class="row episode-row greyshift">
   {% endif %}
 
     <div class="two columns">
@@ -83,7 +86,6 @@
     <div class="ten columns">
       <div class="control-links">
       {% if editor or user.is_superuser %}
-
         {% if not e.mothballed %}
           <a href="{% url 'episode_edit' slug=podcast.slug eid=e.id %}">Edit</a> |
           {% if not e.published %}
@@ -99,7 +101,6 @@
         {% else %}
           <a href="{% url 'episode_delete' slug=podcast.slug eid=e.id %}">Remove</a>
         {% endif %}
-
       {% endif %}
       </div>
 
@@ -127,12 +128,13 @@
     </div>
   </div>
 
-
   {% endfor %}
   {% if episodes.paginator.num_pages > 1 %}
   <div class="row">
     <div class="centered six columns">
+      <center>
       {% paginator episodes 8 %}
+      </center>
     </div>
   </div>
   {% endif %}
