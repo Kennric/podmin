@@ -706,16 +706,16 @@ small { font-size: 56.4%; line-height: inherit; }
 h1 small, h2 small, h3 small, h4 small, h5 small { color: #777; }
 
 /*  Blockquotes  */
-blockquote { line-height: 20px; color: #777; margin: 0 0 18px; padding: 9px 20px 0 19px; border-left: 5px solid #cccccc; }
+blockquote { line-height: 20px; color: #777; margin: 0 0 18px; padding: 9px 20px 0 19px; border-left: 5px solid #999999; }
 blockquote p { line-height: 20px; color: #777; }
 blockquote cite { display: block; font-size: 12px; font-size: 1.2rem; color: #555555; }
 blockquote cite:before { content: "\2014 \0020"; }
 blockquote cite a { color: #555555; }
 blockquote cite a:visited { color: #555555; }
 
-hr { border: 1px solid #cccccc; clear: both; margin: 16px 0 18px; height: 0; }
+hr { border: 1px solid #999999; clear: both; margin: 16px 0 18px; height: 0; }
 
-abbr, acronym { text-transform: uppercase; font-size: 90%; color: #222; border-bottom: 1px solid #cccccc; cursor: help; }
+abbr, acronym { text-transform: uppercase; font-size: 90%; color: #222; border-bottom: 1px solid #999999; cursor: help; }
 
 abbr { text-transform: none; }
 
@@ -1303,7 +1303,7 @@ img { -ms-interpolation-mode: bicubic; }
 .navbar li .dropdown ul { margin: 0; display: block; }
 .navbar li .dropdown ul > li { position: relative; display: block; width: 100%; float: left; text-align: left; height: auto; -webkit-border-radius: 0; -moz-border-radius: 0; -ms-border-radius: 0; -o-border-radius: 0; border-radius: 0; }
 @media only screen and (min-width: 768px) and (max-width: 939px) { .navbar li .dropdown ul > li { max-width: 320px; word-wrap: break-word; } }
-.navbar li .dropdown ul > li a { display: block; padding: 0 20px; color: #d04526; border-bottom: 1px solid #cccccc; text-shadow: none; height: 51px; line-height: 49px; }
+.navbar li .dropdown ul > li a { display: block; padding: 0 20px; color: #d04526; border-bottom: 1px solid #999999; text-shadow: none; height: 51px; line-height: 49px; }
 @media only screen and (max-width: 767px) { .navbar li .dropdown ul > li a { padding: 0 20px; } }
 .navbar li .dropdown ul > li .dropdown { display: none; background: white; }
 .navbar li .dropdown ul li:first-child a { -webkit-border-radius: 0; -moz-border-radius: 0; -ms-border-radius: 0; -o-border-radius: 0; border-radius: 0; }
@@ -1738,7 +1738,7 @@ fieldset legend { font-size: 26px; }
 
 .page-container { border-top: 1px solid #4a4d50; padding-top: 24px; margin-top: 24px; }
 
-.page-container .episode-row { border-top: 1px solid #4a4d50; padding-top: 10px; }
+.page-container .episode-row { border-top: 1px solid #999999; padding-top: 10px; }
 
 .player_container { display: inline-block; }
 

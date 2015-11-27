@@ -88,7 +88,7 @@ fieldset legend {
 }
 
 .page-container .episode-row {
-  border-top: 1px solid $info-color;
+  border-top: 1px solid $horizontal-rule-color;
   padding-top: 10px;
 }
 
@@ -103,15 +103,15 @@ fieldset legend {
 }
 
 .redshift {
-  background-color: #ffeeee;
+  background-color: $redshift;
 }
 
 .blueshift {
-  background-color: #eeeeff;
+  background-color: $blueshift;
 }
 
 .greyshift {
-  background-color: #d0d0d0;
+  background-color: $greyshift;
 }
 
 .control-links {
