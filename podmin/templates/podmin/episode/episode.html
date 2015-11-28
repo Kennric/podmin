@@ -58,17 +58,7 @@
         </div>
         <br>
         <div id="toolbox" class="bottom-sticky">
-        {% if not episode.mothballed %}
-        <div class="player_container">
-            {% if episode.audio %}
-            <audio src="{{ episode.audio_url }}" class="mejs-kennric" controls="controls"></audio>
-            {% else %}
-            <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}" controls="controls"></audio>
-            {% endif %}
-        </div>
-        {% else %}
-        This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
-        {% endif %}
+
 
         <a href="{{ episode.audio_url }}" target=new class="ttip"
             data-tooltip="Download {{ episode.audio_filename }}">
@@ -88,6 +78,18 @@
 
 
 <div class="row page-container">
+        {% if not episode.mothballed %}
+        <div class="player_container">
+            {% if episode.audio %}
+            <audio src="{{ episode.audio_url }}" class="mejs-kennric" controls="controls"></audio>
+            {% else %}
+            <audio src="{% url 'audio_buffer' slug=episode.podcast.slug eid=episode.id %}" class="mejs-kennric" type="{{ episode.mime_type }}" controls="controls"></audio>
+            {% endif %}
+        </div>
+        {% else %}
+        This episode is mothballed. Audio and images are not available, and the episode cannot be edited until it is restored.
+        {% endif %}
+
     {% if episode.description %}
     <div class="row">
         <div class="twelve columns">
@@ -130,7 +132,7 @@
 {% block footscripts %}
 <script>
     var w = window.innerWidth * 0.5;
-    $('audio,video').mediaelementplayer({features: ['playpause', 'progress', 'duration', 'current', 'volume'], audioWidth: w, audioHeight: 60});
+    $('audio,video').mediaelementplayer({features: ['playpause', 'progress', 'duration', 'current', 'volume'], audioWidth: w, audioHeight: 30});
 </script>
 
 {% endblock %}
