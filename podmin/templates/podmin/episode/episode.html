@@ -4,7 +4,7 @@
 
 <script src="{% static 'bower_components/mediaelement/build/mediaelement-and-player.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'bower_components/mediaelement/build/mediaelementplayer.min.css' %}" />
-<link rel="stylesheet" href="{% static 'css/mejs_kennric.css' %}" />
+<link rel="stylesheet" href="{% static 'css/mejs_kennric2.css' %}" />
 
 {% endblock %}
 
@@ -129,7 +129,8 @@
 
 {% block footscripts %}
 <script>
-    $('audio,video').mediaelementplayer({features: ['playpause','progress','duration'], audioWidth: 50, audioHeight: 60});
+    var w = window.innerWidth * 0.5;
+    $('audio,video').mediaelementplayer({features: ['playpause', 'progress', 'duration', 'current', 'volume'], audioWidth: w, audioHeight: 60});
 </script>
 
 {% endblock %}
