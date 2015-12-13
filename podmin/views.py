@@ -170,7 +170,6 @@ def new_podcast(request):
                 with open(default_image) as f:
                     image = File(f)
                     podcast.image.save("default_podcast.png", image, save=True)
-                pass
 
             podcast.save()
 

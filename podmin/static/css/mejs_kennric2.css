@@ -23,15 +23,7 @@
     padding: 0;
     bottom: 0;
     left: 0;
-    background: url(background.png);
-    background: rgba(255, 255, 255, 1);
-    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255, 255, 255, 1)), to(rgba(180,180,180,1)));
-    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 1), rgba(180,180,180,1));
-    background: -moz-linear-gradient(top, rgba(255, 255, 255, 1), rgba(180,180,180,1));
-    background: -o-linear-gradient(top, rgba(255, 255, 255, 1), rgba(180,180,180,1));
-    background: -ms-linear-gradient(top, rgba(255, 255, 255, 1), rgba(180,180,180,1));
-    background: linear-gradient(rgba(255, 255, 255, 1), rgba(180,180,180,1));
-    height: 30px;
+    background: none;
     width: 100%;
 }
 
