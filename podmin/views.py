@@ -122,9 +122,9 @@ def edit_podcast(request, slug):
         message = """I'm sorry {0}, I'm afraid I can't let you
                      edit {1}""".format(user, slug)
 
-        messages.error(request, request.GET['redirect'])
+        messages.error(request, message)
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+        return render(request, 'podmin/site/denied.html')
 
     podcast = Podcast.objects.get(slug=slug)
     if request.method == 'POST':
