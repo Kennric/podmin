@@ -103,10 +103,12 @@ def podcast(request, slug):
         # If page is out of range (e.g. 9999), deliver last page of results.
         episodes = paginator.page(paginator.num_pages)
 
+    messages.error(request, 'Testing!')
+
     request_context = RequestContext(request)
     request_context.push({'podcast': podcast, 'episodes': episodes,
                           'manager': manager, 'editor': editor,
-                          'webmaster': webmaster})
+                          'webmaster': webmaster, 'messages': messages})
 
     return render(request, 'podmin/podcast/podcast.html', request_context)
 
