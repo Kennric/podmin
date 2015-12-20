@@ -91,7 +91,7 @@ def podcast(request, slug):
             podcast__slug=slug,
             active=True).exclude(published__isnull=True).order_by('-pub_date')
 
-    paginator = Paginator(episode_list, 10)
+    paginator = Paginator(episode_list, settings.ITEMS_PER_PAGE)
     page = request.GET.get('page')
 
     try:
