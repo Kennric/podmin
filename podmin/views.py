@@ -108,7 +108,7 @@ def podcast(request, slug):
     request_context = RequestContext(request)
     request_context.push({'podcast': podcast, 'episodes': episodes,
                           'manager': manager, 'editor': editor,
-                          'webmaster': webmaster, 'messages': messages})
+                          'webmaster': webmaster})
 
     return render(request, 'podmin/podcast/podcast.html', request_context)
 
