@@ -153,8 +153,9 @@ def new_podcast(request):
     if not request.user.is_superuser:
         message = """I'm sorry {0} I'm afraid I can't let you create a
                      podcast.""".format(request.user)
+        messages.error(request, message)
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+        return render(request, 'podmin/site/denied.html')
 
     form = PodcastForm()
     if request.method == 'POST':
@@ -192,7 +193,9 @@ def delete_podcast(request, slug):
     if not manager and not user.is_superuser:
         message = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
             user, slug)
-        return render(request, 'podmin/site/denied.html', {'message': message})
+        messages.error(request, message)
+
+        return render(request, 'podmin/site/denied.html')
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
