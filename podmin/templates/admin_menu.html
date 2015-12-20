@@ -14,7 +14,7 @@
       {% endif %}
       {% if podcast %}
         {% if editor or manager or user.is_superuser %}
-        <li><a href="/{{ podcast.slug }}/new">Add Episode</a></li>
+        <li><a href="/{{ podcast.slug }}/new?redirect={{ request.path }}">Add Episode</a></li>
         {% endif %}
       {% endif %}
     </ul>

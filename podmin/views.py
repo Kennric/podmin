@@ -103,8 +103,6 @@ def podcast(request, slug):
         # If page is out of range (e.g. 9999), deliver last page of results.
         episodes = paginator.page(paginator.num_pages)
 
-    messages.error(request, 'Testing!')
-
     request_context = RequestContext(request)
     request_context.push({'podcast': podcast, 'episodes': episodes,
                           'manager': manager, 'editor': editor,
@@ -123,7 +121,8 @@ def edit_podcast(request, slug):
     if not manager and not user.is_superuser:
         message = """I'm sorry {0}, I'm afraid I can't let you
                      edit {1}""".format(user, slug)
-        messages.error(request, 'Nope!')
+
+        messages.error(request, request.GET['redirect'])
 
         return render(request, 'podmin/site/denied.html', {'message': message})
 
