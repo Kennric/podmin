@@ -50,9 +50,10 @@
         <div id="messages" class="row">
           <div class="centered eight columns">
           {% if messages %}
+
               <ul class="messages">
               {% for message in messages %}
-                  <li{% if message.tags %} class="alert {{ message.tags }}"{% endif %}>{{ message }}</li>
+                  <li{% if message.tags %} class="alert {{ message.tags }}"{% endif %}><center>{{ message }}</center></li>
               {% endfor %}
               </ul>
           {% endif %}
