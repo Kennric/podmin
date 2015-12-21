@@ -18,10 +18,11 @@
     </head>
     <body>
     <div id='main-wrapper'>
+
         <div class="navcontain">
             <div class="navbar metro" gumby-fixed="top">
               <!-- Toggle for mobile navigation, targeting the <ul> -->
-              <a class="toggle" gumby-trigger="#nav1 > ul" href="#"><i class="icon-menu"></i></a>
+              <a class="toggle" gumby-trigger="#nav1" href="#"><i class="icon-menu"></i></a>
               <h1 class="four columns logo">
                 <a href="/">
                   <img src="/static/img/podmin_logo_01.png" gumby-retina />
@@ -41,9 +42,24 @@
               </ul>
             </div>
         </div>
+
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
+
+        <div id="messages" class="row">
+          <div class="centered eight columns">
+          {% if messages %}
+
+              <ul class="messages">
+              {% for message in messages %}
+                  <li{% if message.tags %} class="alert {{ message.tags }}"{% endif %}><center>{{ message }}</center></li>
+              {% endfor %}
+              </ul>
+          {% endif %}
+          </div>
+        </div>
+
         {% block content %}{% endblock %}
         <div class="bottom-sticky" id="footer">
         <div class="navcontain">

@@ -1,0 +1,131 @@
+.mejs-container {
+    position: relative;
+    background: #eee;
+    font-family: Helvetica, Arial;
+    text-align: left;
+    vertical-align: top;
+    text-indent: 0;
+}
+
+.mejs-embed, .mejs-embed body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #eee;
+    overflow: hidden;
+}
+
+.mejs-container .mejs-controls {
+    position: absolute;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    bottom: 0;
+    left: 0;
+    background: none;
+    width: 100%;
+}
+
+.mejs-container .mejs-controls .mejs-time {
+    color: #040404;
+    display: block;
+    height: 17px;
+    width: auto;
+    padding: 10px 3px 0 3px ;
+    overflow: hidden;
+    text-align: center;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+.mejs-container .mejs-controls .mejs-time a {
+    color: #040404;
+    font-size: 11px;
+    line-height: 12px;
+    display: block;
+    float: left;
+    margin: 1px 2px 0 0;
+    width: auto;
+}
+
+.mejs-controls .mejs-time-rail .mejs-time-total {
+    margin: 5px;
+    background: #eee;
+    background: rgba(200,200,200,1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(30,30,30,0.8)), to(rgba(60,60,60,0.8)));
+    background: -webkit-linear-gradient(top, rgba(30,30,30,0.8), rgba(60,60,60,0.8));
+    background: -moz-linear-gradient(top, rgba(30,30,30,0.8), rgba(60,60,60,0.8));
+    background: -o-linear-gradient(top, rgba(30,30,30,0.8), rgba(60,60,60,0.8));
+    background: -ms-linear-gradient(top, rgba(30,30,30,0.8), rgba(60,60,60,0.8));
+    background: linear-gradient(rgba(30,30,30,0.8), rgba(60,60,60,0.8));
+}
+
+.mejs-controls .mejs-time-rail .mejs-time-loaded {
+    background: #ddd;
+    background: rgba(208,208,208,1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(200,200,200,0.9)), to(rgba(200,200,200,0.7)));
+    background: -webkit-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -moz-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -o-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -ms-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: linear-gradient(rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    width: 0;
+}
+
+.mejs-controls .mejs-time-rail .mejs-time-current {
+    background: #fff;
+    background: rgba(208,69,38,1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(208,69,38,1)), to(rgba(208,69,38,0.4)));
+    background: -webkit-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -moz-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -o-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -ms-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: linear-gradient(rgba(208,69,38,1), rgba(208,69,38,0.4));
+    width: 0;
+}
+
+.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-total {
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 50px;
+    height: 8px;
+    margin: 0;
+    padding: 0;
+    font-size: 1px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background: #ddd;
+    background: rgba(208,208,208,1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(200,200,200,0.9)), to(rgba(200,200,200,0.7)));
+    background: -webkit-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -moz-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -o-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: -ms-linear-gradient(top, rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+    background: linear-gradient(rgba(200,200,200,0.9), rgba(200,200,200,0.7));
+}
+
+.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-current {
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 50px;
+    height: 8px;
+    margin: 0;
+    padding: 0;
+    font-size: 1px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background: #fff;
+    background: rgba(208,69,38,1);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(208,69,38,1)), to(rgba(208,69,38,0.4)));
+    background: -webkit-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -moz-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -o-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: -ms-linear-gradient(top, rgba(208,69,38,1), rgba(208,69,38,0.4));
+    background: linear-gradient(rgba(208,69,38,1), rgba(208,69,38,0.4));
+}

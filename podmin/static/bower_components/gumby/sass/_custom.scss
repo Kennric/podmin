@@ -87,6 +87,11 @@ fieldset legend {
   margin-top: 24px;
 }
 
+.page-container .episode-row {
+  border-top: 1px solid $horizontal-rule-color;
+  padding-top: 10px;
+}
+
 .player_container {
   display: inline-block;
 }
@@ -98,15 +103,15 @@ fieldset legend {
 }
 
 .redshift {
-  background-color: #ffeeee;
+  background-color: $redshift;
 }
 
 .blueshift {
-  background-color: #eeeeff;
+  background-color: $blueshift;
 }
 
 .greyshift {
-  background-color: #d0d0d0;
+  background-color: $greyshift;
 }
 
 .control-links {
@@ -136,4 +141,8 @@ fieldset legend {
 #footer {
   border-top: 1px solid #555555;
   width: 100%;
+}
+
+@include respond(portrait-phones) {
+    background: red;
 }

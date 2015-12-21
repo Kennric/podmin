@@ -1,0 +1,128 @@
+
+/* Kennric skin for mediaelement player  */
+.mejs-container.mejs-kennric {
+    background: none;
+}
+.mejs-kennric .mejs-controls {
+	height: 60px;
+    background: none;
+}
+
+.mejs-kennric .mejs-button,
+.mejs-kennric .mejs-time {
+	position: absolute;
+	background: transparent;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-total {
+	background-color: transparent;
+	background: transparent linear-gradient(rgba(200, 200, 200, 0.8), rgba(255, 255, 255, 0.8)) repeat scroll 0% 0%;
+
+	height: 5px;
+    bottom: 3px;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-buffering {
+	height: 5px;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-loaded {
+    background: transparent linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)) repeat scroll 0% 0%;
+	width: 0;
+	height: 5px;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-current {
+	width: 0;
+	height: 5px;
+	background-color: #d04526;
+    background: transparent linear-gradient(rgba(218, 79, 48, 0.9), rgba(198, 59, 28, 0.8)) repeat scroll 0% 0%;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-handle  {
+	display: none;
+	margin: 0;
+	width: 16px;
+	height: 9px;
+	top: -3px;
+	border: 0;
+	background: url(../img/mejs_compact_controls.png) no-repeat 5px -8px;
+}
+.mejs-kennric .mejs-controls .mejs-time-rail .mejs-time-float {
+	display: none;
+}
+.mejs-kennric .mejs-controls .mejs-playpause-button  {
+	top: 0px;
+	left: 5px;
+	margin: 0 0 0 0;
+	width: 40px;
+	height: 40px;
+
+}
+.mejs-kennric .mejs-controls .mejs-playpause-button  button {
+	width: 40px;
+	height: 40px;
+	background: url(../img/mejs_compact_controls.png) no-repeat 0 0;
+	margin: 0;
+	padding: 0;
+}
+.mejs-kennric .mejs-controls .mejs-pause button  {
+	background-position: -40px 0;
+}
+
+.mejs-kennric .mejs-controls .mejs-currenttime-container  {
+    display: none;
+	position: absolute;
+	top: 25px;
+	left: 50%;
+	margin-left: -93px;
+}
+.mejs-kennric .mejs-controls .mejs-duration-container  {
+    display: none;
+	position: absolute;
+	top: 25px;
+	left: 50%;
+	margin-left: -58px;
+}
+
+
+.mejs-kennric .mejs-controls .mejs-volume-button  {
+	top: 32px;
+	right: 50%;
+	margin-right: -55px;
+	width: 20px;
+	height: 15px;
+}
+.mejs-kennric .mejs-controls .mejs-volume-button button {
+	margin: 0;
+	padding: 0;
+	background: url(controls-wmp.png) no-repeat -42px -17px;
+	width: 20px;
+	height: 15px;
+}
+.mejs-kennric .mejs-controls .mejs-unmute button {
+	margin: 0;
+	padding: 0;
+	background: url(controls-wmp.png) no-repeat -42px 0;
+	width: 20px;
+	height: 15px;
+}
+.mejs-kennric .mejs-controls .mejs-volume-button .mejs-volume-slider {
+	background: rgba(102,102,102,0.6);
+}
+
+.mejs-kennric .mejs-controls .mejs-fullscreen-button  {
+	top: 32px;
+	right: 50%;
+	margin-right: -82px;
+	width: 15px;
+	height: 14px;
+}
+.mejs-kennric .mejs-controls .mejs-fullscreen-button  button {
+	margin: 0;
+	padding: 0;
+	background: url(controls-wmp.png) no-repeat -63px 0;
+	width: 15px;
+	height: 14px;
+}
+.mejs-kennric .mejs-controls .mejs-captions-button {
+	display: none;
+}
+/* END: WMP player */
+
+

@@ -16,6 +16,10 @@ TIME_ZONE = 'America/Los_Angeles'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 LOGIN_URL = '/login'
+
+# default number of things, for use with the paginator
+ITEMS_PER_PAGE = 15
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
