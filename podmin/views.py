@@ -198,7 +198,7 @@ def delete_podcast(request, slug):
         message = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
             user, slug)
 
-        messages.error(request, message)
+        messages.warning(request, message)
         return_url = reverse('podcast_show', kwargs={'slug': slug})
         return render(request, 'podmin/site/denied.html',
             {'return_url': return_url})
@@ -244,7 +244,7 @@ def edit_episode(request, eid, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you edit episode
                          {1}""".format(user, eid)
 
-            messages.error(request, message)
+            messages.warning(request, message)
             return_url = reverse('episode_show',
                 kwargs={'eid': eid, 'slug': slug})
 
@@ -306,7 +306,7 @@ def new_episode(request, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you create an
                          episode for {1}""".format(user, slug)
 
-            messages.error(request, message)
+            messages.warning(request, message)
             return_url = reverse('podcast_show', kwargs={'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
@@ -360,7 +360,7 @@ def delete_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you delete
                          episode {1}""".format(user, eid)
-            messages.error(request, message)
+            messages.warning(request, message)
 
             return_url = reverse('episode_show',
                 kwargs={'eid': eid, 'slug': slug})
@@ -396,7 +396,7 @@ def depublish_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you depublish
                          episode {1}""".format(user, eid)
-            messages.error(request, message)
+            messages.warning(request, message)
 
             return_url = reverse('episode_show',
                 kwargs={'eid': eid, 'slug': slug})
@@ -428,7 +428,7 @@ def publish_episode(request, eid, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you publish
                          episode {1}""".format(user, eid)
 
-            messages.error(request, message)
+            messages.warning(request, message)
 
             return_url = reverse('episode_show',
                 kwargs={'eid': eid, 'slug': slug})
@@ -459,7 +459,7 @@ def mothball_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you mothball
                          episode {1}""".format(user, eid)
-            messages.error(request, message)
+            messages.warning(request, message)
 
             return_url = reverse('episode_show',
                 kwargs={'eid': eid, 'slug': slug})
@@ -473,7 +473,7 @@ def mothball_episode(request, eid, slug):
         message = """I'm sorry {0}, before you can mothball an episode, it must
                      be inactive and not published.""".format(user)
 
-        messages.error(request, message)
+        messages.warning(request, message)
 
         return_url = reverse('episode_show', kwargs={'eid': eid, 'slug': slug})
 
