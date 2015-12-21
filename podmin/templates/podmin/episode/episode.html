@@ -16,8 +16,7 @@
     <div class="twelve columns">
         <h2><a href="{% url 'podcast_show' slug=episode.podcast.slug %}">
             {{ episode.podcast.title }}
-            </a>
-        </h2>
+            </a></h2>
     </div>
 </div>
 
@@ -76,7 +75,6 @@
     </div>
 </div>
 
-
 <div class="row page-container">
         {% if not episode.mothballed %}
         <div class="player_container">
@@ -131,7 +129,8 @@
 
 {% block footscripts %}
 <script>
-    var w = window.innerWidth * 0.5;
+    var windowWidth = window.innerWidth * 0.9;
+    var w = Math.min(windowWith, 400)
     $('audio,video').mediaelementplayer({features: ['playpause', 'progress', 'duration', 'current', 'volume'], audioWidth: w, audioHeight: 30});
 </script>
 
