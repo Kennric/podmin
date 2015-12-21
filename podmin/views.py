@@ -122,9 +122,10 @@ def edit_podcast(request, slug):
         message = """I'm sorry {0}, I'm afraid I can't let you
                      edit {1}""".format(user, slug)
 
-        messages.error(request, message)
-
-        return render(request, 'podmin/site/denied.html')
+        messages.warning(request, message)
+        return_url = reverse('podcast_show', kwargs={'slug': slug})
+        return render(request, 'podmin/site/denied.html',
+            {'return_url': return_url})
 
     podcast = Podcast.objects.get(slug=slug)
     if request.method == 'POST':
@@ -153,9 +154,11 @@ def new_podcast(request):
     if not request.user.is_superuser:
         message = """I'm sorry {0} I'm afraid I can't let you create a
                      podcast.""".format(request.user)
-        messages.error(request, message)
 
-        return render(request, 'podmin/site/denied.html')
+        messages.warning(request, message)
+        return_url = reverse('home')
+        return render(request, 'podmin/site/denied.html',
+            {'return_url': return_url})
 
     form = PodcastForm()
     if request.method == 'POST':
@@ -174,10 +177,11 @@ def new_podcast(request):
                     podcast.image.save("default_podcast.png", image, save=True)
 
             podcast.save()
+            messages.success(request, 'Successfully created {0}.'.format(
+                podcast.title))
 
-            return HttpResponseRedirect(reverse(
-                'podcast_show', kwargs={
-                    'slug': podcast.slug}))
+            return HttpResponseRedirect(
+                reverse('podcast_show', kwargs={'slug': podcast.slug}))
 
     return render(request, 'podmin/podcast/podcast_edit.html',
                   {'form': form})
@@ -193,16 +197,20 @@ def delete_podcast(request, slug):
     if not manager and not user.is_superuser:
         message = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
             user, slug)
-        messages.error(request, message)
 
-        return render(request, 'podmin/site/denied.html')
+        messages.error(request, message)
+        return_url = reverse('podcast_show', kwargs={'slug': slug})
+        return render(request, 'podmin/site/denied.html',
+            {'return_url': return_url})
+
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
     if request.method == 'POST':
         if request.POST.get('confirmed', False):
-
             podcast.delete()
+            messages.success(request, 'Successfully deleted {0}.'.format(
+                podcast.title))
             return HttpResponseRedirect(reverse('index'))
 
     return render(request, 'podmin/podcast/podcast_delete.html',
@@ -236,8 +244,12 @@ def edit_episode(request, eid, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you edit episode
                          {1}""".format(user, eid)
 
-            return render(request,
-                          'podmin/site/denied.html', {'message': message})
+            messages.error(request, message)
+            return_url = reverse('episode_show',
+                kwargs={'eid': eid, 'slug': slug})
+
+            return render(request, 'podmin/site/denied.html',
+                {'return_url': return_url})
 
     episode = Episode.objects.get(pk=eid)
 
@@ -263,6 +275,9 @@ def edit_episode(request, eid, slug):
                 episode.tag()
 
             episode.podcast.publish()
+
+            messages.success(request, '{0} saved and published.'.format(
+                episode.podcast.title))
 
             return HttpResponseRedirect(reverse(
                 'episode_show',
@@ -291,8 +306,11 @@ def new_episode(request, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you create an
                          episode for {1}""".format(user, slug)
 
-            return render(request,
-                          'podmin/site/denied.html', {'message': message})
+            messages.error(request, message)
+            return_url = reverse('podcast_show', kwargs={'slug': slug})
+
+            return render(request, 'podmin/site/denied.html',
+                {'return_url': return_url})
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
@@ -320,6 +338,8 @@ def new_episode(request, slug):
             episode.post_process()
 
             episode.podcast.publish()
+            messages.success(request, '{0} created and published.'.format(
+                epsisode.podcast.title))
 
             return HttpResponseRedirect(reverse(
                 'episode_show',
@@ -340,15 +360,23 @@ def delete_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you delete
                          episode {1}""".format(user, eid)
+            messages.error(request, message)
+
+            return_url = reverse('episode_show',
+                kwargs={'eid': eid, 'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
-                          {'message': message})
+                {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
     if request.method == 'POST':
         if request.POST.get('confirmed', False):
             episode.delete()
+
+            messages.success(request, 'Deleted episode {0}.'.format(
+                epsisode.title))
+
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
 
@@ -368,14 +396,21 @@ def depublish_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you depublish
                          episode {1}""".format(user, eid)
+            messages.error(request, message)
+
+            return_url = reverse('episode_show',
+                kwargs={'eid': eid, 'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
-                          {'message': message})
+                {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
     episode.depublish()
     episode.podcast.publish_feed()
+
+    messages.success(request, 'Depublished episode {0}.'.format(
+        epsisode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
@@ -393,13 +428,21 @@ def publish_episode(request, eid, slug):
             message = """I'm sorry {0}, I'm afraid I can't let you publish
                          episode {1}""".format(user, eid)
 
+            messages.error(request, message)
+
+            return_url = reverse('episode_show',
+                kwargs={'eid': eid, 'slug': slug})
+
             return render(request, 'podmin/site/denied.html',
-                          {'message': message})
+                {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
     episode.publish()
     episode.podcast.publish_feed()
+
+    messages.success(request, 'Published episode {0}.'.format(
+        epsisode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
@@ -416,9 +459,13 @@ def mothball_episode(request, eid, slug):
         if not manager and not editor:
             message = """I'm sorry {0}, I'm afraid I can't let you mothball
                          episode {1}""".format(user, eid)
+            messages.error(request, message)
+
+            return_url = reverse('episode_show',
+                kwargs={'eid': eid, 'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
-                          {'message': message})
+                {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -426,9 +473,17 @@ def mothball_episode(request, eid, slug):
         message = """I'm sorry {0}, before you can mothball an episode, it must
                      be inactive and not published.""".format(user)
 
-        return render(request, 'podmin/site/denied.html', {'message': message})
+        messages.error(request, message)
+
+        return_url = reverse('episode_show', kwargs={'eid': eid, 'slug': slug})
+
+        return render(request, 'podmin/site/denied.html',
+            {'return_url': return_url})
 
     episode.mothball()
+
+    messages.success(request, 'Mothballed episode {0}.'.format(
+        epsisode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
