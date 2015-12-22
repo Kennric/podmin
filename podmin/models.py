@@ -147,7 +147,9 @@ class Podcast(models.Model):
     tags = models.CharField('comma separated list of tags',
                             max_length=255, blank=True, null=True)
     max_age = models.IntegerField('days to keep an episode', default=365)
+    editor_name = models.CharField(max_length=255, blank=True, null=True)
     editor_email = models.EmailField('editor email', blank=True)
+    webmaster_name = models.CharField(max_length=255, blank=True, null=True)
     webmaster_email = models.EmailField('webmaster email', blank=True)
 
     # itunes specific
