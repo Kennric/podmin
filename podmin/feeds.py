@@ -65,8 +65,8 @@ class PodcastElements(object):
                 podcast.editor_email, podcast.editor_name))
 
         if podcast.webmaster_email:
-            handler.addQuickElement(u"webMaster","{0} ({1})".format(
-                podcast.webmaster_email, podcast.webmaster_name)) )
+            handler.addQuickElement(u"webMaster", "{0} ({1})".format(
+                podcast.webmaster_email, podcast.webmaster_name))
 
         handler.addQuickElement(u"generator", podcast.generator)
 
