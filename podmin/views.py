@@ -283,7 +283,7 @@ def edit_episode(request, eid, slug):
                 'episode_show',
                 kwargs={'eid': episode.id, 'slug': slug}))
         else:
-            logging.error("form errors; {0}".format(form.errors))
+            logger.error("form errors: {0}".format(form.errors))
 
     else:
         form = EpisodeForm(instance=episode)
