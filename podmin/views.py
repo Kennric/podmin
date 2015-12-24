@@ -282,6 +282,8 @@ def edit_episode(request, eid, slug):
             return HttpResponseRedirect(reverse(
                 'episode_show',
                 kwargs={'eid': episode.id, 'slug': slug}))
+        else:
+            logging.error("form errors; {0}".format(form.errors))
 
     else:
         form = EpisodeForm(instance=episode)
