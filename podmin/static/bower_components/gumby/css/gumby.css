@@ -1726,7 +1726,7 @@ span.helptext { font-size: 10px; font-style: italic; color: #4a4d50; padding-top
 
 span.error { font-size: 10px; font-style: italic; color: #ca3838; padding-top: 0; margin-top: 0; }
 
-div.error { margin-top: 10px; margin-bottom: 10px; border: 1px solid #ca3838; }
+div.error { margin-top: 10px; margin-bottom: 10px; padding-top: 10px; border: 1px solid #ca3838; }
 
 fieldset.drawer { background-color: white; box-shadow: 0 0 0; padding-top: 12px; padding-bottom: 0px; line-height: 1em; }
 
