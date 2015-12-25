@@ -43,6 +43,18 @@ span.helptext {
     margin-top: 0;
 }
 
+span.error {
+    font-size: $small;
+    font-style: $font-style-italic;
+    color: $danger-color;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+div.error {
+    background-color: $redshift;
+}
+
 fieldset.drawer {
     background-color: $global-bg-color;
     box-shadow: 0 0 0;
