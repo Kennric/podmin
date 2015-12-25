@@ -276,8 +276,8 @@ def edit_episode(request, eid, slug):
 
             episode.podcast.publish()
 
-            messages.success(request, '{0} saved and published.'.format(
-                episode.podcast.title))
+            messages.success(request, '{0}, {1} saved and published.'.format(
+                episode.podcast.title, episode.title))
 
             return HttpResponseRedirect(reverse(
                 'episode_show',
