@@ -30,7 +30,8 @@ class PodcastElements(object):
 
         handler.startElement(u"itunes:owner", {})
         handler.addQuickElement(u"itunes:name", podcast.author)
-        handler.addQuickElement(u"itunes:email", podcast.contact)
+        handler.addQuickElement(u"itunes:email", "{0} ({1}) ".format(
+            podcast.contact, podcast.author))
         handler.endElement(u"itunes:owner")
 
         if podcast.itunes_image:
@@ -60,10 +61,12 @@ class PodcastElements(object):
             handler.addQuickElement(u"itunes:new-feed-url", podcast.redirect)
 
         if podcast.editor_email:
-            handler.addQuickElement(u"managingEditor", podcast.editor_email)
+            handler.addQuickElement(u"managingEditor", "{0} ({1})".format(
+                podcast.editor_email, podcast.editor_name))
 
         if podcast.webmaster_email:
-            handler.addQuickElement(u"webMaster", podcast.webmaster_email)
+            handler.addQuickElement(u"webMaster", "{0} ({1})".format(
+                podcast.webmaster_email, podcast.webmaster_name))
 
         handler.addQuickElement(u"generator", podcast.generator)
 
@@ -228,16 +231,16 @@ class AtomPodcastFeed(PodcastFeed):
         return podcast.owner.get_full_name()
 
     def author_email(self, podcast):
-        return podcast.owner.email
+        return "{0} ({1})".format(podcast.contact, podcast.author_name)
 
     def author_link(self, podcast):
         return podcast.contact
 
     def link(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "atom.xml")
+        return "{0}/{1}".format(podcast.pub_url, "atom.xml")
 
     def feed_url(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "atom.xml")
+        return "{0}/{1}".format(podcast.pub_url, "atom.xml")
 
 
 class RssPodcastFeed(PodcastFeed):
@@ -255,7 +258,7 @@ class RssPodcastFeed(PodcastFeed):
         return podcast.subtitle
 
     def link(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "rss.xml")
+        return "{0}/{1}".format(podcast.pub_url, "rss.xml")
 
     def feed_url(self, podcast):
-        return "%s/%s" % (podcast.pub_url, "rss.xml")
+        return "{0}/{1}".format(podcast.pub_url, "rss.xml")

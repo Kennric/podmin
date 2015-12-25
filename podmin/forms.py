@@ -69,7 +69,7 @@ class EpisodeForm(BetterModelForm):
 
     buffer_audio = FileField(
         label='Episode Audio',
-        required=True,
+        required=False,
         widget=FileInput(attrs={'class': 'input', 'type': 'file'}))
 
     show_notes = CharField(
@@ -236,8 +236,18 @@ class PodcastForm(BetterModelForm):
         initial=365,
         widget=TextInput(attrs={'class': 'input'}))
 
+    editor_name = CharField(
+        label='Editor Name',
+        required=False,
+        widget=TextInput(attrs={'class': 'input'}))
+
     editor_email = CharField(
         label='Editor Email',
+        required=False,
+        widget=TextInput(attrs={'class': 'input'}))
+
+    webmaster_name = CharField(
+        label='Webmaster name',
         required=False,
         widget=TextInput(attrs={'class': 'input'}))
 
@@ -348,9 +358,10 @@ class PodcastForm(BetterModelForm):
                  'legend': 'Required Settings',
                  'classes': ['required', 'drawer', 'active']}),
             ('Optional',
-                {'fields': ['editor_email', 'organization', 'website',
-                            'station', 'credits',
-                            'feedburner_url', 'webmaster_email', 'block',
+                {'fields': ['editor_name', 'editor_email', 'organization',
+                            'website', 'station', 'credits',
+                            'feedburner_url', 'webmaster_name',
+                            'webmaster_email', 'block',
                             'rename_files', 'tag_audio', 'itunes_url'],
                  'legend': 'Optional Settings',
                  'classes': ['optional', 'collapse', 'drawer']}),

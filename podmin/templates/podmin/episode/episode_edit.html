@@ -5,7 +5,9 @@
 {% block content %}
 
 {% if form.non_field_errors %}
+    <div class="error">
     {{ form.non_field_errors }}
+    </div>
 {% endif %}
 
 <div class="row">
@@ -42,8 +44,8 @@
           <li {{ field.row_attrs }}>
             <div class="field">
             <div class="three columns">
-            {{ field.errors }}
             {{ field.label_tag }}
+            <span class="error">{{ field.errors }}</span>
             <span class="helptext">{{ field.help_text }}</span>
             </div>
             <div class="nine columns">
