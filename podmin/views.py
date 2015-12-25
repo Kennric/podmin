@@ -246,10 +246,10 @@ def edit_episode(request, eid, slug):
 
             messages.warning(request, message)
             return_url = reverse('episode_show',
-                kwargs={'eid': eid, 'slug': slug})
+                                 kwargs={'eid': eid, 'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+                          {'return_url': return_url})
 
     episode = Episode.objects.get(pk=eid)
 
@@ -282,8 +282,6 @@ def edit_episode(request, eid, slug):
             return HttpResponseRedirect(reverse(
                 'episode_show',
                 kwargs={'eid': episode.id, 'slug': slug}))
-        else:
-            logger.error("form errors: {0}".format(form.errors))
 
     else:
         form = EpisodeForm(instance=episode)

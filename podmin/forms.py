@@ -69,7 +69,7 @@ class EpisodeForm(BetterModelForm):
 
     buffer_audio = FileField(
         label='Episode Audio',
-        required=True,
+        required=False,
         widget=FileInput(attrs={'class': 'input', 'type': 'file'}))
 
     show_notes = CharField(

@@ -41,9 +41,13 @@
             <div {{ field.row_attrs }}>
           <li {{ field.row_attrs }}>
             <div class="field">
+            {% if field.errors %}
+            <div class="three columns error">
+            {% else %}
             <div class="three columns">
-            {{ field.errors }}
+            {% endif %}
             {{ field.label_tag }}
+            <span class="error">{{ field.errors }}</span>
             <span class="helptext">{{ field.help_text }}</span>
             </div>
             <div class="nine columns">

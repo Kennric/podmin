@@ -720,6 +720,8 @@ class Episode(models.Model):
         if not self.number:
             self.number = self.track_number
 
+        logger.info("{0}: saving episode {1}".format(self.podcast.slug,
+                                                     self.slug))
         super(Episode, self).save(*args, **kwargs)
 
     def post_process(self):
