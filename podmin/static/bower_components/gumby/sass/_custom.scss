@@ -52,7 +52,8 @@ span.error {
 }
 
 div.error {
-    background-color: $redshift;
+    padding: 5px;
+    border: 1px solid $danger-color;
 }
 
 fieldset.drawer {
