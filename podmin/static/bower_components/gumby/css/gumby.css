@@ -1724,6 +1724,10 @@ input.xxwide:first-child:last-child, .input.xxwide:first-child:last-child { marg
 
 span.helptext { font-size: 10px; font-style: italic; color: #4a4d50; padding-top: 0; margin-top: 0; }
 
+span.error { font-size: 10px; font-style: italic; color: #ca3838; padding-top: 0; margin-top: 0; }
+
+div.error { background-color: #ffeeee; }
+
 fieldset.drawer { background-color: white; box-shadow: 0 0 0; padding-top: 12px; padding-bottom: 0px; line-height: 1em; }
 
 fieldset.drawer.active { padding: 1.5625em; max-height: none; }
