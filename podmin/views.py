@@ -339,7 +339,7 @@ def new_episode(request, slug):
 
             episode.podcast.publish()
             messages.success(request, '{0} created and published.'.format(
-                epsisode.podcast.title))
+                episode.podcast.title))
 
             return HttpResponseRedirect(reverse(
                 'episode_show',
@@ -375,7 +375,7 @@ def delete_episode(request, eid, slug):
             episode.delete()
 
             messages.success(request, 'Deleted episode {0}.'.format(
-                epsisode.title))
+                episode.title))
 
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
@@ -410,7 +410,7 @@ def depublish_episode(request, eid, slug):
     episode.podcast.publish_feed()
 
     messages.success(request, 'Depublished episode {0}.'.format(
-        epsisode.title))
+        episode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
@@ -442,7 +442,7 @@ def publish_episode(request, eid, slug):
     episode.podcast.publish_feed()
 
     messages.success(request, 'Published episode {0}.'.format(
-        epsisode.title))
+        episode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
@@ -483,7 +483,7 @@ def mothball_episode(request, eid, slug):
     episode.mothball()
 
     messages.success(request, 'Mothballed episode {0}.'.format(
-        epsisode.title))
+        episode.title))
 
     return HttpResponseRedirect(reverse('podcast_show', kwargs={'slug': slug}))
 
