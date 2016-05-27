@@ -57,6 +57,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
+# upload to temp files and avoid memory usage
+FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+
 ROOT_URLCONF = 'podmin.urls'
 
 TEMPLATE_DIRS = (
