@@ -1,0 +1,62 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  web:
+    environment:
+      - PODMIN_DB_ENGINE=django.db.backends.postgresql_psycopg2
+      - PODMIN_DB_USER=postgres
+      - PODMIN_DB_NAME=postgres
+      - PODMIN_DB_HOST=db
+      - PODMIN_DB_PORT=5432
+      - PODMIN_DEBUG=1
+      - PODMIN_TEMPLATE_DEBUG=1
+      - PODMIN_LOGFILE=log
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/podmin
+    ports:
+      - "8000:8000"
+    links:
+      - db
+    depends_on:
+      - staticfiles
+  migrations:
+    environment:
+      - PODMIN_DB_ENGINE=django.db.backends.postgresql_psycopg2
+      - PODMIN_DB_USER=postgres
+      - PODMIN_DB_NAME=postgres
+      - PODMIN_DB_HOST=db
+      - PODMIN_DB_PORT=5432
+      - PODMIN_DEBUG=1
+      - PODMIN_TEMPLATE_DEBUG=1
+      - PODMIN_LOGFILE=log
+    build: .
+    image: app
+    command: python manage.py migrate --noinput
+    volumes:
+      - .:/podmin
+    links:
+      - db
+    depends_on:
+      - db
+  staticfiles:
+    environment:
+      - PODMIN_DB_ENGINE=django.db.backends.postgresql_psycopg2
+      - PODMIN_DB_USER=postgres
+      - PODMIN_DB_NAME=postgres
+      - PODMIN_DB_HOST=db
+      - PODMIN_DB_PORT=5432
+      - PODMIN_DEBUG=1
+      - PODMIN_TEMPLATE_DEBUG=1
+      - PODMIN_LOGFILE=log
+    build: .
+    image: app
+    command: python manage.py collectstatic --noinput
+    volumes:
+      - .:/podmin
+    links:
+      - db
+    depends_on:
+      - migrations

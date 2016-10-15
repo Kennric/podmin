@@ -158,12 +158,10 @@ SECRET_KEY = os.getenv('PODMIN_SECRET_KEY', '8d2c94e759dc865d5234e0e70e0f5530')
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('PODMIN_DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('PODMIN_DB_NAME', 'db/podmin.db'),
+        'NAME': os.getenv('PODMIN_DB_NAME', 'podmin.db'),
         'USER': os.getenv('PODMIN_DB_USER', ''),
         'PASSWORD': os.getenv('PODMIN_DB_PASS', ''),
         'HOST': os.getenv('PODMIN_DB_HOST', ''),
         'PORT': os.getenv('PODMIN_DB_PORT', '')
     }
 }
-
-
