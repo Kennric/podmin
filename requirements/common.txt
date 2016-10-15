@@ -1,4 +1,4 @@
-Django
+Django==1.8.5
 Pillow
 PyRSS2Gen
 django-autoslug
