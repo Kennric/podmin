@@ -11,7 +11,7 @@ services:
       - PODMIN_DB_PORT=5432
       - PODMIN_DEBUG=1
       - PODMIN_TEMPLATE_DEBUG=1
-      - PODMIN_LOGFILE='log'
+      - PODMIN_LOGFILE=log
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -31,7 +31,7 @@ services:
       - PODMIN_DB_PORT=5432
       - PODMIN_DEBUG=1
       - PODMIN_TEMPLATE_DEBUG=1
-      - PODMIN_LOGFILE='log'
+      - PODMIN_LOGFILE=log
     build: .
     image: app
     command: python manage.py migrate --noinput
@@ -50,7 +50,7 @@ services:
       - PODMIN_DB_PORT=5432
       - PODMIN_DEBUG=1
       - PODMIN_TEMPLATE_DEBUG=1
-      - PODMIN_LOGFILE='log'
+      - PODMIN_LOGFILE=log
     build: .
     image: app
     command: python manage.py collectstatic --noinput
