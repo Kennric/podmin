@@ -1,10 +1,10 @@
 from django.forms import (FileField, DateTimeField, CharField, TextInput,
-                          Textarea, EmailInput, FileInput, ImageField, Select,
-                          ChoiceField, IntegerField, NullBooleanSelect,
-                          CheckboxInput, ModelMultipleChoiceField,
-                          SelectMultiple, RadioSelect, SplitDateTimeWidget)
+                          EmailInput, FileInput, Select, ChoiceField,
+                          IntegerField, ModelMultipleChoiceField,
+                          SelectMultiple)
 from form_utils.forms import BetterModelForm
-from form_utils.widgets import ImageWidget
+#from form_utils.widgets import ImageWidget
+from django_markdown.widgets import MarkdownWidget
 
 from podmin.models import Episode, Podcast, Category
 import datetime
@@ -40,7 +40,7 @@ class EpisodeForm(BetterModelForm):
     description = CharField(
         label='Episode Description',
         required=False,
-        widget=Textarea(
+        widget=MarkdownWidget(
             attrs={'class': 'input textarea',
                    'type': 'text',
                    'rows': 3}))
@@ -75,27 +75,26 @@ class EpisodeForm(BetterModelForm):
     show_notes = CharField(
         label='Show Notes',
         required=False,
-        widget=Textarea(attrs={'class': 'input textarea',
-                               'type': 'text',
-                               'rows': 5}),
+        widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                     'type': 'text',
+                                     'rows': 5}),
         help_text='Notes about this episode')
 
     credits = CharField(
         label='Credits',
         required=False,
-        widget=Textarea(attrs={'class': 'input textarea',
-                               'type': 'text',
-                               'rows': 3}),
+        widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                     'type': 'text',
+                                     'rows': 3}),
         help_text='Art and Music Credits')
 
     guests = CharField(
         label='Guests',
         required=False,
-        widget=Textarea(attrs={'class': 'input textarea',
-                               'type': 'text',
-                               'rows': 3}),
+        widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                     'type': 'text',
+                                     'rows': 3}),
         help_text='Guests appearing in this episode')
-
 
     class Meta:
         model = Episode
@@ -136,9 +135,9 @@ class PodcastForm(BetterModelForm):
     description = CharField(
         label='Description',
         required=False,
-        widget=Textarea(attrs={'class': 'input textarea',
-                               'type': 'text',
-                               'rows': 3}))
+        widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                     'type': 'text',
+                                     'rows': 3}))
 
     language = ChoiceField(
         label='Language',
@@ -160,11 +159,12 @@ class PodcastForm(BetterModelForm):
             'placeholder': 'Comma-separated list of tags.'}))
 
     itunes_categories = ModelMultipleChoiceField(
-      queryset=Category.objects.annotate(
-        num_cats=Count('category')).filter(num_cats__lt=1).order_by('parent'),
-      label='iTunes Categories',
-      required=False,
-      widget=SelectMultiple(attrs={'class': 'input taller', 'size': 10}))
+        queryset=Category.objects.annotate(
+            num_cats=Count('category')).filter(num_cats__lt=1).order_by(
+                'parent'),
+        label='iTunes Categories',
+        required=False,
+        widget=SelectMultiple(attrs={'class': 'input taller', 'size': 10}))
 
     author = CharField(
         label='Author Name',
@@ -189,9 +189,9 @@ class PodcastForm(BetterModelForm):
     credits = CharField(
         label='Art and Music Credits',
         required=False,
-        widget=Textarea(attrs={'class': 'input textarea',
-                               'type': 'text',
-                               'rows': 3}),
+        widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                     'type': 'text',
+                                     'rows': 3}),
         help_text='One contributer per line.')
 
     frequency = ChoiceField(
@@ -324,7 +324,6 @@ class PodcastForm(BetterModelForm):
         choices=BOOLEAN_CHOICES,
         initial=BOOLEAN_CHOICES[0][0])
 
-
     def __init__(self, *args, **kwargs):
         super(PodcastForm, self).__init__(*args, **kwargs)
 
@@ -373,4 +372,4 @@ class PodcastForm(BetterModelForm):
                  'description': """Don't change these unless you know
                                    what you are doing.""",
                  'classes': ['advanced', 'collapse', 'drawer']})
-            ]
+        ]

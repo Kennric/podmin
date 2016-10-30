@@ -9,6 +9,7 @@ from django.http import HttpRequest
 
 # django contrib stuff
 from autoslug import AutoSlugField
+from django_markdown.models import MarkdownField
 
 # podmin app stuff
 import podmin
@@ -89,7 +90,7 @@ class Podcast(models.Model):
     title = models.CharField(max_length=255)
     owner = models.ForeignKey(User, default=1)
     slug = models.SlugField(unique=True)
-    credits = models.TextField('art and music credits', blank=True, null=True)
+    credits = MarkdownField('art and music credits', blank=True, null=True)
     created = models.DateTimeField('created', auto_now_add=True,
                                    editable=False)
     published = models.DateTimeField('last published', blank=True, null=True)
@@ -131,7 +132,7 @@ class Podcast(models.Model):
     organization = models.CharField(max_length=255, default='')
     station = models.CharField('broadcasting station name',
                                max_length=16, blank=True)
-    description = models.TextField(blank=True, null=True)
+    description = MarkdownField(blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
@@ -156,7 +157,7 @@ class Podcast(models.Model):
 
     categorization_domain = models.URLField(blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
-    summary = models.TextField(blank=True)
+    summary = MarkdownField(blank=True)
     explicit = models.CharField(max_length=255, default='No',
                                 choices=EXPLICIT_CHOICES, blank=True)
     block = models.BooleanField(default=False)
@@ -393,14 +394,14 @@ class Podcast(models.Model):
             new_files = importer.fetch()
         except:
             logger.error(
-                    "{0}: failed: couldn't fetch new files".format(self.slug))
+                "{0}: failed: couldn't fetch new files".format(self.slug))
             return False
 
         try:
             new_files = importer.clean()
         except:
             logger.error(
-                    "{0}: failed: couldn't clean new files".format(self.slug))
+                "{0}: failed: couldn't clean new files".format(self.slug))
             return False
 
         if self.combine_segments:
@@ -596,8 +597,8 @@ class Episode(models.Model):
     number = models.CharField('notional episode number', max_length=32,
                               blank=True, null=True)
 
-    description = models.TextField('short episode description',
-                                   blank=True, null=True)
+    description = MarkdownField('short episode description',  blank=True,
+                                null=True)
 
     buffer_audio = models.FileField('audio file',
                                     upload_to=get_audio_upload_path,
@@ -617,9 +618,10 @@ class Episode(models.Model):
     active = models.BooleanField('active', default=1)
     tags = models.CharField(
         'comma separated list of tags', max_length=255, blank=True, null=True)
-    show_notes = models.TextField('show notes', blank=True, null=True)
-    guests = models.TextField('guests', blank=True, null=True)
-    credits = models.TextField('art and music credits', blank=True, null=True)
+    show_notes = MarkdownField('show notes', blank=True, null=True)
+    guests = MarkdownField('guests', blank=True, null=True)
+    credits = MarkdownField('art and music credits',
+                            blank=True, null=True)
 
     """
     image: For best results choose an attractive, original, and square JPEG
@@ -637,7 +639,7 @@ class Episode(models.Model):
 
     # A URL that identifies a categorization taxonomy.
     categorization_domain = models.URLField(blank=True)
-    summary = models.TextField(blank=True)
+    summary = MarkdownField(blank=True)
     priority = models.DecimalField(max_digits=2, decimal_places=1,
                                    blank=True, null=True)
     block = models.BooleanField(default=False)
@@ -966,7 +968,7 @@ class Episode(models.Model):
                                    "episodes")
 
         episode_filename = "{0}_{1}.json".format(
-                self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
+            self.id, datetime.strftime(self.pub_date, "%Y%m%d"))
 
         episode_file = os.path.join(episode_dir, episode_filename)
 

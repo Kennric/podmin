@@ -1,6 +1,7 @@
 import os.path
 from image_settings import *
 from logging import *
+import markdown
 
 # Django settings for podcaster project.
 
@@ -33,6 +34,10 @@ USE_I18N = True
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
 USE_L10N = True
+
+MARKUP_FIELD_TYPES = (
+    ('markdown', markdown.markdown),
+)
 
 # List of finder classes that know how to find static files in
 # various locations.

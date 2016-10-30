@@ -5,6 +5,7 @@ from django.contrib import admin
 urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^markdown/', include( 'django_markdown.urls')),
 )
 
 urlpatterns += patterns('', url(r'', include('podmin.urls_feeds')))
