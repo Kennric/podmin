@@ -1,6 +1,7 @@
 {% extends "podmin/site/base.html" %}
 {% load static from staticfiles %}
 {% load paginator %}
+{% load markdown_deux_tags %}
 {% block externals %}
 {% endblock %}
 {% block title %}{{ podcast.title }}{% endblock %}
@@ -47,7 +48,7 @@
     {% if podcast.description %}
     <div class="row">
         <div class="twelve columns">
-        <p>{{ podcast.description | linebreaks }}</p>
+        <p>{{ podcast.description|markdown }}</p>
         </div>
     </div>
     {% endif %}
@@ -144,4 +145,3 @@
 {% endblock %}
 {% block footscripts %}
 {% endblock %}
-

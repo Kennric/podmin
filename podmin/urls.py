@@ -1,14 +1,20 @@
 from django.conf.urls import patterns, url, include
 from django.contrib import admin
-
+from django.conf import settings
 
 urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^markdown/', include( 'django_markdown.urls')),
 )
 
-urlpatterns += patterns('', url(r'', include('podmin.urls_feeds')))
+if settings.DEBUG:
+    # static files (images, css, javascript, etc.)
+    urlpatterns += patterns('',
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.MEDIA_ROOT}))
 
+urlpatterns += patterns('', url(r'', include('podmin.urls_feeds')))
 
 urlpatterns += patterns(
     'podmin.views',

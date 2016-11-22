@@ -1,6 +1,7 @@
 import os.path
 from image_settings import *
 from logging import *
+import markdown
 
 # Django settings for podcaster project.
 
@@ -34,6 +35,12 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+MARKUP_FIELD_TYPES = (
+    ('markdown', markdown.markdown),
+)
+
+MARKDOWN_EDITOR_SKIN = 'simple'
+
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
@@ -58,7 +65,9 @@ MIDDLEWARE_CLASSES = (
 )
 
 # upload to temp files and avoid memory usage
-FILE_UPLOAD_HANDLERS = ("django.core.files.uploadhandler.TemporaryFileUploadHandler",)
+FILE_UPLOAD_HANDLERS = (
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
 
 ROOT_URLCONF = 'podmin.urls'
 
@@ -90,6 +99,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'django_markdown',
+    'markdown_deux',
     'podmin'
 )
 
