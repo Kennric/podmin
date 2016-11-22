@@ -13,11 +13,11 @@ services:
       - PODMIN_TEMPLATE_DEBUG=1
       - PODMIN_LOGFILE=log
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - .:/podmin
     ports:
-      - "8000:8000"
+      - "8001:8001"
     links:
       - db
     depends_on:
