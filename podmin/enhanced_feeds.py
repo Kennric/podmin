@@ -4,26 +4,11 @@ from django.utils.feedgenerator import SyndicationFeed, rfc2822_date
 
 class CDataXMLGenerator(SimplerXMLGenerator):
     def characters(self, contents):
-        # check the given string for CDATA and if it's present,
-        # call parent.characters() for the non-CDATA parts
-        # and parent._write() for the CDATA
-        start = 0
-        cdata_start = '<![CDATA['
-        cdata_end = ']]>'
-        while True:
-            try:
-                idx = contents.index(cdata_start, start)
-                end = contents.index(cdata_end, start) + len(cdata_end)
-                if start < idx:
-                    SimplerXMLGenerator.characters(self, (contents[start:idx]))
-                # now write out the stuff, and reset start:
-                # this sax stuff uses old-school python classes
-                # so no using super()
-                SimplerXMLGenerator._write(self, contents[idx:end])
-                start = end
-            except ValueError:
-                SimplerXMLGenerator.characters(self, contents[start:])
-                break
+        try:
+            cdata = '<![CDATA[{}]]>'.format(contents)
+            self.ignorableWhitespace(contents)
+        except ValueError:
+            SimplerXMLGenerator.characters(self, contents[start:])
 
 
 class EnhancedPodcastFeed(SyndicationFeed):
