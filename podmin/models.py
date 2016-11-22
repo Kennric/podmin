@@ -10,6 +10,7 @@ from django.http import HttpRequest
 # django contrib stuff
 from autoslug import AutoSlugField
 from django_markdown.models import MarkdownField
+from django.contrib.sites.models import Site
 
 # podmin app stuff
 import podmin
@@ -248,12 +249,15 @@ class Podcast(models.Model):
         """
         set these urls to local media urls if not specified.
         """
+        domain = "http://{0}".format(Site.objects.get_current().domain)
 
         if not self.pub_url:
-            self.pub_url = "{0}{1}".format((settings.MEDIA_URL, self.slug))
+            self.pub_url = "{0}{1}{2}".format(domain,
+                settings.MEDIA_URL, self.slug)
 
         if not self.storage_url:
-            self.storage_url = "{0}{1}".format((settings.MEDIA_URL, self.slug))
+            self.storage_url = "{0}{1}{2}".format(domain,
+                settings.MEDIA_URL, self.slug)
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")

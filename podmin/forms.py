@@ -43,7 +43,7 @@ class EpisodeForm(BetterModelForm):
         widget=MarkdownWidget(
             attrs={'class': 'input textarea',
                    'type': 'text',
-                   'rows': 3}))
+                   'rows': 6}))
 
     buffer_image = FileField(
         label='Episode Image',
@@ -77,7 +77,7 @@ class EpisodeForm(BetterModelForm):
         required=False,
         widget=MarkdownWidget(attrs={'class': 'input textarea',
                                      'type': 'text',
-                                     'rows': 5}),
+                                     'rows': 8}),
         help_text='Notes about this episode')
 
     credits = CharField(
@@ -85,7 +85,7 @@ class EpisodeForm(BetterModelForm):
         required=False,
         widget=MarkdownWidget(attrs={'class': 'input textarea',
                                      'type': 'text',
-                                     'rows': 3}),
+                                     'rows': 6}),
         help_text='Art and Music Credits')
 
     guests = CharField(
@@ -93,7 +93,7 @@ class EpisodeForm(BetterModelForm):
         required=False,
         widget=MarkdownWidget(attrs={'class': 'input textarea',
                                      'type': 'text',
-                                     'rows': 3}),
+                                     'rows': 6}),
         help_text='Guests appearing in this episode')
 
     class Meta:
@@ -137,7 +137,7 @@ class PodcastForm(BetterModelForm):
         required=False,
         widget=MarkdownWidget(attrs={'class': 'input textarea',
                                      'type': 'text',
-                                     'rows': 3}))
+                                     'rows': 6}))
 
     language = ChoiceField(
         label='Language',
@@ -191,7 +191,7 @@ class PodcastForm(BetterModelForm):
         required=False,
         widget=MarkdownWidget(attrs={'class': 'input textarea',
                                      'type': 'text',
-                                     'rows': 3}),
+                                     'rows': 6}),
         help_text='One contributer per line.')
 
     frequency = ChoiceField(
