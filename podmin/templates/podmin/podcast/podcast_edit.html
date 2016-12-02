@@ -2,7 +2,8 @@
 
 {% load static from staticfiles %}
 {% load podmin_tags %}
-
+{% load django_markdown %}
+{% load django_markdown_static %}
 {% block content %}
 
 
@@ -17,7 +18,9 @@
     {% endif %}
 
     {% if form.non_field_errors %}
-        {{ form.non_field_errors }}
+        {% for err in form.non_field_errors %}
+          <span class="error">{{ err }}</span>
+        {% endfor %}
     {% endif %}
 
     {% csrf_token %}
@@ -46,6 +49,10 @@
             {{ field }}
             {% if field.name == 'image' and podcast.small_image %}
                 <img class="thumb" src="{{ podcast.small_image }}">
+            {% endif %}
+            {% if field.name == 'description' %}
+                {% markdown_editor field.id %}
+                {% markdown_media %}
             {% endif %}
             </div>
             </div>

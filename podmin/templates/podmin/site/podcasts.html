@@ -1,6 +1,6 @@
-
 {% extends "podmin/site/base.html" %}
 {% load static from staticfiles %}
+{% load markdown_deux_tags %}
 {% block externals %}{% endblock %}
 
 {% block title %}Podcasts{% endblock %}
@@ -26,11 +26,10 @@
     <div class="nine columns">
     <h3><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h3>
     <h4>{{ podcast.subtitle}}</h4>
-    {{ podcast.description }}
+    {{ podcast.description | markdown }}
     </div>
 </div>
 
 {% endfor %}
 
 {% endblock %}
-

@@ -1,4 +1,4 @@
-Django
+Django==1.8.5
 Pillow
 PyRSS2Gen
 django-autoslug
@@ -10,3 +10,5 @@ sphinx
 requests
 psycopg2
 python-magic
+django-markdown
+django-markdown-deux

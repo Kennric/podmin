@@ -1,7 +1,8 @@
 {% extends "podmin/admin_base.html" %}
 
 {% load podmin_tags %}
-
+{% load django_markdown %}
+{% load django_markdown_static %}
 {% block content %}
 
 {% if form.non_field_errors %}
@@ -57,6 +58,22 @@
                 <span class="helptext">
                 <em>Current Audio file: {{ episode.audio_filename|filename }}</em>
                 </span>
+            {% endif %}
+            {% if field.name == 'description' %}
+                {% markdown_editor field.id %}
+                {% markdown_media %}
+            {% endif %}
+            {% if field.name == 'credits' %}
+                {% markdown_editor field.id %}
+                {% markdown_media %}
+            {% endif %}
+            {% if field.name == 'show_notes' %}
+                {% markdown_editor field.id %}
+                {% markdown_media %}
+            {% endif %}
+            {% if field.name == 'guests' %}
+                {% markdown_editor field.id %}
+                {% markdown_media %}
             {% endif %}
             </div>
             </div>

@@ -128,6 +128,10 @@ def edit_podcast(request, slug):
             {'return_url': return_url})
 
     podcast = Podcast.objects.get(slug=slug)
+    form = PodcastForm(instance=podcast)
+
+    form.fields['slug'].widget.attrs['readonly'] = True
+
     if request.method == 'POST':
         form = PodcastForm(request.POST, request.FILES, instance=podcast)
         if form.is_valid():
@@ -137,9 +141,6 @@ def edit_podcast(request, slug):
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
 
-    form = PodcastForm(instance=podcast)
-
-    form.fields['slug'].widget.attrs['readonly'] = True
 
     context = {'form': form, 'slug': slug, 'podcast': podcast}
 
@@ -565,7 +566,7 @@ def login_user(request):
         state = "Logged out successfully!"
 
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse(next))
+        return HttpResponseRedirect(next)
 
     return render(request, 'registration/login.html', {
         'state': state, 'username': username, 'next': next, 'title': 'Log In'})
