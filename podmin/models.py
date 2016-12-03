@@ -253,27 +253,16 @@ class Podcast(models.Model):
 
         media_url = urlparse(settings.MEDIA_URL)
         if media_url['scheme'] and media_url['netloc']
-            self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
+            file_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
         else
-
-        domain = "http://{0}".format(Site.objects.get_current().domain)
+            file_url = "http://{0}{1}{2}".format(
+                Site.objects.get_current().domain,
+                settings.MEDIA_URL, self.slug)
 
         if not self.pub_url:
-            if media_url['scheme'] and media_url['netloc']
-                self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
-            else
-                # get the url from the Site object
-                self.pub_url = "http://{0}{1}{2}".format(
-                    Site.objects.get_current().domain,
-                    settings.MEDIA_URL, self.slug)
-
+            self.pub_url = file_url
         if not self.storage_url:
-            if media_url['scheme'] and media_url['netloc']
-                self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
-            else
-                self.storage_url = "http://{0}{1}{2}".format(
-                    Site.objects.get_current().domain,
-                    settings.MEDIA_URL, self.slug)
+            self.storage_ur = file_url
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
