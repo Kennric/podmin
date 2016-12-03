@@ -27,6 +27,7 @@ import glob
 import time
 import logging
 import re
+from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -249,15 +250,30 @@ class Podcast(models.Model):
         """
         set these urls to local media urls if not specified.
         """
+
+        media_url = urlparse(settings.MEDIA_URL)
+        if media_url['scheme'] and media_url['netloc']
+            self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
+        else
+
         domain = "http://{0}".format(Site.objects.get_current().domain)
 
         if not self.pub_url:
-            self.pub_url = "{0}{1}{2}".format(domain,
-                settings.MEDIA_URL, self.slug)
+            if media_url['scheme'] and media_url['netloc']
+                self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
+            else
+                # get the url from the Site object
+                self.pub_url = "http://{0}{1}{2}".format(
+                    Site.objects.get_current().domain,
+                    settings.MEDIA_URL, self.slug)
 
         if not self.storage_url:
-            self.storage_url = "{0}{1}{2}".format(domain,
-                settings.MEDIA_URL, self.slug)
+            if media_url['scheme'] and media_url['netloc']
+                self.pub_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
+            else
+                self.storage_url = "http://{0}{1}{2}".format(
+                    Site.objects.get_current().domain,
+                    settings.MEDIA_URL, self.slug)
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
