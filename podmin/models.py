@@ -149,7 +149,7 @@ class Podcast(models.Model):
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     tags = models.CharField('comma separated list of tags',
                             max_length=255, blank=True, null=True)
-    max_age = models.IntegerField('days to keep an episode', default=365)
+    max_age = models.IntegerField('days to keep an episode', default=0)
     editor_name = models.CharField(max_length=255, blank=True, null=True)
     editor_email = models.EmailField('editor email', blank=True)
     webmaster_name = models.CharField(max_length=255, blank=True, null=True)

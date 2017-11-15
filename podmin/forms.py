@@ -232,8 +232,8 @@ class PodcastForm(BetterModelForm):
         widget=TextInput(attrs={'class': 'input'}))
 
     max_age = IntegerField(
-        label='Days to keep an episode',
-        initial=365,
+        label='Days to keep an episode (set to 0 to keep forever)',
+        initial=0,
         widget=TextInput(attrs={'class': 'input'}))
 
     editor_name = CharField(
