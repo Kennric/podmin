@@ -306,19 +306,25 @@ class Podcast(models.Model):
 
     def publish(self):
         self.publish_episodes()
-        self.expire_episodes()
+        # if this podcast has a max age, then expire old episodes
+        if self.max_age > 0:
+            self.expire_episodes()
         self.publish_feed()
 
         return True
 
     def publish_episodes(self):
+        # if podcast max_age is 0, then episodes never expire.
+        if self.max_age > 0:
+            # publish episodes that are ripe
+            expired_date = datetime.now() - timedelta(days=self.max_age)
 
-        # publish episodes that are ripe
-        expired_date = datetime.now() - timedelta(days=self.max_age)
-
-        episodes = self.episode_set.filter(pub_date__gte=expired_date,
-                                           pub_date__lte=datetime.now(),
-                                           active=True)
+            episodes = self.episode_set.filter(pub_date__gte=expired_date,
+                                               pub_date__lte=datetime.now(),
+                                               active=True)
+        else:
+            episodes = self.episode_set.filter(pub_date__lte=datetime.now(),
+                                               active=True)
 
         for episode in episodes:
             episode.publish()
