@@ -252,7 +252,7 @@ class Podcast(models.Model):
         """
 
         media_url = urlparse(settings.MEDIA_URL)
-        if media_url['scheme'] and media_url['netloc']:
+        if media_url.scheme and media_url.netloc:
             file_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
         else:
             file_url = "http://{0}{1}{2}".format(
