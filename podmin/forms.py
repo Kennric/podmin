@@ -1,7 +1,7 @@
 from django.forms import (FileField, DateTimeField, CharField, TextInput,
                           EmailInput, FileInput, Select, ChoiceField,
                           IntegerField, ModelMultipleChoiceField,
-                          SelectMultiple)
+                          SelectMultiple, EmailField, Form)
 from form_utils.forms import BetterModelForm
 #from form_utils.widgets import ImageWidget
 from django_markdown.widgets import MarkdownWidget
@@ -373,3 +373,22 @@ class PodcastForm(BetterModelForm):
                                    what you are doing.""",
                  'classes': ['advanced', 'collapse']})
         ]
+
+# A form for people to request a podcast account
+class RegistrationForm(Form):
+    name = CharField(label='Your name', required=True)
+    username = EmailField(label='Your preferred username', required=True)
+    email = EmailField(label='Your email address', required=True)
+    podcast_name = EmailField(label='The name of your podcast', required=True)
+    description = CharField(label='A short description of your podcast',
+                            required=True,
+                            widget=MarkdownWidget(
+                                attrs={'class': 'input textarea',
+                                       'type': 'text',
+                                       'rows': 6}))
+
+    notes = CharField(label='Is there anything else we should know?',
+                      required=False,
+                      widget=MarkdownWidget(attrs={'class': 'input textarea',
+                                                   'type': 'text',
+                                                   'rows': 6}))
