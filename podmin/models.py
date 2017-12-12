@@ -27,6 +27,7 @@ import glob
 import time
 import logging
 import re
+from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +149,7 @@ class Podcast(models.Model):
     ttl = models.IntegerField('minutes this feed can be cached', default=1440)
     tags = models.CharField('comma separated list of tags',
                             max_length=255, blank=True, null=True)
-    max_age = models.IntegerField('days to keep an episode', default=365)
+    max_age = models.IntegerField('days to keep an episode', default=0)
     editor_name = models.CharField(max_length=255, blank=True, null=True)
     editor_email = models.EmailField('editor email', blank=True)
     webmaster_name = models.CharField(max_length=255, blank=True, null=True)
@@ -249,15 +250,19 @@ class Podcast(models.Model):
         """
         set these urls to local media urls if not specified.
         """
-        domain = "http://{0}".format(Site.objects.get_current().domain)
+
+        media_url = urlparse(settings.MEDIA_URL)
+        if media_url.scheme and media_url.netloc:
+            file_url = "{0}{1}".format(settings.MEDIA_URL, self.slug)
+        else:
+            file_url = "http://{0}{1}{2}".format(
+                Site.objects.get_current().domain,
+                settings.MEDIA_URL, self.slug)
 
         if not self.pub_url:
-            self.pub_url = "{0}{1}{2}".format(domain,
-                settings.MEDIA_URL, self.slug)
-
+            self.pub_url = file_url
         if not self.storage_url:
-            self.storage_url = "{0}{1}{2}".format(domain,
-                settings.MEDIA_URL, self.slug)
+            self.storage_ur = file_url
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
@@ -301,19 +306,25 @@ class Podcast(models.Model):
 
     def publish(self):
         self.publish_episodes()
-        self.expire_episodes()
+        # if this podcast has a max age, then expire old episodes
+        if self.max_age > 0:
+            self.expire_episodes()
         self.publish_feed()
 
         return True
 
     def publish_episodes(self):
+        # if podcast max_age is 0, then episodes never expire.
+        if self.max_age > 0:
+            # publish episodes that are ripe
+            expired_date = datetime.now() - timedelta(days=self.max_age)
 
-        # publish episodes that are ripe
-        expired_date = datetime.now() - timedelta(days=self.max_age)
-
-        episodes = self.episode_set.filter(pub_date__gte=expired_date,
-                                           pub_date__lte=datetime.now(),
-                                           active=True)
+            episodes = self.episode_set.filter(pub_date__gte=expired_date,
+                                               pub_date__lte=datetime.now(),
+                                               active=True)
+        else:
+            episodes = self.episode_set.filter(pub_date__lte=datetime.now(),
+                                               active=True)
 
         for episode in episodes:
             episode.publish()

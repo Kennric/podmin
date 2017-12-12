@@ -232,8 +232,8 @@ class PodcastForm(BetterModelForm):
         widget=TextInput(attrs={'class': 'input'}))
 
     max_age = IntegerField(
-        label='Days to keep an episode',
-        initial=365,
+        label='Days to keep an episode (set to 0 to keep forever)',
+        initial=0,
         widget=TextInput(attrs={'class': 'input'}))
 
     editor_name = CharField(
@@ -363,7 +363,7 @@ class PodcastForm(BetterModelForm):
                             'webmaster_email', 'block',
                             'rename_files', 'tag_audio', 'itunes_url'],
                  'legend': 'Optional Settings',
-                 'classes': ['optional', 'collapse', 'drawer']}),
+                 'classes': ['optional', 'collapse']}),
             ('Advanced',
                 {'fields': ['feed_format', 'ttl', 'max_age', 'pub_url',
                             'storage_url', 'tmp_dir', 'combine_segments',
@@ -371,5 +371,5 @@ class PodcastForm(BetterModelForm):
                  'legend': 'Advanced Settings',
                  'description': """Don't change these unless you know
                                    what you are doing.""",
-                 'classes': ['advanced', 'collapse', 'drawer']})
+                 'classes': ['advanced', 'collapse']})
         ]

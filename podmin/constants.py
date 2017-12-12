@@ -36,7 +36,7 @@ FREQUENCY_CHOICES = (
     ('never', 'Never'),
 )
 
-LANGUAGE_CHOICES= (
+LANGUAGE_CHOICES = (
     ('en', 'English'),
 )
 
