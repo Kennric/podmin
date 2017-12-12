@@ -59,7 +59,7 @@ def podcasts(request):
     return render(request, 'podmin/site/podcasts.html', request_context)
 
 
-def home(request):
+def user_home(request):
     """
     List podcasts for which the user has some role
     """
@@ -157,7 +157,7 @@ def new_podcast(request):
                      podcast.""".format(request.user)
 
         messages.warning(request, message)
-        return_url = reverse('home')
+        return_url = reverse('user_home')
         return render(request, 'podmin/site/denied.html',
             {'return_url': return_url})
 

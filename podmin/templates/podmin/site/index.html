@@ -3,27 +3,30 @@
 {% load markdown_deux_tags %}
 {% block externals %}{% endblock %}
 
-{% block title %}Podcasts{% endblock %}
-{% block episode.podcast_subtitle %}{{ episode.podcast.subtitle }}{% endblock %}
-{% block content %}
+{% block title %}Welcome to Podmin{% endblock %}
 
-<h2>Podcasts</h2>
+{% block content %}
+<div class="row">
+  <div class="twelve columns">
+    <h2>Welcome to PodMin, the People's Podcast Platform</h2>
+  </div>
+</div>
 
 <div class="row page-container">
-    {% for podcast in podcasts %}
-
-    <div class="three columns">
-    {% if podcast.image %}
-        <img src="{{podcast.small_image}}" alt="podcast image">
-    {% endif %}
-    </div>
-
-    <div class="nine columns">
-    <h3><a href="{% url 'podcast_show' slug=podcast.slug %}">{{ podcast.title }}</a></h3>
-    <h4>{{ podcast.subtitle}}</h4>
-
-    {{ podcast.description | markdown }}
-    </div>
+  <h3>What is this?</h3>
+  <p>PodMin is an Open Source, community supported podcast hosting platform.
+  What does that mean? It means that you can create and manage your very own podcast here for free, as long as your podcast is not-for-profit and doesn't need too much bandwidth. If your podcast does make money, or if you need more than our maximum free bandwidth, you can still use PodMin, but we'll charge you a small fee to cover resources.</p>
+  <p>Why would we do that? Because we believe in open infrastructure for the Internet age.</p>
+  <h3>How do I get started?</h3>
+  <p>First of all, you'll need a podcast. PodMin doesn't handle the recording of your show, it just create iTunes-compatible podcast feeds and serves your audio files and RSS feed.</p>
+  <p>If you have some episodes of your podcast recorded, or if you just have a great idea for a podcast and plans to record soon, send us an email with the following information:</p>
+  <ul>
+    <li>Your name</li>
+    <li>A login name for the PodMin system</li>
+    <li>The name of your show</li>
+    <li>A brief description or tagline for the show</li>
+  </ul>
+  <p>We'll reply as soon as we can with further instructions.</p>
 </div>
 
 {% endblock %}
