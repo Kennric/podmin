@@ -13,7 +13,7 @@ from django_markdown.models import MarkdownField
 from django.contrib.sites.models import Site
 
 # podmin app stuff
-#import podmin
+import podmin
 from podmin.util.podcast_audio import PodcastAudio
 from podmin.util import image_sizer
 from podmin.util.file_import import FileImporter
@@ -236,7 +236,7 @@ class Podcast(models.Model):
         if not self.pub_url:
             self.pub_url = file_url
         if not self.storage_url:
-            self.storage_ur = file_url
+            self.storage_url = file_url
 
         image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
         audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
