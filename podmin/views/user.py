@@ -10,10 +10,12 @@ from django.core.files import File
 from django.core.servers.basehttp import FileWrapper
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
+from django.core.mail import EmailMessage
+from django.template.loader import get_template
 
 # podmin app stuff
 from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
+from podmin.forms import PodcastForm, EpisodeForm, RegistrationForm
 
 # python stuff
 import time
@@ -21,18 +23,6 @@ import logging
 import os
 
 logger = logging.getLogger(__name__)
-
-def user_role_check(req, slug):
-    """
-    Check what roles the user has relative to a particular podcast
-    """
-    user = req.user
-
-    manager = user.groups.filter(name="%s_managers" % slug).exists()
-    editor = user.groups.filter(name="%s_editors" % slug).exists()
-    webmaster = user.groups.filter(name="%s_webmasters" % slug).exists()
-
-    return (user, manager, editor, webmaster)
 
 def login_user(request):
     """
@@ -78,37 +68,52 @@ def logout_user(request):
     return HttpResponseRedirect('{}?logout=true'.format(reverse('login')))
 
 def podcast_request(request):
-    form_class = RegistrationForm
-
+    form = RegistrationForm()
     if request.method == 'POST':
-        form = form_class(data=request.POST)
+        form = RegistrationForm(data=request.POST)
 
         if form.is_valid():
-            contact_name = request.POST.get(
-                'contact_name'
+            messages.success(request, 'Thank you, your request was submitted.')
+            name = request.POST.get(
+                'name'
             , '')
-            contact_email = request.POST.get(
-                'contact_email'
+            email = request.POST.get(
+                'email'
             , '')
-            form_content = request.POST.get('content', '')
+            username = request.POST.get(
+                'username'
+            , '')
+            podcast_name = request.POST.get(
+                'podcast_name'
+            , '')
+            description = request.POST.get(
+                'description'
+            , '')
+            notes = request.POST.get(
+                'notes'
+            , '')
 
             # Email the profile with the
             # contact information
-            template = get_template('contact_template.txt')
-            context = Context({
-                'contact_name': contact_name,
-                'contact_email': contact_email,
-                'form_content': form_content,
-            })
+            template = get_template('podmin/site/request_email.txt')
+            context = {
+                'name': name,
+                'username': username,
+                'email': email,
+                'podcast_name': podcast_name,
+                'description': description,
+                'notes': notes
+            }
             content = template.render(context)
             email = EmailMessage(
-                "New contact form submission",
+                "New podcast request",
                 content,
-                "Your website" +'',
-                ['youremail@gmail.com'],
-                headers = {'Reply-To': contact_email }
+                "PodMin" + '',
+                ['podlife@hypothetical.net'],
+                headers = {'Reply-To': email }
             )
             email.send()
-            return redirect('contact')
-
-    return render(request, 'contact.html', {'form': form_class,})
+            return HttpResponseRedirect('/')
+        else:
+            messages.success(request, 'Something went wrong!.')
+    return render(request, 'podmin/site/request_podcast.html', {'form': form})

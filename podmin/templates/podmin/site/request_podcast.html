@@ -1,0 +1,51 @@
+{% extends "podmin/site/base.html" %}
+{% load static from staticfiles %}
+{% load podmin_tags %}
+{% load django_markdown %}
+{% load django_markdown_static %}
+
+{% block content %}
+
+{% if form.non_field_errors %}
+    {% for err in form.non_field_errors %}
+      <span class="error">{{ err }}</span>
+    {% endfor %}
+{% endif %}
+<div class="row">
+  <div class="twelve columns">
+    <form method="post" action="{% url 'podcast_request' %}">
+    {% csrf_token %}
+      <fieldset class="active" id="request-form">
+        <legend>Request a new Podcast</legend>
+        <p class="description">Tell us a bit about yourself and your podcast.</p>
+        <ul>
+        {% for field in form %}
+          {% if field.is_hidden %}
+            {{ field }}
+          {% else %}
+          <div {{ field.row_attrs }}>
+            <li {{ field.row_attrs }}>
+              <div class="field">
+                <div class="three columns">
+                <span class="error">{{ field.errors }}</span>
+                {{ field.label_tag }}
+                <span class="helptext">{{ field.help_text }}</span>
+                </div>
+                <div class="nine columns">
+                {{ field }}
+                </div>
+              </div>
+            </li>
+          </div>
+          {% endif %}
+        {% endfor %}
+        </ul>
+      </fieldset>
+      <div class="medium info btn">
+        <input type="submit" value="Send" />
+      </div>
+      <input type="hidden" name="next" value="/" />
+    </form>
+  </div>
+</div>
+{% endblock %}

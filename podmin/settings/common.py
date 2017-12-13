@@ -176,3 +176,11 @@ DATABASES = {
         'PORT': os.getenv('PODMIN_DB_PORT', '')
     }
 }
+
+# Email settings
+EMAIL_BACKEND = os.getenv('PODMIN_EMAIL_BACKEND',
+                          'django.core.mail.backends.console.EmailBackend')
+# host and port will be used if 'django.core.mail.backends.smtp.EmailBackend'
+# is set via environment variable. Otherwise, the default prints to stdout
+EMAIL_HOST = os.getenv('PODMIN_EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.getenv('PODMIN_EMAIL_PORT', '25')

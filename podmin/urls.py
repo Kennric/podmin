@@ -18,9 +18,9 @@ urlpatterns += patterns('', url(r'', include('podmin.urls_feeds')))
 
 urlpatterns += patterns(
     'podmin.views',
-
     url(r'^login/?$', 'login_user', name='login'),
     url(r'^logout/?$', 'logout_user', name='logout'),
+    url(r'^request/?$', 'podcast_request', name='podcast_request'),
     url(r'^podcasts/$', 'podcasts', name='podcasts'),
     url(r'^$', 'index', name='home'),
     url(r'^about/$',

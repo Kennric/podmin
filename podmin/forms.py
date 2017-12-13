@@ -376,10 +376,14 @@ class PodcastForm(BetterModelForm):
 
 # A form for people to request a podcast account
 class RegistrationForm(Form):
-    name = CharField(label='Your name', required=True)
-    username = EmailField(label='Your preferred username', required=True)
-    email = EmailField(label='Your email address', required=True)
-    podcast_name = EmailField(label='The name of your podcast', required=True)
+    name = CharField(label='Your name', required=True,
+                     widget=TextInput(attrs={'class': 'input'}))
+    username = CharField(label='Your preferred username', required=True,
+                          widget=TextInput(attrs={'class': 'input'}))
+    email = EmailField(label='Your email address', required=True,
+                       widget=TextInput(attrs={'class': 'input'}))
+    podcast_name = CharField(label='The name of your podcast', required=True,
+                              widget=TextInput(attrs={'class': 'input'}))
     description = CharField(label='A short description of your podcast',
                             required=True,
                             widget=MarkdownWidget(
