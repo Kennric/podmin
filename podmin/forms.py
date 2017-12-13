@@ -378,12 +378,12 @@ class PodcastForm(BetterModelForm):
 class RegistrationForm(Form):
     name = CharField(label='Your name', required=True,
                      widget=TextInput(attrs={'class': 'input'}))
-    username = CharField(label='Your preferred username', required=True,
+    username = CharField(label='Your username', required=True,
                           widget=TextInput(attrs={'class': 'input'}))
     email = EmailField(label='Your email address', required=True,
                        widget=TextInput(attrs={'class': 'input'}))
     podcast_name = CharField(label='The name of your podcast', required=True,
-                              widget=TextInput(attrs={'class': 'input'}))
+                             widget=TextInput(attrs={'class': 'input'}))
     description = CharField(label='A short description of your podcast',
                             required=True,
                             widget=MarkdownWidget(
