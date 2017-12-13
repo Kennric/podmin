@@ -104,12 +104,16 @@ def podcast_request(request):
                 'description': description,
                 'notes': notes
             }
-            content = template.render(context)
+            subject = "New Podcast Request"
+            body = template.render(context)
+            from_address = settings.EMAIL_FROM
+            to_addresses = [admin[1] for admin in settings.ADMINS]
+
             email = EmailMessage(
-                "New podcast request",
-                content,
-                "PodMin" + '',
-                ['podlife@hypothetical.net'],
+                subject,
+                body,
+                from_address,
+                to_addresses,
                 headers = {'Reply-To': email }
             )
             email.send()

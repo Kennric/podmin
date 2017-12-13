@@ -21,12 +21,6 @@ LOGIN_URL = '/login'
 # default number of things, for use with the paginator
 ITEMS_PER_PAGE = 15
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-)
-
-MANAGERS = ADMINS
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -118,8 +112,7 @@ STATICFILES_DIRS = (
 )
 
 """
-The following can use variables set in the environment.
-To use the environment for settings, be sure you set:
+The following settings can get their values from these environment variables:
     PODMIN_DB_ENGINE
     PODMIN_DB_NAME
     PODMIN_DB_USER
@@ -134,9 +127,16 @@ To use the environment for settings, be sure you set:
     PODMIN_STATIC_URL
     PODMIN_DEBUG
     PODMIN_TEMPLATE_DEBUG
-
-in the wsgi environment before the settings are loaded.
+    PODMIN_ADMINS
+    PODMIN_EMAIL_BACKEND
+    PODMIN_EMAIL_HOST
+    PODMIN_EMAIL_PORT
+    PODMIN_EMAIL_FROM
 """
+
+ADMINS =os.getenv('PODMIN_ADMINS', (('Podmaster', 'podmaster@example.com'),))
+
+MANAGERS = ADMINS
 
 DEBUG = os.getenv('PODMIN_DEBUG', False)
 TEMPLATE_DEBUG = os.getenv('PODMIN_DEBUG', False)
@@ -183,4 +183,7 @@ EMAIL_BACKEND = os.getenv('PODMIN_EMAIL_BACKEND',
 # host and port will be used if 'django.core.mail.backends.smtp.EmailBackend'
 # is set via environment variable. Otherwise, the default prints to stdout
 EMAIL_HOST = os.getenv('PODMIN_EMAIL_HOST', 'localhost')
-EMAIL_PORT = os.getenv('PODMIN_EMAIL_PORT', '25')
+EMAIL_PORT = os.getenv('PODMIN_EMAIL_PORT', 25)
+
+# send email 'from' this address
+EMAIL_FROM = os.getenv('PODMIN_EMAIL_FROM', 'podmin@example.com')
