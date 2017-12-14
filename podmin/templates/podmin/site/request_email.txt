@@ -1,0 +1,5 @@
+New podcast request from {{ name }} <{{ email }}> (username {{ username }})
+
+Podcast Name: {{ podcast_name }}
+Podcast Description: {{ description|safe|striptags }}
+Additional Notes: {{ notes|safe|striptags }}
