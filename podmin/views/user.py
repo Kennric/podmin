@@ -12,6 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
+from django.contrib.auth.models import User
 
 # podmin app stuff
 from podmin.models import Podcast, Episode
@@ -107,8 +108,10 @@ def podcast_request(request):
             subject = "New Podcast Request"
             body = template.render(context)
             from_address = settings.EMAIL_FROM
-            to_addresses = [admin[1] for admin in settings.ADMINS]
 
+            to_addresses = [x[0] for x in User.objects.filter(
+                groups__name__in=['admins']).values_list('email')]
+            print(to_addresses)
             email = EmailMessage(
                 subject,
                 body,
