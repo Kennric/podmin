@@ -74,7 +74,6 @@ def podcast_request(request):
         form = RegistrationForm(data=request.POST)
 
         if form.is_valid():
-            messages.success(request, 'Thank you, your request was submitted.')
             name = request.POST.get(
                 'name'
             , '')
@@ -121,8 +120,10 @@ def podcast_request(request):
                     headers = {'Reply-To': email }
                 )
                 email.send()
+                messages.success(request,
+                                 'Thank you, your request was submitted.')
                 return HttpResponseRedirect('/')
             else:
-                messages.success(request, 'No one to send email to!')
-                
+                messages.warning(request, 'No one to send email to!')
+
     return render(request, 'podmin/site/request_podcast.html', {'form': form})
