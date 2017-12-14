@@ -29,7 +29,6 @@
                 </a>
               </h1>
               <ul class="five columns right" id="nav1">
-
                 {% if perms.podmin %}
                   {% include "admin_menu.html" %}
                 {% endif %}
@@ -39,6 +38,7 @@
                 {% else %}
                   <li><a href="/login?next={{request.path}}">Log In</a></li>
                 {% endif %}
+                  <li><a href="{% url 'podcast_request' %}">Request a new Podcast</a></li>
               </ul>
             </div>
         </div>

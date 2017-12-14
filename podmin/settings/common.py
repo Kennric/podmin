@@ -133,7 +133,6 @@ The following settings can get their values from these environment variables:
     PODMIN_STATIC_URL
     PODMIN_DEBUG
     PODMIN_TEMPLATE_DEBUG
-    PODMIN_ADMINS
     PODMIN_EMAIL_BACKEND
     PODMIN_EMAIL_HOST
     PODMIN_EMAIL_PORT
