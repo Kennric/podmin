@@ -38,6 +38,7 @@ def episode(request, eid, slug):
 
     return render(request, 'podmin/episode/episode.html', request_context)
 
+
 @login_required
 def edit_episode(request, eid, slug):
     """

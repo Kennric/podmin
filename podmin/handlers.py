@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 
 # podmin app stuff
-from models import Podcast, Episode
+from podmin.models import Podcast, Episode
 from util import image_sizer
 
 # python stuff
@@ -83,6 +83,7 @@ def podcast_post_delete(sender, **kwargs):
         logger.error(error_msg.format(kwargs['instance'].slug, err))
         return False
 
+
 # signal catcher, post delete for episode:
 @receiver(post_delete, sender=Episode)
 def episode_post_delete(sender, **kwargs):
@@ -133,7 +134,7 @@ def episode_post_delete(sender, **kwargs):
                                               pub_image_name, ext)
             for image in glob.iglob(image_glob):
                 remove(image)
-        except:
+        except OSError as err:
             logger.error(error_msg.format(kwargs['instance'].podcast.slug,
                                           err))
             return False
