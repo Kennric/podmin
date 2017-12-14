@@ -3,13 +3,13 @@ from django.forms import (FileField, DateTimeField, CharField, TextInput,
                           IntegerField, ModelMultipleChoiceField,
                           SelectMultiple, EmailField, Form)
 from form_utils.forms import BetterModelForm
-#from form_utils.widgets import ImageWidget
 from django_markdown.widgets import MarkdownWidget
 
 from podmin.models import Episode, Podcast, Category
 import datetime
 from django.db.models import Count
-from constants import *
+from constants import (LICENSE_CHOICES, EXPLICIT_CHOICES, FREQUENCY_CHOICES,
+                       LANGUAGE_CHOICES, FEED_TYPE_CHOICES, BOOLEAN_CHOICES)
 
 
 class EpisodeForm(BetterModelForm):
@@ -373,6 +373,7 @@ class PodcastForm(BetterModelForm):
                                    what you are doing.""",
                  'classes': ['advanced', 'collapse']})
         ]
+
 
 # A form for people to request a podcast account
 class RegistrationForm(Form):

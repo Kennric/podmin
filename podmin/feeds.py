@@ -81,7 +81,8 @@ class PodcastElements(object):
 
         handler.addQuickElement(u"itunes:author", episode.podcast.author)
         handler.addQuickElement(u"itunes:subtitle", episode.subtitle)
-        handler.addQuickElement(u"itunes:summary",
+        handler.addQuickElement(
+            u"itunes:summary",
             "<![CDATA[{0}]]>".format(episode.podcast.description))
         handler.addQuickElement(u"itunes:duration", episode.length)
         handler.addQuickElement(u"itunes:keywords", episode.tags)
@@ -162,7 +163,8 @@ class PodcastFeed(Feed):
 
     def items(self, podcast):
         return podcast.episode_set.filter(
-            pub_date__lte=datetime.datetime.now(), active=True).order_by('-pub_date')
+            pub_date__lte=datetime.datetime.now(),
+            active=True).order_by('-pub_date')
 
     def get_object(self, request, *args, **kwargs):
         self.podcast = get_object_or_404(Podcast, slug=kwargs["podcast_slug"])
