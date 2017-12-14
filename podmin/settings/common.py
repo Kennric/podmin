@@ -13,6 +13,12 @@ PROJECT_ROOT = os.path.normpath(
 
 SITE_ROOT = os.path.normpath(os.path.join(PROJECT_ROOT, '../'))
 
+ADMINS = (
+    #('Podmaster', 'podmaster@example.com'),)
+)
+
+MANAGERS = ADMINS
+
 TIME_ZONE = 'America/Los_Angeles'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
@@ -133,10 +139,6 @@ The following settings can get their values from these environment variables:
     PODMIN_EMAIL_PORT
     PODMIN_EMAIL_FROM
 """
-
-ADMINS =os.getenv('PODMIN_ADMINS', (('Podmaster', 'podmaster@example.com'),))
-
-MANAGERS = ADMINS
 
 DEBUG = os.getenv('PODMIN_DEBUG', False)
 TEMPLATE_DEBUG = os.getenv('PODMIN_DEBUG', False)
