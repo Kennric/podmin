@@ -768,9 +768,9 @@ class Episode(models.Model):
         should happen here, before the episode is published and the files
         get moved out to the world.
         """
-        if self.buffer_audio:
-            tagged = False
+        tagged = False
 
+        if self.buffer_audio:
             logger.info("{0}: tagging file {1}".format(self.podcast,
                                                        self.buffer_audio.name))
 
