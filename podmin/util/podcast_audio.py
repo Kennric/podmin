@@ -1,10 +1,8 @@
-#from datetime import timedelta
+# Podcast Audio class
+# Methods for extracting information from and tagging audio files
 
 from subprocess import check_output
-import base64
 import mutagen
-#from mutagen.flac import Picture
-import os
 
 
 class PodcastAudio:
@@ -73,7 +71,6 @@ class PodcastAudio:
         PCST                                True (podcast flag)
         """
 
-
         # These fields are optional and could be None
         description = episode.description or ""
         author = episode.podcast.author or ""
@@ -83,41 +80,30 @@ class PodcastAudio:
         copyright = episode.podcast.copyright or ""
         license = episode.podcast.license or ""
 
-
         # be sure to cast the strings to unicode
         singleton_tags = [
-        {'MP3': 'TALB', 'MP4': 'TALB',  'OggVorbis': 'ALBUM',
-         'value': episode.podcast.title.decode('utf-8')},
-
-        {'MP3': 'TIT2', 'MP4': 'TIT2',  'OggVorbis': 'TITLE',
-         'value': episode.title.decode('utf-8')},
-
-        {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'DESCRIPTION',
-         'value': description.decode('utf-8')},
-
-        {'MP3': 'TPE1', 'MP4': 'TPE1',  'OggVorbis': 'ARTIST',
-         'value': author.decode('utf-8')},
-
-        {'MP3': 'TCON', 'MP4': 'TCON',  'OggVorbis': 'GENRE',
-         'value': u'podcast'},
-
-        {'MP3': 'TRCK', 'MP4': 'TRCK',  'OggVorbis': 'TRACKNUMBER',
-         'value': track_number.decode('utf-8')},
-
-        {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'COMMENT',
-         'value': show_notes.decode('utf-8')},
-
-        {'MP3': 'WXXX', 'MP4': 'WXXX',  'OggVorbis': 'WEBSITE',
-         'value': website.decode('utf-8')},
-
-        {'MP3': 'TCOP', 'MP4': 'TCOP',  'OggVorbis': 'COPYRIGHT',
-         'value': copyright.decode('utf-8')},
-
-        {'MP3': 'USER', 'MP4': 'USER',  'OggVorbis': 'LICENSE',
-         'value': license.decode('utf-8')},
-
-        {'MP3': 'TDRC', 'MP4': 'TDRC',  'OggVorbis': 'YEAR',
-         'value': str(episode.pub_date.year).decode('utf-8')}
+            {'MP3': 'TALB', 'MP4': 'TALB',  'OggVorbis': 'ALBUM',
+             'value': episode.podcast.title.decode('utf-8')},
+            {'MP3': 'TIT2', 'MP4': 'TIT2',  'OggVorbis': 'TITLE',
+             'value': episode.title.decode('utf-8')},
+            {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'DESCRIPTION',
+             'value': description.decode('utf-8')},
+            {'MP3': 'TPE1', 'MP4': 'TPE1',  'OggVorbis': 'ARTIST',
+             'value': author.decode('utf-8')},
+            {'MP3': 'TCON', 'MP4': 'TCON',  'OggVorbis': 'GENRE',
+             'value': u'podcast'},
+            {'MP3': 'TRCK', 'MP4': 'TRCK',  'OggVorbis': 'TRACKNUMBER',
+             'value': track_number.decode('utf-8')},
+            {'MP3': 'TIT3', 'MP4': 'TIT3',  'OggVorbis': 'COMMENT',
+             'value': show_notes.decode('utf-8')},
+            {'MP3': 'WXXX', 'MP4': 'WXXX',  'OggVorbis': 'WEBSITE',
+             'value': website.decode('utf-8')},
+            {'MP3': 'TCOP', 'MP4': 'TCOP',  'OggVorbis': 'COPYRIGHT',
+             'value': copyright.decode('utf-8')},
+            {'MP3': 'USER', 'MP4': 'USER',  'OggVorbis': 'LICENSE',
+             'value': license.decode('utf-8')},
+            {'MP3': 'TDRC', 'MP4': 'TDRC',  'OggVorbis': 'YEAR',
+             'value': str(episode.pub_date.year).decode('utf-8')}
         ]
 
         if episode.guests:
@@ -143,23 +129,22 @@ class PodcastAudio:
         if episode.buffer_image:
             try:
                 image_data = episode.buffer_image.read()
-            except:
+            except Exception:
                 image_data = False
 
         # try the published image istead
         if episode.image and not image_data:
             try:
                 image_data = episode.image.read()
-            except:
+            except Exception:
                 image_data = False
 
         # lets try the podcast cover art then
         if episode.podcast.image and not image_data:
             try:
                 image_data = episode.podcast.image.read()
-            except:
+            except Exception:
                 image_data = False
-
 
         if self.filetype in ('MP3', 'MP4'):
             # set singleton tags
@@ -184,19 +169,17 @@ class PodcastAudio:
                     text=credits,
                 )
             )
+            
             if image_data:
                 self.file.tags.add(
                     mutagen.id3.APIC(
-                        encoding=3, # 3 is for utf-8
+                        encoding=3,  # 3 is for utf-8
                         mime=episode.image_type.decode('utf-8'),
-                        type=3, # 3 is for the cover image
+                        type=3,  # 3 is for the cover image
                         desc=u'Cover',
                         data=image_data
                     )
                 )
-
-
-            #set PCST = 1
 
         if self.filetype in ('OggVorbis', 'FLAC'):
             print("ogg or flac!")

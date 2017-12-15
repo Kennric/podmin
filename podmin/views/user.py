@@ -1,29 +1,22 @@
 # django stuff
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
-from django.core.files import File
-from django.core.servers.basehttp import FileWrapper
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import RequestContext
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
 from django.contrib.auth.models import User
 
 # podmin app stuff
-from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm, RegistrationForm
+from podmin.forms import RegistrationForm
 
 # python stuff
-import time
 import logging
-import os
 
 logger = logging.getLogger(__name__)
+
 
 def login_user(request):
     """
@@ -68,30 +61,19 @@ def logout_user(request):
     logout(request)
     return HttpResponseRedirect('{}?logout=true'.format(reverse('login')))
 
+
 def podcast_request(request):
     form = RegistrationForm()
     if request.method == 'POST':
         form = RegistrationForm(data=request.POST)
 
         if form.is_valid():
-            name = request.POST.get(
-                'name'
-            , '')
-            email = request.POST.get(
-                'email'
-            , '')
-            username = request.POST.get(
-                'username'
-            , '')
-            podcast_name = request.POST.get(
-                'podcast_name'
-            , '')
-            description = request.POST.get(
-                'description'
-            , '')
-            notes = request.POST.get(
-                'notes'
-            , '')
+            name = request.POST.get('name', '')
+            email = request.POST.get('email', '')
+            username = request.POST.get('username', '')
+            podcast_name = request.POST.get('podcast_name', '')
+            description = request.POST.get('description', '')
+            notes = request.POST.get('notes', '')
 
             # Email the profile with the
             # contact information
@@ -117,7 +99,7 @@ def podcast_request(request):
                     body,
                     from_address,
                     to_addresses,
-                    headers = {'Reply-To': email }
+                    headers={'Reply-To': email}
                 )
                 email.send()
                 messages.success(request,

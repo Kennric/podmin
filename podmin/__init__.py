@@ -1,5 +1,5 @@
 # import the signal handlers here so they will be available before models
-import handlers
+import handlers # noqa
 
 # If you change this version, change it also in docs/conf.py
 # Packging guide: http://guide.python-distribute.org/quickstart.html

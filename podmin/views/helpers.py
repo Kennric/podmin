@@ -1,27 +1,17 @@
 # django stuff
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.conf import settings
-from django.core.files import File
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.core.servers.basehttp import FileWrapper
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.template import RequestContext
 
 # podmin app stuff
-from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
-
+from podmin.models import Episode
 
 # python stuff
-import time
 import logging
 import os
 
 logger = logging.getLogger(__name__)
+
 
 def user_role_check(req, slug):
     """
@@ -35,6 +25,7 @@ def user_role_check(req, slug):
 
     return (user, manager, editor, webmaster)
 
+
 def audio_buffer(request, eid, slug):
     """
     Send a file through Django without loading the whole file into
@@ -47,7 +38,7 @@ def audio_buffer(request, eid, slug):
     filename = os.path.basename(episode.buffer_audio.name)
     content_type = episode.mime_type
 
-    wrapper = FileWrapper(file(filepath))
+    wrapper = FileWrapper(open(filepath))
 
     response = HttpResponse(wrapper, content_type=content_type)
     response['Content-Length'] = os.path.getsize(filepath)
@@ -70,7 +61,7 @@ def image_buffer(request, eid, slug, size):
     image_name = "{0}_{1}{2}".format(name, size, ext)
     buffer_path = os.path.join(path, image_name)
 
-    wrapper = FileWrapper(file(buffer_path))
+    wrapper = FileWrapper(open(buffer_path))
     response = HttpResponse(wrapper, content_type=episode.image_type)
     response['Content-Length'] = os.path.getsize(buffer_path)
     return response

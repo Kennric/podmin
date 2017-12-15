@@ -1,25 +1,19 @@
 # django stuff
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.conf import settings
-from django.core.files import File
-from django.core.servers.basehttp import FileWrapper
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 
 # podmin app stuff
 from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
-from podmin.views.helpers import *
+from podmin.forms import EpisodeForm
+from podmin.views.helpers import user_role_check
 
 # python stuff
 import time
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +62,11 @@ def edit_episode(request, eid, slug):
             try:
                 episode.size = request.FILES['buffer_audio'].size
                 episode.image_type = request.FILES['buffer_image'].content_type
-            except:
+            except Exception:
                 pass
             try:
                 episode.mime_type = request.FILES['buffer_audio'].content_type
-            except:
+            except Exception:
                 pass
             episode.save()
 
@@ -99,6 +93,7 @@ def edit_episode(request, eid, slug):
                   'podmin/episode/episode_edit.html',
                   {'form': form, 'episode': episode})
 
+
 @login_required
 def new_episode(request, slug):
     """
@@ -115,8 +110,9 @@ def new_episode(request, slug):
             messages.warning(request, message)
             return_url = reverse('podcast_show', kwargs={'slug': slug})
 
-            return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+            return render(request,
+                          'podmin/site/denied.html',
+                          {'return_url': return_url})
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
@@ -132,11 +128,11 @@ def new_episode(request, slug):
             episode.size = request.FILES['buffer_audio'].size
             try:
                 episode.image_type = request.FILES['buffer_image'].content_type
-            except:
+            except Exception:
                 pass
             try:
                 episode.mime_type = request.FILES['buffer_audio'].content_type
-            except:
+            except Exception:
                 pass
 
             episode.save()
@@ -169,10 +165,11 @@ def delete_episode(request, eid, slug):
             messages.warning(request, message)
 
             return_url = reverse('episode_show',
-                kwargs={'eid': eid, 'slug': slug})
+                                 kwargs={'eid': eid, 'slug': slug})
 
-            return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+            return render(request,
+                          'podmin/site/denied.html',
+                          {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -205,10 +202,10 @@ def depublish_episode(request, eid, slug):
             messages.warning(request, message)
 
             return_url = reverse('episode_show',
-                kwargs={'eid': eid, 'slug': slug})
+                                 kwargs={'eid': eid, 'slug': slug})
 
             return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+                          {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -237,10 +234,11 @@ def publish_episode(request, eid, slug):
             messages.warning(request, message)
 
             return_url = reverse('episode_show',
-                kwargs={'eid': eid, 'slug': slug})
+                                 kwargs={'eid': eid, 'slug': slug})
 
-            return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+            return render(request,
+                          'podmin/site/denied.html',
+                          {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -268,10 +266,11 @@ def mothball_episode(request, eid, slug):
             messages.warning(request, message)
 
             return_url = reverse('episode_show',
-                kwargs={'eid': eid, 'slug': slug})
+                                 kwargs={'eid': eid, 'slug': slug})
 
-            return render(request, 'podmin/site/denied.html',
-                {'return_url': return_url})
+            return render(request,
+                          'podmin/site/denied.html',
+                          {'return_url': return_url})
 
     episode = get_object_or_404(Episode, id=eid)
 
@@ -283,8 +282,9 @@ def mothball_episode(request, eid, slug):
 
         return_url = reverse('episode_show', kwargs={'eid': eid, 'slug': slug})
 
-        return render(request, 'podmin/site/denied.html',
-            {'return_url': return_url})
+        return render(request,
+                      'podmin/site/denied.html',
+                      {'return_url': return_url})
 
     episode.mothball()
 

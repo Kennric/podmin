@@ -5,10 +5,10 @@ from django.utils.feedgenerator import SyndicationFeed, rfc2822_date
 class CDataXMLGenerator(SimplerXMLGenerator):
     def characters(self, contents):
         try:
-            cdata = '<![CDATA[{}]]>'.format(contents)
+            cdata = '<![CDATA[{}]]>'.format(contents) # noqa
             self.ignorableWhitespace(contents)
         except ValueError:
-            SimplerXMLGenerator.characters(self, contents[start:])
+            SimplerXMLGenerator.characters(self, contents[start:]) # noqa
 
 
 class EnhancedPodcastFeed(SyndicationFeed):

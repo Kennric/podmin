@@ -19,25 +19,22 @@ A single-part episode must omit the part number:
 
 [testo_2015-09-05.mp3]
 
-
 """
-def new_kejo(files, podcast):
 
+
+# Clean up files that are auto-uploaded from the KEJO radio station
+def new_kejo(files, podcast):
     # get directories from podcast, process new-style kejo files
     # files are named with the prefix 00539 followed by a 2 digit
     # day code Monday - 11, Tuesday - 12, etc, followed by a 2 digit
     # part number, generally 01 - 08
-    # rename the file by the podcast short name, file creation date
+    # rename the file by the podcast slug, file creation date
     # and part number
 
     cleaned_files = []
-
-    #new_files.sort()
     files = sorted(files, key=lambda k: k['filename'])
 
     for f in files:
-
-        #mtime = os.path.getmtime(new_file)
         mdate = date.fromtimestamp(f['mtime'])
 
         path, filename = os.path.split(f['path'])
@@ -53,7 +50,7 @@ def new_kejo(files, podcast):
         if ((day_code + 1) != mdate.weekday()):
             print("WARNING: Day code does not match today!")
 
-        datetime_string =  mdate.strftime("%Y-%m-%d")
+        datetime_string = mdate.strftime("%Y-%m-%d")
 
         new_name = "{0}_{1}_{2:0>2}{3}".format(podcast.slug, datetime_string,
                                                part, extension)

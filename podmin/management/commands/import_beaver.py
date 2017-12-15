@@ -22,8 +22,6 @@ class Command(BaseCommand):
 
             raise CommandError('Nope!')
 
-
-
         # open old sqlite db
         # for each episode, build dict
         # make episode with dict

@@ -1,6 +1,6 @@
 import os.path
-from image_settings import *
-from logging import *
+from image_settings import *  # noqa
+from logging import *  # noqa
 import markdown
 
 # Django settings for podcaster project.
@@ -14,7 +14,7 @@ PROJECT_ROOT = os.path.normpath(
 SITE_ROOT = os.path.normpath(os.path.join(PROJECT_ROOT, '../'))
 
 ADMINS = (
-    #('Podmaster', 'podmaster@example.com'),)
+    # ('Podmaster', 'podmaster@example.com'),)
 )
 
 MANAGERS = ADMINS

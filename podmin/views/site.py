@@ -1,25 +1,12 @@
 # django stuff
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from django.conf import settings
-from django.core.files import File
-from django.core.servers.basehttp import FileWrapper
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
 from django.template import RequestContext
 
 # podmin app stuff
-from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
-from podmin.views.helpers import *
+from podmin.models import Podcast
 
 # python stuff
-import time
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 

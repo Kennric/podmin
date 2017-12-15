@@ -7,11 +7,13 @@ register = template.Library()
 
 @register.filter(name='is_checkbox')
 def is_checkbox(field):
-    return field.field.widget.__class__.__name__ == CheckboxInput().__class__.__name__
+    return field.field.widget.__class__.__name__ == CheckboxInput().__class__.__name__  # noqa
 
-@register.filter(name='is_selectmultiple')
+
+@register.filter(name='is_selectmultiple')  # noqa
 def is_checkbox(field):
-    return field.field.widget.__class__.__name__ == SelectMultiple().__class__.__name__
+    return field.field.widget.__class__.__name__ == SelectMultiple().__class__.__name__  # noqa
+
 
 @register.filter(name='filename')
 def filename(value):
