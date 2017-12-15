@@ -169,7 +169,7 @@ class PodcastAudio:
                     text=credits,
                 )
             )
-            
+
             if image_data:
                 self.file.tags.add(
                     mutagen.id3.APIC(
