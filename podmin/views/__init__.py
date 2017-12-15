@@ -1,5 +1,5 @@
-from podmin.views.user import *
-from podmin.views.helpers import *
-from podmin.views.podcast import *
-from podmin.views.episode import *
-from podmin.views.site import *
+from podmin.views.user import * # noqa
+from podmin.views.helpers import * # noqa
+from podmin.views.podcast import * # noqa
+from podmin.views.episode import * # noqa
+from podmin.views.site import * # noqa

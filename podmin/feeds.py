@@ -20,7 +20,6 @@ class PodcastElements(object):
         """
         Add additional elements to the podcast object, these will
         be part of the <channel> definition
-
         """
         super(PodcastElements, self).add_root_elements(handler)
         podcast = self.feed["podcast"]

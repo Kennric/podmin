@@ -22,7 +22,6 @@ class Command(BaseCommand):
         for episode in episodes:
             try:
                 episode.mothball()
-            except:
+            except Exception:
                 raise CommandError(
                     "Could not mothball episode {0}".format(episode.slug))
-

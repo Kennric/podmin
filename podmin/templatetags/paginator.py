@@ -26,14 +26,13 @@ def paginator(page, adjacent_pages=3):
 
     try:
         next = page.next_page_number()
-    except:
+    except Exception:
         next = False
 
     try:
         previous = page.previous_page_number()
-    except:
+    except Exception:
         previous = False
-
 
     page_obj = page
     paginator = page.paginator

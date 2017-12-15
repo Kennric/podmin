@@ -399,7 +399,7 @@ class Podcast(models.Model):
 
         try:
             importer = FileImporter(self)
-        except:
+        except Exception:
             logger.error("{0}: importer failed to init".format(self.slug))
             return False
 
@@ -411,14 +411,14 @@ class Podcast(models.Model):
 
         try:
             new_files = importer.fetch()
-        except:
+        except Exception:
             logger.error(
                 "{0}: failed: couldn't fetch new files".format(self.slug))
             return False
 
         try:
             new_files = importer.clean()
-        except:
+        except Exception:
             logger.error(
                 "{0}: failed: couldn't clean new files".format(self.slug))
             return False
@@ -426,7 +426,7 @@ class Podcast(models.Model):
         if self.combine_segments:
             try:
                 new_files = importer.combine()
-            except:
+            except Exception:
                 logger.error(
                     "{0}: failed: couldn't combine segments".format(self.slug))
                 return False
@@ -434,7 +434,7 @@ class Podcast(models.Model):
         try:
             last = Episode.objects.filter(podcast=self).latest()
             number = last.track_number + 1
-        except:
+        except Exception:
             # maybe this is the first?
             number = 1
 
@@ -533,6 +533,7 @@ class Podcast(models.Model):
         mothball_episodes = os.path.join(settings.ARCHIVE_ROOT, self.slug,
                                          'episodes')
 
+        error_msg = "Operation on {0} failed: {1}"
         if not os.path.isdir(mothball_dir):
             logger.info("{0}: making {1}".format(self.slug, mothball_dir))
             try:
@@ -588,7 +589,7 @@ class Podcast(models.Model):
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
                     shutil.copy2(image, image_dest + os.path.basename(image))
-            except:
+            except Exception as err:
                 logger.error("{0}: mothball failed: {2}".format(
                     self.slug, err))
                 return False
@@ -732,7 +733,7 @@ class Episode(models.Model):
             try:
                 last = Episode.objects.filter(podcast=self.podcast).latest()
                 new_number = last.track_number + 1
-            except:
+            except Exception as err:
                 # maybe this is the first?
                 new_number = 1
 
@@ -801,7 +802,7 @@ class Episode(models.Model):
         # make all the image sizes for the episode
         try:
             image_sizer.make_image_sizes(self.buffer_image.path)
-        except:
+        except Exception as err:
             pass
 
         return True
@@ -871,7 +872,7 @@ class Episode(models.Model):
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
                     shutil.move(image, image_dest + os.path.basename(image))
-            except:
+            except Exception as err:
                 logger.error("{0}: publish failed for {1}: {2}".format(
                     self.podcast.slug, self.slug, err))
                 return False
@@ -928,7 +929,7 @@ class Episode(models.Model):
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
                     shutil.move(image, image_dest + os.path.basename(image))
-            except:
+            except Exception as err:
                 logger.error("{0}: depublish failed for {1}: {2}".format(
                     self.podcast.slug, self.slug, err))
                 return False
@@ -1023,7 +1024,7 @@ class Episode(models.Model):
                 image_glob = image_source + image_name + '*' + ext
                 for image in glob.iglob(image_glob):
                     shutil.move(image, image_dest + os.path.basename(image))
-            except:
+            except Exception as err:
                 logger.error("{0}: mothball failed for {1}: {2}".format(
                     self.podcast.slug, self.slug, err))
                 return False

@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 logger.info("publishing {0}".format(podcast.slug))
                 try:
                     podcast.publish()
-                except:
+                except Exception:
                     raise CommandError(
                         "Could not publish {0}".format(podcast.slug))
         else:
@@ -28,6 +28,6 @@ class Command(BaseCommand):
             logger.info("publishing {0}".format(podcast.slug))
             try:
                 podcast.publish()
-            except:
+            except Exception:
                 raise CommandError(
                     "Could not publish {0}".format(podcast.slug))

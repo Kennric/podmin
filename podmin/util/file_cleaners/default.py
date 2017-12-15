@@ -21,6 +21,7 @@ A single-part episode must omit the part number:
 
 """
 
+
 def default(new_files, podcast):
 
     cleaned_files = []
@@ -38,7 +39,7 @@ def default(new_files, podcast):
 
         extension = extension.lower()
 
-        datetime_string =  mdate.strftime("%Y-%m-%d")
+        datetime_string = mdate.strftime("%Y-%m-%d")
 
         if datetime_string != old_datetime_string:
             part = 1

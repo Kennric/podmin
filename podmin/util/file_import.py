@@ -133,7 +133,6 @@ class FileImporter():
             else:
                 command.append(new_file['path'])
 
-
         self.status = 'combined'
 
         return combined_files

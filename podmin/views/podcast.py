@@ -1,27 +1,25 @@
 # django stuff
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.core.files import File
-from django.core.servers.basehttp import FileWrapper
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.template import RequestContext
 
 # podmin app stuff
 from podmin.models import Podcast, Episode
-from podmin.forms import PodcastForm, EpisodeForm
-from podmin.views.helpers import *
+from podmin.forms import PodcastForm
+from podmin.views.helpers import user_role_check
 
 # python stuff
-import time
 import logging
 import os
 
 logger = logging.getLogger(__name__)
+
 
 def podcasts(request):
     """
@@ -32,6 +30,7 @@ def podcasts(request):
     request_context.push({'podcasts': podcasts})
 
     return render(request, 'podmin/site/podcasts.html', request_context)
+
 
 def podcast(request, slug):
     """
@@ -81,8 +80,9 @@ def edit_podcast(request, slug):
 
         messages.warning(request, message)
         return_url = reverse('podcast_show', kwargs={'slug': slug})
-        return render(request, 'podmin/site/denied.html',
-            {'return_url': return_url})
+        return render(request,
+                      'podmin/site/denied.html',
+                      {'return_url': return_url})
 
     podcast = Podcast.objects.get(slug=slug)
     form = PodcastForm(instance=podcast)
@@ -97,7 +97,6 @@ def edit_podcast(request, slug):
             podcast.publish()
             return HttpResponseRedirect(reverse('podcast_show',
                                                 kwargs={'slug': slug}))
-
 
     context = {'form': form, 'slug': slug, 'podcast': podcast}
 
@@ -115,8 +114,9 @@ def new_podcast(request):
 
         messages.warning(request, message)
         return_url = reverse('user_home')
-        return render(request, 'podmin/site/denied.html',
-            {'return_url': return_url})
+        return render(request,
+                      'podmin/site/denied.html',
+                      {'return_url': return_url})
 
     form = PodcastForm()
     if request.method == 'POST':
@@ -125,9 +125,8 @@ def new_podcast(request):
             podcast = form.save(commit=False)
             try:
                 request.FILES['image'].content_type is True
-            except:
+            except Exception:
                 # no image, use the default
-
                 default_image = os.path.join(settings.STATIC_ROOT,
                                              "img/default_podcast.png")
                 with open(default_image) as f:
@@ -153,14 +152,14 @@ def delete_podcast(request, slug):
     """
     user, manager, editor, webmaster = user_role_check(request, slug)
     if not manager and not user.is_superuser:
-        message = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
+        mesg = "I'm sorry {0}, I'm afraid I can't let you delete {1}".format(
             user, slug)
 
-        messages.warning(request, message)
+        messages.warning(request, mesg)
         return_url = reverse('podcast_show', kwargs={'slug': slug})
-        return render(request, 'podmin/site/denied.html',
-            {'return_url': return_url})
-
+        return render(request,
+                      'podmin/site/denied.html',
+                      {'return_url': return_url})
 
     podcast = get_object_or_404(Podcast, slug=slug)
 
