@@ -733,7 +733,7 @@ class Episode(models.Model):
             try:
                 last = Episode.objects.filter(podcast=self.podcast).latest()
                 new_number = last.track_number + 1
-            except Exception as err:
+            except Exception:
                 # maybe this is the first?
                 new_number = 1
 
@@ -802,7 +802,7 @@ class Episode(models.Model):
         # make all the image sizes for the episode
         try:
             image_sizer.make_image_sizes(self.buffer_image.path)
-        except Exception as err:
+        except Exception:
             pass
 
         return True
