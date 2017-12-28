@@ -94,6 +94,7 @@ class Podcast(models.Model):
     """
     # standard things
     title = models.CharField(max_length=255)
+    subtitle = models.CharField(max_length=255, blank=True, null=True)
     owner = models.ForeignKey(User, default=1)
     slug = models.SlugField(unique=True)
     credits = MarkdownField('art and music credits', blank=True, null=True)
@@ -109,7 +110,7 @@ class Podcast(models.Model):
     feed_format = models.CharField('feed format',
                                    max_length=16, default='rss',
                                    choices=FEED_TYPE_CHOICES)
-    # directories
+    # directories and urls
     pub_url = models.URLField('base publication url', blank=True,
                               default="")
     pub_dir = models.CharField('rss publication path', max_length=255,
@@ -139,10 +140,11 @@ class Podcast(models.Model):
     station = models.CharField('broadcasting station name',
                                max_length=16, blank=True)
     description = MarkdownField(blank=True, null=True)
-    subtitle = models.CharField(max_length=255, blank=True, null=True)
     author = models.CharField(max_length=255, blank=True, null=True)
     contact = models.EmailField(max_length=255, blank=True, null=True)
-    image = models.ImageField('cover art', upload_to=get_image_upload_path)
+    image = models.ImageField('cover art',
+                              upload_to=get_image_upload_path,
+                              default='./static/img/default_podcast.png')
     copyright = models.CharField(max_length=255, blank=True, null=True)
     license = models.CharField('license',
                                max_length=255, blank=True, null=True,
@@ -162,12 +164,10 @@ class Podcast(models.Model):
     # itunes specific
 
     categorization_domain = models.URLField(blank=True)
-    subtitle = models.CharField(max_length=255, blank=True)
     summary = MarkdownField(blank=True)
     explicit = models.CharField(max_length=255, default='No',
                                 choices=EXPLICIT_CHOICES, blank=True)
     block = models.BooleanField(default=False)
-
     itunes_categories = models.ManyToManyField(Category, blank=True)
 
     """
@@ -809,7 +809,7 @@ class Episode(models.Model):
 
     def publish(self):
         """
-        move files from the buffer location back into production, make this
+        move files from the buffer location to the public location, make this
         episode available for inclusion in the podcast feed
         """
         logger.info(
