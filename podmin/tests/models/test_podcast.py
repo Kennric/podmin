@@ -1,13 +1,17 @@
+# python stuff
+from itertools import chain
+from mock import patch, call
+import shutil
+import os
+
+# django stuff
 from django.test import TestCase
 from django.db import models
 from django_markdown.models import MarkdownField
 from django.apps import apps
+from django.core.files import File
 
-from itertools import chain
-
-from mock import patch, call
-import unittest
-
+# podmin stuff
 from podmin.models import Podcast, Episode
 
 
@@ -17,6 +21,11 @@ from podmin.models import Podcast, Episode
 class PodcastTests(TestCase):
 
     def setUp(self):
+        # make a directory to store any file stuff we test
+
+        if not os.path.isdir('/tmp/podmin_test'):
+            os.mkdir('/tmp/podmin_test')
+
         self.maxDiff = None
 
         self.expected_fields = {
@@ -120,7 +129,8 @@ class PodcastTests(TestCase):
         self.minimal_podcast = {
             'title': 'A Minimal Podcast',
             'slug': 'minimal',
-            'language': 'en'}
+            'language': 'en'
+        }
 
         self.maximal_podcast = {
             'title': 'A Maximal Podcast',
@@ -178,6 +188,14 @@ class PodcastTests(TestCase):
             'image': './static/img/default_podcast.png'
         }
 
+    def tearDown(self):
+        # remove any temp files we made in /tmp/podmin_test
+        if os.path.isdir('/tmp/podmin_test'):
+            shutil.rmtree('/tmp/podmin_test')
+    ###
+    # Start the tests
+    ###
+
     def test_fields_defined(self):
         model = apps.get_model('podmin', 'podcast')
         for field, field_type in self.expected_fields.items():
@@ -204,25 +222,93 @@ class PodcastTests(TestCase):
     ###
 
     def test_generator_property(self):
-        pass
+        # make sure to update with the current version
+        # as of 20170101 version is 0.3.0, name is Podmin
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(podcast.generator, 'Podmin 0.3beta2')
+
+    def test_rss_image_property(self):
+        # this method returns the name of the image intended for rss inclusion
+        # name should be <image_name>_rss.<image_extension>
+        with self.settings(MEDIA_URL='/test_media/',
+                           MEDIA_ROOT='/tmp/podmin_test'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            podcast.image.save(
+                'test_image.png',
+                File(open('podmin/static/img/default_podcast.png')))
+
+        self.assertEqual(
+            podcast.rss_image,
+            u'http://example.com/test_media/minimal/img/test_image_rss.png')
 
     def test_itunes_image_property(self):
-        pass
+        # this method returns the name of the image intended for iTunes
+        # name should be <image_name>_itunes.<image_extension>
+        with self.settings(MEDIA_URL='/test_media/',
+                           MEDIA_ROOT='/tmp/podmin_test'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            podcast.image.save(
+                'test_image.png',
+                File(open('podmin/static/img/default_podcast.png')))
+
+        self.assertEqual(
+            podcast.itunes_image,
+            u'http://example.com/test_media/minimal/img/test_image_itunes.png')
 
     def test_small_image_property(self):
-        pass
+        # this method returns the name of the small (thumbnail) image
+        # name should be <image_name>_small.<image_extension>
+        with self.settings(MEDIA_URL='/test_media/',
+                           MEDIA_ROOT='/tmp/podmin_test'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            podcast.image.save(
+                'test_image.png',
+                File(open('podmin/static/img/default_podcast.png')))
+
+        self.assertEqual(
+            podcast.small_image,
+            u'http://example.com/test_media/minimal/img/test_image_small.png')
 
     def test_large_image_property(self):
-        pass
+        # this method returns the name of the large sized image
+        # name should be <image_name>_small.<image_extension>
+        with self.settings(MEDIA_URL='/test_media/',
+                           MEDIA_ROOT='/tmp/podmin_test'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            podcast.image.save(
+                'test_image.png',
+                File(open('podmin/static/img/default_podcast.png')))
+
+        self.assertEqual(
+            podcast.large_image,
+            u'http://example.com/test_media/minimal/img/test_image_large.png')
 
     def test_medium_image_property(self):
-        pass
+        # this method returns the name of the medium sized image
+        # name should be <image_name>_small.<image_extension>
+        with self.settings(MEDIA_URL='/test_media/',
+                           MEDIA_ROOT='/tmp/podmin_test'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            podcast.image.save(
+                'test_image.png',
+                File(open('podmin/static/img/default_podcast.png')))
+
+        self.assertEqual(
+            podcast.medium_image,
+            u'http://example.com/test_media/minimal/img/test_image_medium.png')
 
     def test_feed_url_property(self):
-        pass
+        # this method should return a full URL to the rss feed file
+        # this should be composed of the pub_url and feed filename
+        with self.settings(MEDIA_URL='/test_media/'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            self.assertEqual(
+                podcast.feed_url,
+                u'http://example.com/test_media/minimal/rss.xml')
 
     def test_unicode(self):
-        pass
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(unicode(podcast), u'A Minimal Podcast')
 
     ###
     # Test the save method
