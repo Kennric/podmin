@@ -117,6 +117,8 @@ class Podcast(models.Model):
                                blank=True, default="")
     storage_dir = models.CharField('storage base dir', max_length=255,
                                    blank=True, default="")
+    buffer_dir = models.CharField('buffer base dir', max_length=255,
+                                  blank=True, default="")
     storage_url = models.URLField('storage base url', blank=True,
                                   default="")
     tmp_dir = models.CharField('path to temporary processing location',
@@ -268,11 +270,17 @@ class Podcast(models.Model):
         if not self.storage_url:
             self.storage_url = file_url
 
-        image_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "img")
-        audio_pub_dir = os.path.join(settings.MEDIA_ROOT, self.slug, "audio")
-        image_buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug, "img")
-        audio_buffer_dir = os.path.join(
-            settings.BUFFER_ROOT, self.slug, "audio")
+        if not self.storage_dir:
+            self.storage_dir = os.path.join(settings.MEDIA_ROOT, self.slug)
+        if not self.buffer_dir:
+            self.buffer_dir = os.path.join(settings.BUFFER_ROOT, self.slug)
+        if not self.pub_dir:
+            self.pub_dir = self.storage_dir
+
+        image_pub_dir = os.path.join(self.storage_dir, "img")
+        audio_pub_dir = os.path.join(self.storage_dir, "audio")
+        image_buffer_dir = os.path.join(self.buffer_dir, "img")
+        audio_buffer_dir = os.path.join(self.buffer_dir, "audio")
 
         """
         make sure dirs exist
@@ -353,7 +361,7 @@ class Podcast(models.Model):
 
         feed_content = view(request, *args, **kwargs).content
 
-        feed_file = os.path.join(settings.MEDIA_ROOT, self.slug, feed_filename)
+        feed_file = os.path.join(self.pub_dir, feed_filename)
 
         logger.info("{0}: writing feed to {1}".format(self.slug, feed_file))
         try:
@@ -836,6 +844,7 @@ class Episode(models.Model):
         """
         if self.buffer_audio:
             audio_source = self.buffer_audio.path
+            # TODO: use storage_dir!
             audio_dest = os.path.join(settings.MEDIA_ROOT,
                                       self.buffer_audio.name)
             audio = PodcastAudio(audio_source)
@@ -860,6 +869,7 @@ class Episode(models.Model):
             image_source = os.path.dirname(self.buffer_image.path) + "/"
             image_name, ext = os.path.splitext(image_file)
 
+            # TODO: user storage_dir!
             image_dest = os.path.join(settings.MEDIA_ROOT,
                                       os.path.dirname(self.buffer_image.name),
                                       "")
