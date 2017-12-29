@@ -1,9 +1,12 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.db import models
 from django_markdown.models import MarkdownField
 from django.apps import apps
 
 from itertools import chain
+
+from mock import patch, call
+import unittest
 
 from podmin.models import Podcast, Episode
 
@@ -35,6 +38,7 @@ class PodcastTests(TestCase):
             'storage_dir': models.CharField,
             'storage_url': models.URLField,
             'tmp_dir': models.CharField,
+            'buffer_dir': models.CharField,
             'last_import': models.DateTimeField,
             'combine_segments': models.BooleanField,
             'publish_segments': models.BooleanField,
@@ -276,15 +280,11 @@ class PodcastTests(TestCase):
                 podcast.storage_url,
                 'http://podcast.example.com/media/minimal')
 
-    def test_dirs(self):
+    def test_media_dirs(self):
         # If pub_dir and storage_dir are not specified, make sure the storage
         # directories are set to a default path based on settings.MEDIA_ROOT
         with self.settings(MEDIA_ROOT='/tmp/podcast/'):
             podcast = Podcast.objects.create(**self.minimal_podcast)
-            print('dirs')
-            print(podcast.pub_dir)
-            print(podcast.storage_dir)
-            print('-')
             self.assertEqual(
                 podcast.pub_dir,
                 '/tmp/podcast/minimal')
@@ -292,11 +292,36 @@ class PodcastTests(TestCase):
                 podcast.storage_dir,
                 '/tmp/podcast/minimal')
 
-    def test_buffer_dirs(self):
-        pass
+    def test_buffer_dir(self):
+        # If buffer_dir is not specified, make sure the buffer directory is
+        # set to a default path based on settings.BUFFER_ROOT
+        with self.settings(BUFFER_ROOT='/tmp/podcast_buffer/'):
+            podcast = Podcast.objects.create(**self.minimal_podcast)
+            self.assertEqual(
+                podcast.buffer_dir,
+                '/tmp/podcast_buffer/minimal')
 
-    def test_directory_creation(self):
-        pass
+    # mock the os methods for creating and testing directories - we mock
+    # that 'isdir' returns false to ensure the code tries to make the dirs
+    @patch('podmin.models.os.path.isdir')
+    @patch('podmin.models.os.makedirs')
+    def test_storage_directory_creation(self, mock_makedirs, mock_isdir):
+        # for all the directories we need, make sure they get created on save
+        # these are:
+        # <storage_dir>/audio
+        # <storage_dir>/img
+        # <buffer_dir>/audio
+        # <buffer_dir>/img
+        mock_isdir.return_value = False
+
+        with self.settings(MEDIA_ROOT='/tmp/pod/', BUFFER_ROOT='/tmp/buffer'):
+            Podcast.objects.create(**self.minimal_podcast)
+
+            calls = [call('/tmp/pod/minimal/img'),
+                     call('/tmp/pod/minimal/audio'),
+                     call('/tmp/buffer/minimal/img'),
+                     call('/tmp/buffer/minimal/audio')]
+            mock_makedirs.assert_has_calls(calls)
 
     ###
     # Test publishing episodes
