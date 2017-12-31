@@ -3,9 +3,10 @@ from itertools import chain
 from mock import patch, call
 import shutil
 import os
+import time
 
 # django stuff
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.db import models
 from django_markdown.models import MarkdownField
 from django.apps import apps
@@ -18,6 +19,10 @@ from podmin.models import Podcast, Episode
 ###
 # Test the Podcast model
 ###
+@override_settings(MEDIA_URL='/test_media/',
+                   MEDIA_ROOT='/tmp/podmin_test',
+                   STATIC_ROOT='/tmp/podmin_test/static',
+                   BUFFER_ROOT='/tmp/podmin_test/buffer')
 class PodcastTests(TestCase):
 
     def setUp(self):
@@ -117,7 +122,8 @@ class PodcastTests(TestCase):
             'itunes_categories',
             'redirect',
             'keywords',
-            'itunes_url'
+            'itunes_url',
+            'image'
         ]
 
         self.required_fields = [
@@ -141,8 +147,8 @@ class PodcastTests(TestCase):
             'website': 'http://a.website.com',
             'frequency': 'weekly',
             'pub_url': 'http://a.website.com/rss',
-            'pub_dir': '/tmp/podmin/maximal/rss',
-            'storage_dir': '/tmp/podmin/maximal',
+            'pub_dir': '/tmp/podmin_test/maximal/rss',
+            'storage_dir': '/tmp/podmin_test/maximal',
             'storage_url': 'http://a.website.com/files',
             'last_import': None,
             'up_dir': '/tmp/upload',
@@ -184,14 +190,14 @@ class PodcastTests(TestCase):
             'max_age': 0,
             'explicit': 'No',
             'block': False,
-            'file_rename_format': "{podcast}_{number:0>2}_{date}",
-            'image': './static/img/default_podcast.png'
+            'file_rename_format': "{podcast}_{number:0>2}_{date}"
         }
 
     def tearDown(self):
         # remove any temp files we made in /tmp/podmin_test
         if os.path.isdir('/tmp/podmin_test'):
             shutil.rmtree('/tmp/podmin_test')
+
     ###
     # Start the tests
     ###
@@ -230,12 +236,11 @@ class PodcastTests(TestCase):
     def test_rss_image_property(self):
         # this method returns the name of the image intended for rss inclusion
         # name should be <image_name>_rss.<image_extension>
-        with self.settings(MEDIA_URL='/test_media/',
-                           MEDIA_ROOT='/tmp/podmin_test'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            podcast.image.save(
-                'test_image.png',
-                File(open('podmin/static/img/default_podcast.png')))
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        podcast.image.save(
+            'test_image.png',
+            File(open('podmin/static/img/default_podcast.png')))
 
         self.assertEqual(
             podcast.rss_image,
@@ -244,12 +249,10 @@ class PodcastTests(TestCase):
     def test_itunes_image_property(self):
         # this method returns the name of the image intended for iTunes
         # name should be <image_name>_itunes.<image_extension>
-        with self.settings(MEDIA_URL='/test_media/',
-                           MEDIA_ROOT='/tmp/podmin_test'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            podcast.image.save(
-                'test_image.png',
-                File(open('podmin/static/img/default_podcast.png')))
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        podcast.image.save(
+            'test_image.png',
+            File(open('podmin/static/img/default_podcast.png')))
 
         self.assertEqual(
             podcast.itunes_image,
@@ -258,12 +261,11 @@ class PodcastTests(TestCase):
     def test_small_image_property(self):
         # this method returns the name of the small (thumbnail) image
         # name should be <image_name>_small.<image_extension>
-        with self.settings(MEDIA_URL='/test_media/',
-                           MEDIA_ROOT='/tmp/podmin_test'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            podcast.image.save(
-                'test_image.png',
-                File(open('podmin/static/img/default_podcast.png')))
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        podcast.image.save(
+            'test_image.png',
+            File(open('podmin/static/img/default_podcast.png')))
 
         self.assertEqual(
             podcast.small_image,
@@ -272,12 +274,11 @@ class PodcastTests(TestCase):
     def test_large_image_property(self):
         # this method returns the name of the large sized image
         # name should be <image_name>_small.<image_extension>
-        with self.settings(MEDIA_URL='/test_media/',
-                           MEDIA_ROOT='/tmp/podmin_test'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            podcast.image.save(
-                'test_image.png',
-                File(open('podmin/static/img/default_podcast.png')))
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        podcast.image.save(
+            'test_image.png',
+            File(open('podmin/static/img/default_podcast.png')))
 
         self.assertEqual(
             podcast.large_image,
@@ -286,12 +287,11 @@ class PodcastTests(TestCase):
     def test_medium_image_property(self):
         # this method returns the name of the medium sized image
         # name should be <image_name>_small.<image_extension>
-        with self.settings(MEDIA_URL='/test_media/',
-                           MEDIA_ROOT='/tmp/podmin_test'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            podcast.image.save(
-                'test_image.png',
-                File(open('podmin/static/img/default_podcast.png')))
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        podcast.image.save(
+            'test_image.png',
+            File(open('podmin/static/img/default_podcast.png')))
 
         self.assertEqual(
             podcast.medium_image,
@@ -300,14 +300,15 @@ class PodcastTests(TestCase):
     def test_feed_url_property(self):
         # this method should return a full URL to the rss feed file
         # this should be composed of the pub_url and feed filename
-        with self.settings(MEDIA_URL='/test_media/'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            self.assertEqual(
-                podcast.feed_url,
-                u'http://example.com/test_media/minimal/rss.xml')
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(
+            podcast.feed_url,
+            u'http://example.com/test_media/minimal/rss.xml')
 
     def test_unicode(self):
         podcast = Podcast.objects.create(**self.minimal_podcast)
+
         self.assertEqual(unicode(podcast), u'A Minimal Podcast')
 
     ###
@@ -333,6 +334,11 @@ class PodcastTests(TestCase):
 
         for field, value in self.field_defaults.iteritems():
             self.assertEqual(getattr(podcast, field), value)
+
+    def test_default_image(self):
+        # if we don't specify an image, make sure the default image is added
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(podcast.image.name, 'minimal/img/default_image.png')
 
     def test_file_urls_relative_media_url(self):
         # pub_url and storage_url can be set to urls outside of this app
@@ -369,23 +375,29 @@ class PodcastTests(TestCase):
     def test_media_dirs(self):
         # If pub_dir and storage_dir are not specified, make sure the storage
         # directories are set to a default path based on settings.MEDIA_ROOT
-        with self.settings(MEDIA_ROOT='/tmp/podcast/'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            self.assertEqual(
-                podcast.pub_dir,
-                '/tmp/podcast/minimal')
-            self.assertEqual(
-                podcast.storage_dir,
-                '/tmp/podcast/minimal')
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(
+            podcast.pub_dir,
+            '/tmp/podmin_test/minimal')
+        self.assertEqual(
+            podcast.storage_dir,
+            '/tmp/podmin_test/minimal')
 
     def test_buffer_dir(self):
         # If buffer_dir is not specified, make sure the buffer directory is
         # set to a default path based on settings.BUFFER_ROOT
-        with self.settings(BUFFER_ROOT='/tmp/podcast_buffer/'):
-            podcast = Podcast.objects.create(**self.minimal_podcast)
-            self.assertEqual(
-                podcast.buffer_dir,
-                '/tmp/podcast_buffer/minimal')
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        self.assertEqual(
+            podcast.buffer_dir,
+            '/tmp/podmin_test/buffer/minimal')
+
+    """
+    #### this test is replaced with simple directory creation tests,
+    #### since mocking gets very messy with how many components in the
+    #### model copy, read, ters/make directories, etc. Maybe later we can mock
+    #### all filesytem operations in a sane way and switch back to this
 
     # mock the os methods for creating and testing directories - we mock
     # that 'isdir' returns false to ensure the code tries to make the dirs
@@ -400,70 +412,145 @@ class PodcastTests(TestCase):
         # <buffer_dir>/img
         mock_isdir.return_value = False
 
-        with self.settings(MEDIA_ROOT='/tmp/pod/', BUFFER_ROOT='/tmp/buffer'):
-            Podcast.objects.create(**self.minimal_podcast)
+        Podcast.objects.create(**self.minimal_podcast)
 
-            calls = [call('/tmp/pod/minimal/img'),
-                     call('/tmp/pod/minimal/audio'),
-                     call('/tmp/buffer/minimal/img'),
-                     call('/tmp/buffer/minimal/audio')]
-            mock_makedirs.assert_has_calls(calls)
+        calls = [call('/tmp/podmin_test/minimal/img'),
+                 call('/tmp/podmin_test/minimal/audio'),
+                 call('/tmp/podmin_test/buffer/minimal/img'),
+                 call('/tmp/podmin_test/buffer/minimal/audio')]
 
-    ###
-    # Test publishing episodes
-    ###
+        mock_makedirs.assert_has_calls(calls)
+    """
 
-    def test_ripe_epsiodes_published(self):
-        pass
+    def test_storage_directory_creation(self):
+        # for all the directories we need, make sure they get created on save
+        # these are:
+        # <storage_dir>/audio
+        # <storage_dir>/img
+        # <buffer_dir>/audio
+        # <buffer_dir>/img
 
-    def test_expired_epsiodes_not_published(self):
-        pass
+        Podcast.objects.create(**self.minimal_podcast)
 
-    def test_inactive_epsiodes_not_published(self):
-        pass
+        self.assertTrue(os.path.isdir('/tmp/podmin_test/minimal/img'))
+        self.assertTrue(os.path.isdir('/tmp/podmin_test/minimal/audio'))
+        self.assertTrue(os.path.isdir('/tmp/podmin_test/buffer/minimal/img'))
+        self.assertTrue(os.path.isdir('/tmp/podmin_test/buffer/minimal/audio'))
 
-    def test_future_epsiodes_not_published(self):
-        pass
-
-    ###
-    # Test feed generation
-    ###
-
-    def test_feed_generation(self):
-        pass
-
-    def test_feed_file_creation(self):
-        pass
-
-    def test_feed_header(self):
-        pass
-
-    def test_feed_episodes(self):
-        pass
-
-    def test_feed_file_contents(self):
-        pass
-
-    def test_published_date_updated(self):
-        pass
-
-    ###
-    # Test publishing from files
-    # NOTE: this method does too much, and should be refactored
-    # meanwhile, test that a given set of files generates the right
-    # episodes, makes a correct feed, and updates the right podcast fields
-    # comprehensive tests should be created in order to refactor
-    ###
-
-    def test_publish_from_files(self):
-        pass
 
     ###
     # Test misc model methods
     ###
 
-    def test_transform_filename(self):
-        pass
+    def test_transform_filename_default_regex(self):
+        # using the default pattern, this method transforms a given filename
+        # the default transformation pattern is {podcast}_{number:0>2}_{date}
+        # since this is the podcast model's transformation method, it is really
+        # only useful for renaming cover art. A podcast object doesn't have a
+        # number, guid, track number, episode slug, or part, so the method
+        # transforms those as "" except for 'number' which is replaced by the
+        # string "cover"
+
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+
+        # we have to set the rename_files field first
+        podcast.rename_files = True
+        podcast.save()
+
+        test_filename = 'testo.jpg'
+        date_now = time.strftime("%Y%m%d")
+
+        # remember 'number' -> 'cover'
+        expected_filename = "minimal_cover_{0}.jpg".format(date_now)
+
+        new_filename = podcast.transform_filename(test_filename)
+        self.assertEqual(expected_filename, new_filename)
+
+    def test_transform_filename_bad_pattern(self):
+        # what happens if we have put something that isn't a real pattern in
+        # the file_rename_format field? The method should log the error and
+        # return the original filename unchanged
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+
+        # we have to set the rename_files field first
+        podcast.rename_files = True
+        podcast.file_rename_format = "StringWithNoPlaceholders"
+        podcast.save()
+
+        test_filename = 'testo.jpg'
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(test_filename, new_filename)
+
+    def test_transform_filename_good_pattern(self):
+        # available filename substitution parameters for podcasts are
+        # podcast, tags, org, author and date. if the podcast does not have
+        # tags, org, or author, those default to empty strings. Further
+        # 'number' transforms to "cover" and episode, track_number, guid, and
+        # part are replaced with empty strings
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+        test_filename = 'testo.jpg'
+        date_now = time.strftime("%Y%m%d")
+
+        # we have to set the rename_files field first
+        podcast.rename_files = True
+
+        # lets check that all the always-empty strings work
+        pattern = "episode{episode}_track{track_number}_guid{guid}_part{part}"
+        podcast.file_rename_format = pattern
+        podcast.save()
+
+        expected_filename = "episode_track_guid_part.jpg"
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(expected_filename, new_filename)
+
+        # now lets check the unset fields default to blank strings
+        pattern = "tags{tags}_org{org}_author{author}"
+        podcast.file_rename_format = pattern
+        podcast.save()
+
+        expected_filename = "tags_org_author.jpg"
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(expected_filename, new_filename)
+
+        # lets make sure number->'cover' and date is always the current date
+        pattern = "{number}_{date}"
+        podcast.file_rename_format = pattern
+        podcast.save()
+
+        expected_filename = "cover_{0}.jpg".format(date_now)
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(expected_filename, new_filename)
+
+        # now lets set some tags, an author, and and org, and make sure those
+        # work, along with the podcast slug.
+        # NOTE: non-word chars in fields should -> _
+        pattern = "{podcast}_{tags}_{org}_{author}"
+        podcast.file_rename_format = pattern
+        podcast.tags = 'tag1,tag2,tag3'
+        podcast.organization = 'WKRP'
+        podcast.author = 'Pam Testo'
+        podcast.save()
+
+        expected_filename = "minimal_tag1_tag2_tag3_WKRP_Pam_Testo.jpg"
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(expected_filename, new_filename)
+
+    def test_do_not_transform_filename(self):
+        podcast = Podcast.objects.create(**self.minimal_podcast)
+
+        # rename_files should be false here, but let's make sure
+        podcast.rename_files = False
+        podcast.save()
+
+        test_filename = 'testo.jpg'
+        new_filename = podcast.transform_filename(test_filename)
+
+        self.assertEqual(test_filename, new_filename)
 
     ###
     # Test Mothballing

@@ -5,7 +5,7 @@ import shutil
 import os
 
 # django stuff
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.db import models
 from django_markdown.models import MarkdownField
 from django.apps import apps
@@ -19,7 +19,10 @@ from podmin.models import Podcast, Episode
 # Test the Episode model
 ###
 
-
+@override_settings(MEDIA_URL='/test_media/',
+                   MEDIA_ROOT='/tmp/podmin_test',
+                   STATIC_ROOT='/tmp/podmin_test/static',
+                   BUFFER_ROOT='/tmp/podmin_test/buffer')
 class EpisodeTests(TestCase):
 
     def setUp(self):
@@ -147,7 +150,7 @@ class EpisodeTests(TestCase):
             (field.name,) for field in Episode._meta.get_fields()
             if not (field.many_to_one and field.related_model is Podcast)
         )))
-        
+
         self.assertEqual(sorted(fields), sorted(self.expected_fields.keys()))
 
     def test_blank_fields(self):

@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse, resolve
 from django.core.files.storage import FileSystemStorage
 from django.core import serializers
 from django.http import HttpRequest
+from django.core.files import File
 
 # django contrib stuff
 from autoslug import AutoSlugField
@@ -31,15 +32,12 @@ import glob
 import time
 import logging
 import re
+import string
 from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 
 buffer_storage = FileSystemStorage(location=settings.BUFFER_ROOT)
-
-
-def get_default_image():
-    return os.path.join(settings.STATIC_ROOT, 'img', 'default_podcast.png')
 
 
 def get_image_upload_path(instance, filename):
@@ -146,7 +144,7 @@ class Podcast(models.Model):
     contact = models.EmailField(max_length=255, blank=True, null=True)
     image = models.ImageField('cover art',
                               upload_to=get_image_upload_path,
-                              default='./static/img/default_podcast.png')
+                              blank=True)
     copyright = models.CharField(max_length=255, blank=True, null=True)
     license = models.CharField('license',
                                max_length=255, blank=True, null=True,
@@ -313,6 +311,15 @@ class Podcast(models.Model):
             except OSError as err:
                 logger.error(error_msg.format(self.slug, err))
                 pass
+
+        # finally, make sure the podcast has a cover image
+        if not self.image.name:
+            image_path = os.path.join(settings.SITE_ROOT, 'podmin/static/img',
+                                      'default_podcast.png')
+
+            with open(image_path) as f:
+                        image = File(f)
+                        self.image.save("default_image.png", image, save=False)
 
         super(Podcast, self).save(*args, **kwargs)
 
@@ -508,6 +515,16 @@ class Podcast(models.Model):
         if not self.rename_files:
             return filename
 
+        # do we have a valid filename format string?
+        fields = [
+            tup[1]
+            for tup in string.Formatter().parse(self.file_rename_format)
+            if tup[1] is not None]
+
+        if len(fields) == 0:
+            # there are no feilds in the string to replace. Do not transform.
+            return filename
+
         old, ext = os.path.splitext(filename)
 
         pattern = re.compile(r"\W", re.X)
@@ -520,7 +537,7 @@ class Podcast(models.Model):
                       'part': "",
                       'tags': pattern.sub("_",  self.tags or ""),
                       'org': pattern.sub("_", self.organization or ""),
-                      'author': pattern.sub("_", self.organization or ""),
+                      'author': pattern.sub("_", self.author or ""),
                       'date': time.strftime("%Y%m%d")
                       }
 
@@ -641,7 +658,7 @@ class Episode(models.Model):
     length = models.CharField(
         'length in h,m,s format', max_length=32, blank=True, null=True)
     mime_type = models.CharField('audio mime type',
-                                 default="application/octet-stream",
+                                 default='application/octet-stream',
                                  max_length=32)
     active = models.BooleanField('active', default=1)
     tags = models.CharField(

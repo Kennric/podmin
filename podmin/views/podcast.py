@@ -127,12 +127,13 @@ def new_podcast(request):
                 request.FILES['image'].content_type is True
             except Exception:
                 # no image, use the default
+                """
                 default_image = os.path.join(settings.STATIC_ROOT,
                                              "img/default_podcast.png")
                 with open(default_image) as f:
                     image = File(f)
                     podcast.image.save("default_podcast.png", image, save=True)
-
+                """
             podcast.save()
             messages.success(request, 'Successfully created {0}.'.format(
                 podcast.title))
@@ -168,7 +169,7 @@ def delete_podcast(request, slug):
             podcast.delete()
             messages.success(request, 'Successfully deleted {0}.'.format(
                 podcast.title))
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('home'))
 
     return render(request, 'podmin/podcast/podcast_delete.html',
                   {'podcast': podcast})
